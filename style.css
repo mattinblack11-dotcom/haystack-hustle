@@ -395,3 +395,8 @@ body.bagfull #fullfx { animation: fullfx 1s infinite alternate; }
 @keyframes balehop { 0%, 100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-12px) rotate(4deg); } }
 #load-tip { margin-top: 10px; color: #6a3c14; font-size: 14px; min-height: 18px; max-width: 80vw; }
 .chip #cash, .chip #gems { font-variant-numeric: tabular-nums; }
+#moneyrow { display: flex; align-items: stretch; justify-content: center; gap: 10px; width: 100%; max-width: 640px; }
+#moneyrow .chip.cash { flex: none; min-width: 0; align-self: center; }
+#moneyrow #bigbag { flex: 1 1 auto; min-width: 0; max-width: 440px; }
+#bottomstack { width: min(680px, calc(100vw - 520px)); }
+#stats .bag { display: none; }
