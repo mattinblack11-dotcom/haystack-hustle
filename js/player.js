@@ -3,11 +3,16 @@ HH.Player = (function () {
   const pos = new THREE.Vector3(), vel = new THREE.Vector3();
   let onGround = false, yaw = 0, pitch = -0.15;
   let vm = null, arms = null, vmTools = {}, vmNeedle = null, fistStraw = null, fallback = null;
-  let bobT = 0, swingT = 0, swingKind = "", swingSide = 1, curTool = "hand", sprinting = false, vacOn = false, carrying = false, lifeT = 0;
+  let climbing = false, climbT = 0, bobT = 0, swingT = 0, swingKind = "", swingSide = 1, curTool = "hand", sprinting = false, vacOn = false, carrying = false, lifeT = 0;
   const V = HH.Voxels;
   const cur = { R: null, L: null };
 
   function hits(x, y, z) { return V.boxHits(x - HW, y, z - HW, x + HW, y + HT, z + HW); }
+
+  function nearWall() {
+    const o = 0.14, y = pos.y + 0.4;
+    return !!(hits(pos.x + o, y, pos.z) || hits(pos.x - o, y, pos.z) || hits(pos.x, y, pos.z + o) || hits(pos.x, y, pos.z - o));
+  }
 
   function v3(x, y, z) { return new THREE.Vector3(x, y, z); }
   function nrm(x, y, z) { return new THREE.Vector3(x, y, z).normalize(); }
@@ -265,6 +270,8 @@ HH.Player = (function () {
 
     if (!frozen && onGround && I.consume("Space")) { vel.y = BASE_JUMP * mods.jump; onGround = false; HH.Audio.play("jump"); }
     const hovering = !frozen && mods.hover && !onGround && vel.y < 0 && I.down("Space");
+    climbing = !frozen && I.down("Space") && nearWall();
+    if (climbing) { vel.y = Math.max(vel.y, 4.6); climbT += dt; if (climbT > 0.28) { climbT = 0; HH.Audio.play("click"); } }
 
     let rem = dt;
     while (rem > 0) {

@@ -383,6 +383,7 @@ HH.App = (function () {
     if (code === "KeyG") { openPanel("gems"); return true; }
     if (code === "KeyC") { openPanel("style"); return true; }
     if (code === "KeyV" && !UI.panel) { watchAd(adOffer()); return true; }
+    if (code === "KeyR" && !UI.panel && G.run) { HH.Player.spawn(HH.World.spots.spawn.clone()); HH.Audio.play("boost"); UI.flash(); return true; }
     if (code === "KeyU") { if (G.run) { const n = G.buyMax(); if (UI.panel) UI.render(); UI.toast(n ? "<b>Bought " + n + " upgrade" + (n > 1 ? "s" : "") + "!</b>" : "Can't afford anything yet.", 1500); } return true; }
     if (code === "KeyB" && !UI.panel) { openPanel("boosts"); return true; }
     if (code === "KeyM") { changeTrack(1); if (UI.panel === "pause") UI.render(); return true; }
@@ -408,11 +409,21 @@ HH.App = (function () {
     if (S0.needles > 0 || S0.tutorial >= 3) setTimeout(function () { UI.toast("Daily reward: <b>+" + g + " gems</b> (day " + S0.streak + " streak)", 3500); }, 1500);
   }
 
+  let pitT = 0, pitTold = false;
+  function pitCheck(dt) {
+    if (pitTold || !G.run || UI.panel) return;
+    const p = HH.Player.pos, V = HH.Voxels, d = 1.5;
+    const around = Math.min(V.topAt(p.x + d, p.z), V.topAt(p.x - d, p.z), V.topAt(p.x, p.z + d), V.topAt(p.x, p.z - d));
+    if (around - p.y > 2.2) pitT += dt; else pitT = 0;
+    if (pitT > 4) { pitTold = true; UI.toast("Deep hole! <b>Hold Space</b> against the hay to climb out, or press <kbd>R</kbd> to go back to the start.", 4500); }
+  }
+
   function loop(t) {
     const dt = Math.min(0.05, Math.max(0, (t - last) / 1000));
     last = t;
     HH.Net.tick(dt);
     adHud(dt);
+    pitCheck(dt);
     if (UI.tickWin(dt)) goNext();
     if (paused && !UI.panel && G.run && G.run.done && !HH.Net.active && performance.now() - winAt > 2500) goNext();
     const frozen = !!UI.panel;

@@ -419,11 +419,59 @@ HH.World = (function () {
     const h = Math.max(0.01, bb.max.y - bb.min.y);
     const holder = new THREE.Group();
     m.scale.setScalar(height / h);
-    m.position.y = -bb.min.y * height / h;
+    m.position.set(-(bb.min.x + bb.max.x) / 2 * height / h, -bb.min.y * height / h, -(bb.min.z + bb.max.z) / 2 * height / h);
     holder.add(m);
     holder.position.set(x, 0, z);
     holder.rotation.y = (faceCenter ? Math.atan2(-x, -z) : 0) + (extraRot || 0);
     return holder;
+  }
+
+  let villagers = [], villagerGen = 0, villagerR = 0;
+  const VILLAGER_LOOKS = [
+    { char: "female-b", hat: "straw" }, { char: "male-a", hat: "cap" }, { char: "female-c", hat: "none" }, { char: "male-b", hat: "cowboy" },
+    { char: "female-d", hat: "none" }, { char: "male-c", hat: "none" }, { char: "female-f", hat: "straw" }, { char: "male-f", hat: "chef" },
+    { char: "female-a", hat: "party" }, { char: "male-d", hat: "tophat" }
+  ];
+  function clearVillagers() {
+    villagerGen++;
+    villagers.forEach(function (v) { scene.remove(v.ch.root); const q = chars.indexOf(v.ch); if (q >= 0) chars.splice(q, 1); });
+    villagers = [];
+  }
+  function spawnVillagers(fr) {
+    clearVillagers();
+    villagerR = fr;
+    if (!HH.Looks || !HH.EXTRA_MODELS || !HH.EXTRA_MODELS["character-female-b"]) { HH.charsReady = function () { spawnVillagers(villagerR); }; return; }
+    const gen = villagerGen;
+    VILLAGER_LOOKS.forEach(function (look, i) {
+      HH.Looks.build(look, 1.65).then(function (ch) {
+        if (gen !== villagerGen) { const q = chars.indexOf(ch); if (q >= 0) chars.splice(q, 1); return; }
+        const v = { ch: ch, a: (i / VILLAGER_LOOKS.length) * Math.PI * 2 + Math.random() * 0.4, r: fr + 2.6 + (i % 3) * 1.1, dir: i % 2 ? 1 : -1, t: Math.random() * 4, walking: Math.random() < 0.6, cheer: 0 };
+        ch.root.traverse(function (o) { if (o.isMesh) o.castShadow = false; });
+        scene.add(ch.root);
+        villagers.push(v);
+        placeVillager(v);
+      }).catch(function () {});
+    });
+  }
+  function placeVillager(v) {
+    v.ch.root.position.set(Math.cos(v.a) * v.r, 0, Math.sin(v.a) * v.r);
+    const tx = -Math.sin(v.a) * v.dir, tz = Math.cos(v.a) * v.dir;
+    v.ch.root.rotation.y = v.walking ? Math.atan2(tx, tz) : Math.atan2(-Math.cos(v.a), -Math.sin(v.a));
+  }
+  function updateVillagers(dt) {
+    villagers.forEach(function (v) {
+      v.t -= dt;
+      if (v.t <= 0) {
+        v.walking = !v.walking;
+        v.t = v.walking ? 4 + Math.random() * 6 : 2 + Math.random() * 4;
+        if (v.walking && Math.random() < 0.4) v.dir = -v.dir;
+        v.anim = Math.random() < 0.3 ? "emote-yes" : "idle";
+      }
+      if (v.walking) v.a += v.dir * 1.25 / v.r * dt;
+      v.ch.play(v.walking ? "walk" : (v.anim || "idle"), 0.3);
+      placeVillager(v);
+      if (v.ch.spin) v.ch.spin.rotation.y += dt * 10;
+    });
   }
 
   function village(fr, r) {
@@ -456,6 +504,32 @@ HH.World = (function () {
       const a = -0.35 + q * 0.11 + (r() - 0.5) * 0.04, d = fr + 9 + (q % 3) * 5.2;
       const g = building("building_grain", 1.4, Math.cos(a) * d, Math.sin(a) * d, false, r() * 6);
       if (g) { g.scale.x = g.scale.z = 2.2; envGroup.add(g); }
+    }
+    const outer = [
+      ["building_home_B_red", 8, 0.25, 34], ["building_home_A_red", 7, -0.9, 33], ["building_tavern_red", 9, 1.85, 35],
+      ["building_home_A_red", 7, 2.95, 33], ["building_blacksmith_red", 7.5, -2.6, 34], ["building_home_B_red", 8, 4.2, 34],
+      ["building_market_red", 6, -1.9, 31], ["building_home_A_red", 7, 5.1, 32], ["building_lumbermill_red", 8, -0.35, 37]
+    ];
+    outer.forEach(function (p) {
+      const d = fr + p[3], x = Math.cos(p[2]) * d, z = Math.sin(p[2]) * d;
+      if (villageSpots.some(function (s) { return Math.hypot(s[0] - x, s[1] - z) < s[2] + p[1] * 0.6; })) return;
+      const b = building(p[0], p[1], x, z, true, (r() - 0.5) * 0.6);
+      if (!b) return;
+      villageSpots.push([x, z, p[1] * 0.75 + 3]);
+      envGroup.add(b);
+    });
+    const sa = 3.25, sd = fr + 13;
+    const stage = building("building_stage_A", 3.2, Math.cos(sa) * sd, Math.sin(sa) * sd, true);
+    if (stage) { stage.scale.x = stage.scale.z = stage.scale.y * 1.6; envGroup.add(stage); villageSpots.push([Math.cos(sa) * sd, Math.sin(sa) * sd, 7]); }
+    for (let q = 0; q < 16; q++) {
+      const a = -0.42 + q * 0.064, d = fr + 23.5;
+      const f = building("fence_wood_straight", 1.3, Math.cos(a) * d, Math.sin(a) * d, true, Math.PI / 2);
+      if (f) { f.scale.z *= 1.9; envGroup.add(f); }
+    }
+    for (let q = 0; q < 7; q++) {
+      const a = -0.42 + q * (0.96 / 6), d = fr + 6;
+      const f = building("fence_wood_straight", 1.3, Math.cos(a) * d, Math.sin(a) * d, true, Math.PI / 2);
+      if (f) { f.scale.z *= 1.9; envGroup.add(f); }
     }
     return true;
   }
@@ -618,6 +692,7 @@ HH.World = (function () {
       if (!dyn && o !== envGroup) o.matrixAutoUpdate = false;
     });
     scene.add(envGroup);
+    spawnVillagers(fenceR);
 
     pickups.forEach(function (p) { scene.remove(p.mesh); });
     pickups.length = 0;
@@ -718,11 +793,19 @@ HH.World = (function () {
 
   function makeNeedle(big) {
     const g = new THREE.Group();
-    const m = new THREE.MeshPhongMaterial({ color: 0xe8f0ff, shininess: 150, emissive: 0x3a4a66, specular: 0xffffff });
-    const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.2, 10), m); g.add(shaft);
-    const tip = new THREE.Mesh(new THREE.ConeGeometry(0.04, 0.24, 10), m); tip.position.y = -0.72; tip.rotation.x = Math.PI; g.add(tip);
-    const eye = new THREE.Mesh(new THREE.TorusGeometry(0.07, 0.022, 6, 14), m); eye.position.y = 0.66; g.add(eye);
-    const thread = new THREE.Mesh(new THREE.TorusGeometry(0.25, 0.02, 4, 20, Math.PI * 1.4), mat(0xff3b6b)); thread.position.set(0.15, 0.6, 0); g.add(thread);
+    const m = new THREE.MeshPhongMaterial({ color: 0xb9c3d1, shininess: 200, emissive: 0x1c2534, specular: 0xffffff });
+    const prof = [[0, -0.95], [0.004, -0.9], [0.012, -0.78], [0.022, -0.6], [0.03, -0.38], [0.034, -0.1], [0.035, 0.45], [0.032, 0.52], [0.024, 0.56], [0, 0.565]].map(function (p) { return new THREE.Vector2(p[0], p[1]); });
+    const body = new THREE.Mesh(new THREE.LatheGeometry(prof, 14), m); g.add(body);
+    const eye = new THREE.Mesh(new THREE.TorusGeometry(0.05, 0.016, 8, 20), m);
+    eye.scale.set(0.62, 1.9, 0.9); eye.position.y = 0.64; g.add(eye);
+    const hole = new THREE.Mesh(new THREE.PlaneGeometry(0.03, 0.15), new THREE.MeshBasicMaterial({ color: 0x1a1d24, side: THREE.DoubleSide }));
+    hole.position.y = 0.64; g.add(hole);
+    const shine = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.006, 0.9, 4), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+    shine.position.set(0.026, 0.05, 0.016); g.add(shine);
+    const curve = new THREE.CatmullRomCurve3([[0, 0.64, -0.06], [0, 0.64, 0.06], [0.12, 0.5, 0.1], [0.24, 0.22, 0.02], [0.2, -0.08, -0.08], [0.3, -0.36, 0.02], [0.24, -0.6, 0.1]].map(function (p) { return new THREE.Vector3(p[0], p[1], p[2]); }));
+    const thread = new THREE.Mesh(new THREE.TubeGeometry(curve, 40, 0.012, 6, false), mat(0xff3b6b)); g.add(thread);
+    const tail = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([new THREE.Vector3(0, 0.64, -0.06), new THREE.Vector3(-0.08, 0.55, -0.1), new THREE.Vector3(-0.12, 0.42, -0.04)]), 12, 0.012, 6, false), mat(0xff3b6b)); g.add(tail);
+    g.scale.setScalar(1.15);
     if (big) {
       const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex("rgba(255,255,255,1)", "rgba(180,220,255,0.5)"), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
       glow.scale.set(2.6, 2.6, 1); g.add(glow);
@@ -762,11 +845,55 @@ HH.World = (function () {
     beam.userData.ring.scale.set(s, s, s);
   }
 
+  let strawTex = null;
+  function baleTex() {
+    if (strawTex) return strawTex;
+    const c = document.createElement("canvas");
+    c.width = c.height = 64;
+    const x = c.getContext("2d");
+    x.fillStyle = "#e8c050"; x.fillRect(0, 0, 64, 64);
+    for (let q = 0; q < 140; q++) {
+      x.strokeStyle = ["#fff0a8", "#c99a2e", "#f7d774", "#b8862a"][q % 4];
+      x.lineWidth = 1 + (q % 3) * 0.5;
+      const y = Math.random() * 64, sx = Math.random() * 64;
+      x.beginPath(); x.moveTo(sx, y); x.lineTo(sx + 10 + Math.random() * 18, y + (Math.random() - 0.5) * 5); x.stroke();
+    }
+    strawTex = new THREE.CanvasTexture(c);
+    return strawTex;
+  }
+  function makeBale(gold) {
+    const g = new THREE.Group();
+    const m = new THREE.MeshLambertMaterial({ map: baleTex(), color: gold ? 0xffd84a : 0xff9ae6, emissive: gold ? 0x6a4800 : 0x4a1a46 });
+    const body = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.38, 0.4), m);
+    body.castShadow = true;
+    g.add(body);
+    const tw = new THREE.MeshLambertMaterial({ color: gold ? 0x8a3a12 : 0x5a2a8a });
+    [-0.17, 0.17].forEach(function (x) {
+      const band = new THREE.Mesh(new THREE.BoxGeometry(0.035, 0.395, 0.405), tw);
+      band.position.x = x;
+      g.add(band);
+    });
+    for (let q = 0; q < 6; q++) {
+      const s = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.012, 0.12), m);
+      s.position.set((Math.random() - 0.5) * 0.55, 0.2, (Math.random() - 0.5) * 0.3);
+      s.rotation.set(Math.random() - 0.5, Math.random() * 3, 0);
+      g.add(s);
+    }
+    if (gold) {
+      const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex("rgba(255,240,160,0.9)", "rgba(255,200,60,0.3)"), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+      glow.scale.set(1.3, 1.3, 1);
+      g.add(glow);
+    }
+    g.scale.setScalar(gold ? 1 : 0.85);
+    g.userData.mat = m;
+    return g;
+  }
+
   function addPickup(kind, pos) {
     let mesh;
     if (kind === "needle") mesh = makeNeedle(true);
-    else if (kind === "gold") { mesh = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 0.4), new THREE.MeshLambertMaterial({ color: 0xffd23f, emissive: 0x664400 })); }
-    else { mesh = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.35, 0.35), new THREE.MeshLambertMaterial({ color: 0xff66cc, emissive: 0x442244 })); }
+    else if (kind === "gold") mesh = makeBale(true);
+    else mesh = makeBale(false);
     mesh.position.copy(pos);
     scene.add(mesh);
     const p = { kind: kind, mesh: mesh, vel: new THREE.Vector3((Math.random() - 0.5) * 3, 4 + Math.random() * 2, (Math.random() - 0.5) * 3), t: Math.random() * 5, rest: false };
@@ -790,7 +917,7 @@ HH.World = (function () {
         p.mesh.position.y += (target - p.mesh.position.y) * Math.min(1, dt * 6);
       }
       p.mesh.rotation.y += dt * 2;
-      if (p.kind === "rainbow") p.mesh.material.color.setHSL((p.t * 0.5) % 1, 0.9, 0.6);
+      if (p.kind === "rainbow" && p.mesh.userData.mat) p.mesh.userData.mat.color.setHSL((p.t * 0.5) % 1, 0.9, 0.7);
       if (p.mesh.userData.beam) p.mesh.userData.beam.material.opacity = 0.2 + Math.sin(p.t * 4) * 0.08;
     }
   }
@@ -860,6 +987,7 @@ HH.World = (function () {
     time += dt;
     chars.forEach(function (c) { c.mixer.update(dt); });
     if (windmill) windmill.userData.hub.rotation.z += dt * 0.8;
+    updateVillagers(dt);
     clouds.forEach(function (c, q) { c.position.x += dt * (0.6 + (q % 3) * 0.2); if (c.position.x > 220) c.position.x = -220; });
     balloons.forEach(function (b) {
       const u = b.userData;

@@ -30,7 +30,7 @@ HH.TOOLS = [
   { id: "hole", name: "Black Hole", key: "6", unlock: 1500, icon: "&#127761;", rb: 4 }
 ];
 
-HH.BAG_TIERS = [ { cap: 50, cost: 0 }, { cap: 100, cost: 4 }, { cap: 180, cost: 10 }, { cap: 300, cost: 22 }, { cap: 480, cost: 45 }, { cap: 750, cost: 85 }, { cap: 1150, cost: 150 }, { cap: 1700, cost: 260 }, { cap: 2500, cost: 430 }, { cap: 3600, cost: 700 }, { cap: 5000, cost: 1100 }, { cap: 7000, cost: 1700 } ];
+HH.BAG_TIERS = [ { cap: 80, cost: 0 }, { cap: 160, cost: 4 }, { cap: 280, cost: 10 }, { cap: 460, cost: 22 }, { cap: 720, cost: 45 }, { cap: 1100, cost: 85 }, { cap: 1700, cost: 150 }, { cap: 2600, cost: 260 }, { cap: 3800, cost: 430 }, { cap: 5500, cost: 700 }, { cap: 8000, cost: 1100 }, { cap: 11500, cost: 1700 } ];
 
 HH.UPGRADES = [
   { id: "hold", group: "Hands", name: "Auto-Grab", desc: "Hold the mouse to keep grabbing", base: 1, grow: 1, max: 1 },
@@ -92,7 +92,7 @@ HH.UPGRADES = [
 
 HH.REBIRTH_ITEMS = [
   { id: "kitgrab", name: "Starter Kit: Auto-Grab", desc: "Every haystack starts with Auto-Grab already bought.", cost: 1, icon: "&#9995;" },
-  { id: "kitbag", name: "Starter Backpack", desc: "Every haystack starts with Bag 3 (180 hay).", cost: 2, icon: "&#127890;" },
+  { id: "kitbag", name: "Starter Backpack", desc: "Every haystack starts with Bag 3 (280 hay).", cost: 2, icon: "&#127890;" },
   { id: "kitfork", name: "Starter Pitchfork", desc: "Every haystack starts with the Pitchfork.", cost: 2, icon: "&#128305;" },
   { id: "goldgloves", name: "Golden Gloves", desc: "Hand grabs take twice as much hay, forever.", cost: 3, icon: "&#129508;" },
   { id: "autosell", name: "Bjorn's Contract", desc: "Your bag auto-sells when full, with NO fee.", cost: 3, icon: "&#128221;" },
@@ -134,7 +134,7 @@ HH.stackScale = function (needles, rebirths, mapId) {
 
 HH.PERKS = [
   { id: "hayValue", name: "Hay Value", desc: "+10% cash per hay", base: 20, grow: 1.45, max: 25 },
-  { id: "bagSize", name: "Bag Size", desc: "+25 bag space", base: 25, grow: 1.45, max: 25 },
+  { id: "bagSize", name: "Bag Size", desc: "+40 bag space", base: 25, grow: 1.45, max: 25 },
   { id: "grab", name: "Grab Amount", desc: "+1 hay per hand grab", base: 50, grow: 1.6, max: 10 },
   { id: "startCash", name: "Head Start", desc: "Start each run with +$500", base: 40, grow: 1.6, max: 10 },
   { id: "lucky", name: "Rainbow Luck", desc: "+15% rainbow hay in every stack", base: 60, grow: 1.6, max: 10 },

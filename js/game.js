@@ -53,7 +53,7 @@ HH.Game = (function () {
     return {
       basePrice: m.hayValue * (1 + 0.1 * P.hayValue) * (has("haggler") ? 1.2 : 1) * (1 + 0.05 * lvl("tip")) * (lvl("goose") ? 1.15 : 1) * (1 + 0.25 * rbs) * (1 + 0.25 * lvl("harvest")) * (1 + 0.05 * Math.min(R.levelIndex || 0, 30)),
       mul: comboMul * (R.storm > 0 ? 2 : 1),
-      cap: Math.floor((HH.BAG_TIERS[R.tier].cap + 25 * P.bagSize) * (has("baggoblin") ? 1.5 : 1) * (1 + 0.25 * lvl("compress")) * (boostOn("bagboost") ? 1.5 : 1)),
+      cap: Math.floor((HH.BAG_TIERS[R.tier].cap + 40 * P.bagSize) * (has("baggoblin") ? 1.5 : 1) * (1 + 0.25 * lvl("compress")) * (boostOn("bagboost") ? 1.5 : 1)),
       grab: (3 + lvl("grasp") + P.grab) * (rb("goldgloves") ? 2 : 1),
       drill: 0.04 * lvl("drill"),
       autosell: rb("autosell") ? 1 : lvl("autosell") ? 0.9 : 0,
