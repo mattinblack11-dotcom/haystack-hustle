@@ -453,8 +453,11 @@ HH.App = (function () {
     requestAnimationFrame(loop);
   }
 
+  function breathe() { return new Promise(function (r) { requestAnimationFrame(function () { setTimeout(r, 16); }); }); }
+
   async function boot() {
     UI.loading(0.05, "Loading the barn...");
+    await breathe();
     HH.World.init(document.getElementById("game"));
     await HH.Platform.init();
     HH.Platform.loadingStart();
@@ -478,14 +481,19 @@ HH.App = (function () {
     G.onEvent(onEvent);
     G.mpInit();
     UI.loading(0.2, "Waking up the characters...");
+    await breathe();
     await new Promise(function (r) { if (HH.MODEL_DATA) r(); else HH.modelsReady = r; });
     UI.loading(0.45, "Teaching Bjorn to count coins...");
+    await breathe();
     try { await HH.World.loadNPCs(); } catch (e) { console.warn(e); }
     UI.loading(0.6, "Building the village...");
+    await breathe();
     try { await HH.World.loadBuildings(); } catch (e) { console.warn(e); }
     UI.loading(0.7, "Washing the hands...");
+    await breathe();
     try { await HH.Player.build(HH.World.scene); } catch (e) { console.warn(e); }
     UI.loading(0.85, "Stacking a LOT of hay...");
+    await breathe();
     await new Promise(function (r) { setTimeout(r, 30); });
     if (!G.restore()) G.newRun();
     dailyReward();

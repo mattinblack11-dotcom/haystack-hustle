@@ -7,9 +7,9 @@ HH.Voxels = (function () {
   let tuftsOn = true;
   let NX = 0, NY = 0, NZ = 0, OX = 0, OZ = 0;
   let grid = null, instIndex = null, tuftIndex = null, instType = null, filled = 0, total = 0, needleC = -1;
-  let core = null, tuft = null, coreMat = null, tuftMat = null, coreGeo = null, tuftGeo = null;
-  const pool = { core: { free: [], high: 0, cap: 0 }, tuft: { free: [], high: 0, cap: 0 } };
-  const dirty = { cm: [Infinity, -1], cc: [Infinity, -1], tm: [Infinity, -1], tc: [Infinity, -1] };
+  let coreMat = null, tuftMat = null, coreGeo = null, tuftGeo = null;
+  const CH = 20;
+  let chunks = [], CX = 0, CZ = 0, sceneRef = null, tuftCap = 12000, tuftUsed = 0;
   const rainbow = new Set();
   let rainbowT = 0;
   const tmpM = new THREE.Matrix4(), tmpC = new THREE.Color(), tmpQ = new THREE.Quaternion(), tmpE = new THREE.Euler(), tmpS = new THREE.Vector3(), tmpP = new THREE.Vector3();
@@ -128,49 +128,108 @@ HH.Voxels = (function () {
     return tmpM.compose(tmpP, tmpQ, tmpS);
   }
 
-  function alloc(p) {
+  function chunkAt(i, k) { return chunks[Math.floor(i / CH) + Math.floor(k / CH) * CX]; }
+  function chunkOf(c) { return chunkAt(c % NX, Math.floor(c / NX) % NZ); }
+
+  function setupMesh(m, cap) {
+    m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    m.setColorAt(0, tmpC.setHex(0xffffff));
+    m.instanceColor.setUsage(THREE.DynamicDrawUsage);
+    m.castShadow = false;
+    m.receiveShadow = true;
+    m.frustumCulled = true;
+    return m;
+  }
+
+  function meshFor(ch, kind) {
+    if (ch[kind]) return ch[kind];
+    const geo = (kind === "core" ? coreGeo : tuftGeo).clone();
+    geo.boundingSphere = ch.sphere.clone();
+    const m = setupMesh(new THREE.InstancedMesh(geo, kind === "core" ? coreMat : tuftMat, kind === "core" ? 768 : 96), 0);
+    m.count = 0;
+    m.visible = false;
+    ch[kind] = m;
+    sceneRef.add(m);
+    return m;
+  }
+
+  function grow(ch, kind) {
+    const old = ch[kind], cap = old.instanceMatrix.count;
+    const m = setupMesh(new THREE.InstancedMesh(old.geometry, old.material, cap * 2), 0);
+    m.instanceMatrix.array.set(old.instanceMatrix.array);
+    m.instanceColor.array.set(old.instanceColor.array);
+    m.count = old.count;
+    m.visible = old.visible;
+    sceneRef.remove(old);
+    old.dispose();
+    sceneRef.add(m);
+    ch[kind] = m;
+    const d = ch.d;
+    if (kind === "core") { d.cm[0] = d.cc[0] = Infinity; d.cm[1] = d.cc[1] = -1; } else { d.tm[0] = d.tc[0] = Infinity; d.tm[1] = d.tc[1] = -1; }
+    return m;
+  }
+
+  function alloc(ch, kind) {
+    const p = ch.p[kind];
     if (p.free.length) return p.free.pop();
-    if (p.high >= p.cap) return -1;
+    const m = meshFor(ch, kind);
+    if (p.high >= m.instanceMatrix.count) grow(ch, kind);
     return p.high++;
   }
 
   function addCore(c, i, j, k) {
-    const n = alloc(pool.core);
-    if (n < 0) return;
+    const ch = chunkAt(i, k);
+    const n = alloc(ch, "core");
+    const m = ch.core;
     instIndex[c] = n;
     instType[c] = grid[c];
     const f = falls.get(c);
-    core.setMatrixAt(n, cellMatrix(c, i, j, k, false, f ? f.off : 0));
-    core.setColorAt(n, colorFor(c, grid[c]));
+    m.setMatrixAt(n, cellMatrix(c, i, j, k, false, f ? f.off : 0));
+    m.setColorAt(n, colorFor(c, grid[c]));
     if (grid[c] === RAINBOW) rainbow.add(c);
-    mark(dirty.cm, n); mark(dirty.cc, n);
+    mark(ch.d.cm, n); mark(ch.d.cc, n);
+    ch.touched = true;
   }
 
   function dropCore(c) {
-    const n = instIndex[c];
-    core.setMatrixAt(n, ZERO);
+    const ch = chunkOf(c), n = instIndex[c];
+    ch.core.setMatrixAt(n, ZERO);
     instIndex[c] = -1;
     rainbow.delete(c);
-    pool.core.free.push(n);
-    mark(dirty.cm, n);
+    ch.p.core.free.push(n);
+    mark(ch.d.cm, n);
   }
 
   function addTuft(c, i, j, k) {
-    const n = alloc(pool.tuft);
-    if (n < 0) return;
+    if (tuftUsed >= tuftCap) return;
+    const ch = chunkAt(i, k);
+    const n = alloc(ch, "tuft");
+    const m = ch.tuft;
     tuftIndex[c] = n;
+    tuftUsed++;
     const f = falls.get(c);
-    tuft.setMatrixAt(n, cellMatrix(c, i, j, k, true, f ? f.off : 0));
-    tuft.setColorAt(n, colorFor(c, grid[c] === RAINBOW || grid[c] === DIAMOND ? HAY : grid[c]));
-    mark(dirty.tm, n); mark(dirty.tc, n);
+    m.setMatrixAt(n, cellMatrix(c, i, j, k, true, f ? f.off : 0));
+    m.setColorAt(n, colorFor(c, grid[c] === RAINBOW || grid[c] === DIAMOND ? HAY : grid[c]));
+    mark(ch.d.tm, n); mark(ch.d.tc, n);
+    ch.touched = true;
   }
 
   function dropTuft(c) {
-    const n = tuftIndex[c];
-    tuft.setMatrixAt(n, ZERO);
+    const ch = chunkOf(c), n = tuftIndex[c];
+    ch.tuft.setMatrixAt(n, ZERO);
     tuftIndex[c] = -1;
-    pool.tuft.free.push(n);
-    mark(dirty.tm, n);
+    tuftUsed--;
+    ch.p.tuft.free.push(n);
+    mark(ch.d.tm, n);
+  }
+
+  function syncCounts(i0, i1, k0, k1) {
+    for (let cz = Math.floor(k0 / CH); cz <= Math.floor(k1 / CH); cz++) for (let cx = Math.floor(i0 / CH); cx <= Math.floor(i1 / CH); cx++) {
+      const ch = chunks[cx + cz * CX];
+      if (!ch) continue;
+      if (ch.core) { ch.core.count = ch.p.core.high; ch.core.visible = ch.p.core.high > ch.p.core.free.length; }
+      if (ch.tuft) { ch.tuft.count = ch.p.tuft.high; ch.tuft.visible = tuftsOn && ch.p.tuft.high > ch.p.tuft.free.length; }
+    }
   }
 
   function forcedFrom(i, k) {
@@ -196,17 +255,17 @@ HH.Voxels = (function () {
         if (n >= 0 && !wantCore) dropCore(c);
         else if (n < 0 && wantCore) addCore(c, i, j, k);
         else if (n >= 0 && instType[c] !== t) {
+          const ch = chunkAt(i, k);
           instType[c] = t;
-          core.setColorAt(n, colorFor(c, t));
+          ch.core.setColorAt(n, colorFor(c, t));
           if (t === RAINBOW) rainbow.add(c); else rainbow.delete(c);
-          mark(dirty.cc, n);
+          mark(ch.d.cc, n);
         }
         if (tuftIndex[c] >= 0 && !wantTuft) dropTuft(c);
         else if (tuftIndex[c] < 0 && wantTuft) addTuft(c, i, j, k);
       }
     }
-    core.count = pool.core.high;
-    tuft.count = pool.tuft.high;
+    syncCounts(i0, i1, k0, k1);
   }
 
   function filledCount(tops) {
@@ -240,7 +299,7 @@ HH.Voxels = (function () {
       blobs.push([0, 0, R * 0.48, H * 0.9]);
       for (let q = 0; q < 4; q++) { const a = q * Math.PI / 2 + r() * 0.5; blobs.push([Math.cos(a) * R * 0.64, Math.sin(a) * R * 0.64, R * (0.4 + r() * 0.08), H * (0.7 + r() * 0.25)]); }
     }
-    let maze = null, mc = 7;
+    let maze = null, mc = 9;
     if (lay === "maze") {
       const m = Math.max(3, Math.floor((R * 2) / mc));
       maze = { m: m, h: [], v: [] };
@@ -290,10 +349,10 @@ HH.Voxels = (function () {
         if (gx >= 0 && gz >= 0 && gx < maze.m * mc + 1 && gz < maze.m * mc + 1) {
           const cx = Math.floor(gx / mc), cz = Math.floor(gz / mc), fx = gx - cx * mc, fz = gz - cz * mc;
           let wall = false;
-          if (fx < 2 && cz < maze.m && maze.v[cz * (maze.m + 1) + cx]) wall = true;
-          if (fz < 2 && cx < maze.m && maze.h[cz * maze.m + cx]) wall = true;
-          if (fx < 2 && fz < 2) wall = true;
-          if (wall) h = H * 0.5;
+          if (fx < 3 && cz < maze.m && maze.v[cz * (maze.m + 1) + cx]) wall = true;
+          if (fz < 3 && cx < maze.m && maze.h[cz * maze.m + cx]) wall = true;
+          if (fx < 3 && fz < 3) wall = true;
+          if (wall) h = Math.min(H * 0.42, 14);
         }
       }
       tops[k * NX + i] = Math.max(0, Math.min(NY - 2, Math.round(h)));
@@ -303,8 +362,9 @@ HH.Voxels = (function () {
 
   function build(scene, mapDef, seed, opts, savedGrid) {
     falls.clear();
+    chunks.forEach(function (ch) { ["core", "tuft"].forEach(function (kind) { const m = ch[kind]; if (m) { scene.remove(m); m.geometry.dispose(); m.dispose(); } }); });
+    chunks = [];
     fallCols.clear();
-    [core, tuft].forEach(function (m) { if (m) { scene.remove(m); if (m.dispose) m.dispose(); } });
     const R = mapDef.radius, H = mapDef.height;
     NX = NZ = R * 2 + 5;
     NY = H + 4;
@@ -367,32 +427,32 @@ HH.Voxels = (function () {
       if (grid[c] === NEEDLE) needleC = c;
     }
     total = savedGrid ? Math.max(filled, opts.total || filled) : filled;
-    pool.core = { free: [], high: 0, cap: Math.min(filled, 160000) };
-    pool.tuft = { free: [], high: 0, cap: Math.min(filled, 12000) };
     if (!coreMat) {
       coreMat = new THREE.MeshLambertMaterial({ map: strawCanvas(false) });
       tuftMat = new THREE.MeshLambertMaterial({ map: strawCanvas(true), alphaTest: 0.5, side: THREE.DoubleSide });
       coreGeo = new THREE.BoxGeometry(VS, VS, VS);
       tuftGeo = makeTuftGeo();
     }
-    core = new THREE.InstancedMesh(coreGeo, coreMat, Math.max(pool.core.cap, 1));
-    tuft = new THREE.InstancedMesh(tuftGeo, tuftMat, Math.max(pool.tuft.cap, 1));
-    [core, tuft].forEach(function (m) {
-      m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-      m.frustumCulled = false;
-      m.setColorAt(0, tmpC.setHex(0xffffff));
-      m.instanceColor.setUsage(THREE.DynamicDrawUsage);
-      m.count = 0;
-      m.castShadow = false;
-      m.receiveShadow = true;
-    });
+    sceneRef = scene;
+    tuftUsed = 0;
+    CX = Math.ceil(NX / CH); CZ = Math.ceil(NZ / CH);
+    chunks = [];
+    const hy = NY * VS / 2, half = CH * VS / 2;
+    for (let cz = 0; cz < CZ; cz++) for (let cx = 0; cx < CX; cx++) {
+      const center = new THREE.Vector3((cx * CH - OX) * VS + half, hy, (cz * CH - OZ) * VS + half);
+      chunks.push({
+        sphere: new THREE.Sphere(center, Math.sqrt(half * half * 2 + hy * hy) + VS * 3),
+        core: null, tuft: null,
+        p: { core: { free: [], high: 0 }, tuft: { free: [], high: 0 } },
+        d: { cm: [Infinity, -1], cc: [Infinity, -1], tm: [Infinity, -1], tc: [Infinity, -1] }
+      });
+    }
     refresh(0, NX - 1, 0, NZ - 1);
-    [core, tuft].forEach(function (m) { m.instanceMatrix.needsUpdate = true; m.instanceColor.needsUpdate = true; });
-    Object.keys(dirty).forEach(function (k) { dirty[k][0] = Infinity; dirty[k][1] = -1; });
-    scene.add(core);
-    tuft.visible = tuftsOn;
-    scene.add(tuft);
-    return core;
+    chunks.forEach(function (ch) {
+      ["core", "tuft"].forEach(function (kind) { if (ch[kind]) { ch[kind].instanceMatrix.needsUpdate = true; ch[kind].instanceColor.needsUpdate = true; } });
+      Object.keys(ch.d).forEach(function (k) { ch.d[k][0] = Infinity; ch.d[k][1] = -1; });
+    });
+    return null;
   }
 
   function visibleFrom(i, k) {
@@ -451,9 +511,10 @@ HH.Voxels = (function () {
         falls.delete(c);
       }
       const n = instIndex[c];
-      if (n >= 0) { core.setMatrixAt(n, cellMatrix(c, f.i, f.j, f.k, false, f.off)); mark(dirty.cm, n); }
+      const fch = chunkAt(f.i, f.k);
+      if (n >= 0) { fch.core.setMatrixAt(n, cellMatrix(c, f.i, f.j, f.k, false, f.off)); mark(fch.d.cm, n); }
       const tn = tuftIndex[c];
-      if (tn >= 0) { tuft.setMatrixAt(tn, cellMatrix(c, f.i, f.j, f.k, true, f.off)); mark(dirty.tm, tn); }
+      if (tn >= 0) { fch.tuft.setMatrixAt(tn, cellMatrix(c, f.i, f.j, f.k, true, f.off)); mark(fch.d.tm, tn); }
     });
     settleCols();
   }
@@ -603,7 +664,7 @@ HH.Voxels = (function () {
   }
 
   function update(time, dt) {
-    if (!core) return;
+    if (!chunks.length) return;
     updateFalls(Math.min(dt || 0.016, 0.05));
     rainbowT -= dt || 0.016;
     if (rainbowT <= 0 && rainbow.size) {
@@ -612,20 +673,22 @@ HH.Voxels = (function () {
       rainbow.forEach(function (c) {
         const n = instIndex[c];
         if (n < 0) return;
-        core.setColorAt(n, tmpC.setHSL((time * 0.4 + q * 0.13) % 1, 0.95, 0.62));
-        mark(dirty.cc, n);
+        const ch = chunkOf(c);
+        ch.core.setColorAt(n, tmpC.setHSL((time * 0.4 + q * 0.13) % 1, 0.95, 0.62));
+        mark(ch.d.cc, n);
         q++;
       });
     }
-    flush(core.instanceMatrix, dirty.cm, 16);
-    flush(core.instanceColor, dirty.cc, 3);
-    flush(tuft.instanceMatrix, dirty.tm, 16);
-    flush(tuft.instanceColor, dirty.tc, 3);
+    for (let q = 0; q < chunks.length; q++) {
+      const ch = chunks[q];
+      if (ch.core) { flush(ch.core.instanceMatrix, ch.d.cm, 16); flush(ch.core.instanceColor, ch.d.cc, 3); }
+      if (ch.tuft) { flush(ch.tuft.instanceMatrix, ch.d.tm, 16); flush(ch.tuft.instanceColor, ch.d.tc, 3); }
+    }
   }
 
   return {
     EMPTY: EMPTY, HAY: HAY, RAINBOW: RAINBOW, DIAMOND: DIAMOND, NEEDLE: NEEDLE, STONE: STONE,
-    setTufts: function (on) { tuftsOn = on; if (tuft) tuft.visible = on; },
+    setTufts: function (on) { tuftsOn = on; chunks.forEach(function (ch) { if (ch.tuft) ch.tuft.visible = on && ch.p.tuft.high > ch.p.tuft.free.length; }); },
     setViewer: function (p, d) { viewer.p.copy(p); viewer.d.set(d.x, 0, d.z).normalize(); },
     get gridSize() { return grid ? grid.length : 0; },
     build: build, removeCells: removeCells, raycast: raycast, nearest: nearest,

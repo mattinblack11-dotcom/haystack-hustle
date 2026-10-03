@@ -44,7 +44,7 @@ HH.Input = (function () {
       });
       canvas.addEventListener("wheel", function (e) { mouse.wheel += Math.sign(e.deltaY); e.preventDefault(); }, { passive: false });
       canvas.addEventListener("contextmenu", function (e) { e.preventDefault(); });
-      document.addEventListener("pointerlockchange", function () { locked = document.pointerLockElement === canvas; });
+      document.addEventListener("pointerlockchange", function () { locked = document.pointerLockElement === canvas; if (locked && !enabled && document.exitPointerLock) document.exitPointerLock(); });
     },
     down: function (c) { return !!keys[c]; },
     consume: function (c) { const v = !!pressed[c]; pressed[c] = false; return v; },

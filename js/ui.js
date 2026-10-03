@@ -298,7 +298,7 @@ HH.UI = (function () {
     $("panel").innerHTML = "";
     HH.Input.setEnabled(true);
     HH.Input.clear();
-    HH.Input.lock();
+    queueMicrotask(function () { if (!panel) HH.Input.lock(); });
   }
 
   function money() {
@@ -769,11 +769,30 @@ HH.UI = (function () {
     $("objarrow-icon").innerHTML = I("arrow", 34);
   }
 
+  const LOAD_TIPS = ["Tip: hold Space against hay to climb out of holes.", "Tip: press U in the shop to buy the cheapest upgrades.", "Tip: bigger bags mean fewer trips to Bjorn.", "Tip: the needle hides deep in the thickest part of the stack.", "Tip: press C to dress up your farmer.", "Tip: press V for a free boost from a short ad."];
+  const load = { shown: 0, target: 0, raf: 0, tipT: 0, tip: 0, last: 0 };
+  function loadTick(t) {
+    const el = $("loading");
+    if (!el) return;
+    const dt = load.last ? Math.min(0.1, (t - load.last) / 1000) : 0;
+    load.last = t;
+    const cap = Math.min(0.99, load.target + 0.12);
+    if (load.shown < load.target) load.shown += Math.max(0.004, (load.target - load.shown) * dt * 6);
+    else if (load.shown < cap) load.shown += (cap - load.shown) * dt * 0.35;
+    $("load-fill").style.width = (load.shown * 100).toFixed(1) + "%";
+    const pct = $("load-pct");
+    if (pct) pct.textContent = Math.floor(load.shown * 100) + "%";
+    load.tipT -= dt;
+    if (load.tipT <= 0 && $("load-tip")) { load.tipT = 2.6; $("load-tip").textContent = LOAD_TIPS[load.tip++ % LOAD_TIPS.length]; }
+    load.raf = requestAnimationFrame(loadTick);
+  }
   function loading(p, text) {
     const el = $("loading");
     if (!el) return;
-    if (p >= 1) { el.classList.add("done"); setTimeout(function () { el.remove(); }, 600); return; }
-    $("load-fill").style.width = Math.round(p * 100) + "%";
+    if (p >= 1) { load.target = 1; load.shown = 1; $("load-fill").style.width = "100%"; cancelAnimationFrame(load.raf); el.classList.add("done"); setTimeout(function () { el.remove(); }, 600); return; }
+    if (!window.__loadTaken) { window.__loadTaken = true; load.shown = Math.max(load.shown, window.__load || 0); }
+    load.target = Math.max(load.target, p);
+    if (!load.raf) load.raf = requestAnimationFrame(loadTick);
     if (text) $("load-text").textContent = text;
   }
 

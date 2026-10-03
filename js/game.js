@@ -139,7 +139,8 @@ HH.Game = (function () {
       const f = 1 - Math.min(0.28, (densityFor(L.index) - 1) * 0.09);
       d.hay = m.hay.map(function (c) { const col = new THREE.Color(c); col.multiplyScalar(f); col.g *= 0.98; return col.getHex(); });
       if (L.layout === "tower") d.tall = true;
-      if (L.layout === "maze" || L.layout === "wall") d.radius = Math.round(d.radius * 1.1);
+      if (L.layout === "wall") d.radius = Math.round(d.radius * 1.1);
+      if (L.layout === "maze") d.radius = Math.round(Math.min(d.radius, 44) * 0.95);
     }
     return d;
   }

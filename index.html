@@ -62,10 +62,13 @@
 <div id="loading">
   <div class="load-box">
     <div class="load-title">HAYSTACK<br>HUSTLE</div>
-    <div class="load-bar"><div id="load-fill"></div></div>
+    <div class="load-bale"></div>
+    <div class="load-bar"><div id="load-fill"></div><div class="load-shine"></div><span id="load-pct">0%</span></div>
     <div id="load-text">Stacking hay...</div>
+    <div id="load-tip"></div>
   </div>
 </div>
+<script>(function () { var s = 0; function t() { if (window.__loadTaken) return; var f = document.getElementById("load-fill"), p = document.getElementById("load-pct"); s += (0.2 - s) * 0.015; window.__load = s; if (f) f.style.width = (s * 100).toFixed(1) + "%"; if (p) p.textContent = Math.floor(s * 100) + "%"; requestAnimationFrame(t); } requestAnimationFrame(t); })();</script>
 
 <script src="lib/three.min.js"></script>
 <script src="lib/GLTFLoader.js"></script>
