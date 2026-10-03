@@ -429,3 +429,10 @@ body.bagfull #fullfx { animation: fullfx 1s infinite alternate; }
 .hbtn.gift { display: flex; align-items: center; gap: 6px; background: #6b4bd6; box-shadow: 0 5px 0 #3f2a8a; font-size: 14px; }
 .hbtn.gift svg { width: 24px; height: 24px; }
 .hbtn.gift.ready { background: linear-gradient(180deg, #ffd23f, #f0a020); color: #3b2200; text-shadow: none; box-shadow: 0 5px 0 #9a5a00; animation: adglow 0.7s infinite alternate; }
+#topbar { padding: 14px 16px 0; }
+#topbar #stats { position: static; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; min-width: 0; max-width: 100%; overflow: visible; }
+#stats .chip { min-width: 0; max-width: 100%; box-sizing: border-box; }
+#stats .chip.cash { font-size: 32px; padding: 6px 20px 6px 8px; }
+#stats .chip.gems { font-size: 22px; padding: 4px 16px 4px 6px; }
+#moneyrow { justify-content: center; }
+#moneyrow #bigbag { max-width: 440px; width: 100%; }
