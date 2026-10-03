@@ -432,6 +432,7 @@ HH.App = (function () {
   function loop(t) {
     const dt = Math.min(0.05, Math.max(0, (t - last) / 1000));
     last = t;
+    if (HH.Cinema && HH.Cinema.active) { HH.Cinema.tick(dt); requestAnimationFrame(loop); return; }
     HH.Net.tick(dt);
     adHud(dt);
     pitCheck(dt);
@@ -509,6 +510,8 @@ HH.App = (function () {
     await breathe();
     await new Promise(function (r) { setTimeout(r, 30); });
     if (!G.restore()) G.newRun();
+    const cq = new URLSearchParams(location.search);
+    if (cq.has("cinematic")) setTimeout(function () { HH.Cinema.start(cq.get("cinematic") || "landscape", cq.has("record")); }, 600);
     dailyReward();
     document.addEventListener("visibilitychange", function () {
       HH.Audio.setHidden(document.hidden);
