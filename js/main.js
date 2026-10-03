@@ -85,7 +85,7 @@ HH.App = (function () {
     } else if (name === "run") {
       const L = d.level;
       if (d.restored) UI.toast("Welcome back! Your level was saved.", 2500);
-      else if (L) UI.toast("<b>Level " + (d.index + 1) + ": " + L.name + "</b><br>" + L.tip, 4500);
+      else if (L) UI.toast("<b>Level " + (d.index + 1) + ": " + L.name + "</b><br>" + L.tip + (G.run && G.run.density > 1 ? "<br><small>Hay here is packed " + Math.round((G.run.density - 1) * 100) + "% tighter.</small>" : ""), 5000);
     } else if (name === "mp") {
       if (d.kind === "hosting") UI.toast("Room <b>" + HH.Net.room + "</b> is open! Share the code or invite link.", 3500);
       if (d.kind === "joining") UI.toast("Joining room <b>" + HH.Net.room + "</b>...", 2500);

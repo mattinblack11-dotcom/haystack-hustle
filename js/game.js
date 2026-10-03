@@ -135,7 +135,9 @@ HH.Game = (function () {
     if (L) {
       d.layout = L.layout;
       d.stones = 0;
-      d.deep = !!L.deep;
+      d.deep = !!L.deep || (L.index || 0) >= 5;
+      const f = 1 - Math.min(0.28, (densityFor(L.index) - 1) * 0.09);
+      d.hay = m.hay.map(function (c) { const col = new THREE.Color(c); col.multiplyScalar(f); col.g *= 0.98; return col.getHex(); });
       if (L.layout === "tower") d.tall = true;
       if (L.layout === "maze" || L.layout === "wall") d.radius = Math.round(d.radius * 1.1);
     }
@@ -176,6 +178,7 @@ HH.Game = (function () {
       if (R.tool !== "none" && !R.tools[R.tool]) R.tool = "hand";
     }
     R.levelIndex = index;
+    R.density = densityFor(index);
     R.level = L;
     R.seed = seed || ((Date.now() & 0x7fffffff) ^ (index * 7919));
     R.nonce = R.seed;
@@ -233,6 +236,7 @@ HH.Game = (function () {
     if (!g) return false;
     R = Object.assign(freshRun(L.map), sv);
     R.level = L;
+    R.density = densityFor(R.levelIndex);
     delete R.grid; delete R.needleAt;
     R.cd = { hand: 0, fork: 0, tnt: 0, tornado: 0, hole: 0 };
     R.heat = 0; R.overheated = false; R.vacAcc = 0; R.done = false; R.needleOut = null; R.combo = 0; R.storm = 0; R.vacOn = false;
@@ -304,7 +308,11 @@ HH.Game = (function () {
     emit("needle", { pos: p });
   }
 
+  function densityFor(i) { return 1 + 0.14 * Math.min(i || 0, 25); }
+
   function dig(op, cb) {
+    const D = R.density || 1;
+    if (D > 1 && op.lim !== 1) { op.r = op.r / Math.cbrt(D); if (op.lim) op.lim = Math.max(1, Math.round(op.lim / D)); }
     op.by = me();
     op.oid = ++MP.oid;
     op.n = R.nonce;

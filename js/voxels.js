@@ -345,12 +345,15 @@ HH.Voxels = (function () {
         }
       }
       const cand = [];
-      for (let k = 0; k < NZ; k++) for (let i = 0; i < NX; i++) if (tops[k * NX + i] >= 5) cand.push(k * NX + i);
+      let maxTop = 0;
+      for (let q = 0; q < tops.length; q++) if (tops[q] > maxTop) maxTop = tops[q];
+      const minTop = Math.max(5, Math.floor(maxTop * 0.5));
+      for (let k = 0; k < NZ; k++) for (let i = 0; i < NX; i++) if (tops[k * NX + i] >= minTop) cand.push(k * NX + i);
       let placed = false;
       for (let tries = 0; tries < 60 && !placed && cand.length; tries++) {
         const col = cand[Math.floor(r() * cand.length)];
         const ci = col % NX, ck = Math.floor(col / NX), top = tops[col];
-        const nj = mapDef.deep ? Math.floor(r() * Math.max(1, top * 0.35)) : Math.floor(r() * (top - 3));
+        const nj = mapDef.deep ? Math.floor(r() * Math.max(1, top * 0.35)) : Math.floor(r() * Math.max(1, top * 0.65));
         const c = idx(ci, nj, ck);
         if (grid[c] === STONE) continue;
         grid[c] = NEEDLE;

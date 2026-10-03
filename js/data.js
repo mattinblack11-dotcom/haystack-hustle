@@ -76,7 +76,7 @@ HH.UPGRADES = [
   { id: "teleport", group: "Helpers", name: "Hay Teleporter", desc: "Press F to sell from anywhere (20% fee)", base: 150, grow: 1, max: 1 },
   { id: "radar", group: "Needle Hunting", name: "Needle Radar", desc: "Beeps when the needle is somewhere nearby (a rough hint, not exact)", base: 60, grow: 1, max: 1 },
   { id: "rrange", group: "Needle Hunting", req: "radar", name: "Radar Range", desc: "Detects the needle from further away", base: 10, grow: 1.8, max: 5 },
-  { id: "compass", group: "Needle Hunting", name: "Needle Compass", desc: "Once 35% of the stack is cleared, a compass points toward the needle", base: 300, grow: 1, max: 1 },
+  { id: "compass", group: "Needle Hunting", name: "Needle Compass", desc: "Once 55% of the stack is cleared, a compass points toward the needle", base: 300, grow: 1, max: 1 },
   { id: "hsize", group: "Black Hole", tool: "hole", name: "Event Horizon", desc: "Black hole swallows a bigger area", base: 300, grow: 1.8, max: 5 },
   { id: "hcool", group: "Black Hole", tool: "hole", name: "Hawking Radiation", desc: "15% shorter black hole cooldown", base: 300, grow: 1.8, max: 5 },
   { id: "compress", group: "Late Game", minLevel: 3, name: "Hay Compressor", desc: "Squish hay so your bag holds 25% more", base: 120, grow: 1.9, max: 5 },

@@ -184,7 +184,7 @@ HH.UI = (function () {
     arrow(target);
 
     const cleared = 1 - HH.Voxels.remaining / Math.max(1, R.total);
-    const showCompass = HH.Game.lvl("compass") && !R.found && cleared >= 0.35 && HH.Game.needleGuess;
+    const showCompass = HH.Game.lvl("compass") && !R.found && cleared >= 0.55 && HH.Game.needleGuess;
     $("compass").classList.toggle("hidden", !showCompass);
     if (showCompass) {
       const np = HH.Game.needleGuess, pp = HH.Player.pos;
