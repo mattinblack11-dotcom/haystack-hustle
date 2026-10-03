@@ -3,7 +3,7 @@ HH.Player = (function () {
   const pos = new THREE.Vector3(), vel = new THREE.Vector3();
   let onGround = false, yaw = 0, pitch = -0.15;
   let vm = null, arms = null, vmTools = {}, vmNeedle = null, fistStraw = null, fallback = null;
-  let climbing = false, climbT = 0, bobT = 0, swingT = 0, swingKind = "", swingSide = 1, curTool = "hand", sprinting = false, vacOn = false, carrying = false, lifeT = 0;
+  let jetting = false, jetFuel = 0, jetSndT = 0, airT = 0, usedDbl = false, climbing = false, climbT = 0, bobT = 0, swingT = 0, swingKind = "", swingSide = 1, curTool = "hand", sprinting = false, vacOn = false, carrying = false, lifeT = 0;
   const V = HH.Voxels;
   const cur = { R: null, L: null };
 
@@ -268,9 +268,14 @@ HH.Player = (function () {
     vel.x += ((moving ? wx * speed : 0) - vel.x) * k;
     vel.z += ((moving ? wz * speed : 0) - vel.z) * k;
 
+    if (onGround) { airT = 0; usedDbl = false; jetFuel = Math.min(mods.jetFuel || 0, jetFuel + (mods.jetRefuel || 0.5) * (mods.jetFuel || 1) * dt); }
+    else airT += dt;
     if (!frozen && onGround && I.consume("Space")) { vel.y = BASE_JUMP * mods.jump; onGround = false; HH.Audio.play("jump"); }
-    const hovering = !frozen && mods.hover && !onGround && vel.y < 0 && I.down("Space");
+    else if (!frozen && !onGround && mods.dbl && !usedDbl && airT > 0.08 && !nearWall() && I.consume("Space")) { vel.y = BASE_JUMP * mods.jump * 0.92; usedDbl = true; HH.Audio.play("jump"); }
     climbing = !frozen && I.down("Space") && nearWall();
+    jetting = !frozen && !climbing && mods.jet && !onGround && airT > 0.22 && jetFuel > 0 && I.down("Space");
+    if (jetting) { vel.y = Math.min(vel.y + 34 * (mods.jetThrust || 1) * dt, 7 * (mods.jetThrust || 1)); jetFuel = Math.max(0, jetFuel - dt); jetSndT -= dt; if (jetSndT <= 0) { jetSndT = 0.18; HH.Audio.play("tick"); } }
+    const hovering = !jetting && !frozen && mods.hover && !onGround && vel.y < 0 && I.down("Space");
     if (climbing) { vel.y = Math.max(vel.y, 4.6); climbT += dt; if (climbT > 0.28) { climbT = 0; HH.Audio.play("click"); } }
 
     let rem = dt;
@@ -356,6 +361,7 @@ HH.Player = (function () {
     get head() { return new THREE.Vector3(pos.x, pos.y + 1.55, pos.z); },
     get fp() { return true; },
     get onGround() { return onGround; },
+    get jet() { return { fuel: jetFuel, flying: jetting }; },
     cheer: function () { swing("tnt"); }
   };
 })();

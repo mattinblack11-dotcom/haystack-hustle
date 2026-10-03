@@ -37,7 +37,7 @@ HH.World = (function () {
     g.lineTo(40, 118); g.quadraticCurveTo(10, 118, 10, 64); g.quadraticCurveTo(10, 10, 40, 10);
     g.fill();
     g.strokeStyle = "#f2c94c"; g.lineWidth = 6; g.stroke();
-    g.font = "900 54px Arial Black, Arial, sans-serif";
+    g.font = "900 54px \"Lilita One\", \"Arial Black\", Arial, sans-serif";
     g.textAlign = "center"; g.textBaseline = "middle";
     g.lineWidth = 10; g.strokeStyle = "#2a1606"; g.strokeText(text, 256, 68);
     g.fillStyle = color || "#ffffff"; g.fillText(text, 256, 68);
@@ -917,6 +917,7 @@ HH.World = (function () {
         p.mesh.position.y += (target - p.mesh.position.y) * Math.min(1, dt * 6);
       }
       p.mesh.rotation.y += dt * 2;
+      p.mesh.visible = !(p.rest && HH.Voxels.fallingAt(p.mesh.position.x, p.mesh.position.z));
       if (p.kind === "rainbow" && p.mesh.userData.mat) p.mesh.userData.mat.color.setHSL((p.t * 0.5) % 1, 0.9, 0.7);
       if (p.mesh.userData.beam) p.mesh.userData.beam.material.opacity = 0.2 + Math.sin(p.t * 4) * 0.08;
     }

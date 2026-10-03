@@ -48,35 +48,34 @@ HH.Game = (function () {
   function stats() {
     const P = S().perks, m = mapDef(R.map), rbs = S().rebirths || 0;
     const comboMul = 1 + Math.min(R.combo || 0, 100) * 0.01 * (1 + 0.2 * lvl("combo"));
-    const fast = 1;
     const zone = R.zoneMul || 1;
     return {
-      basePrice: m.hayValue * (1 + 0.1 * P.hayValue) * (has("haggler") ? 1.2 : 1) * (1 + 0.05 * lvl("tip")) * (lvl("goose") ? 1.15 : 1) * (1 + 0.25 * rbs) * (1 + 0.25 * lvl("harvest")) * (1 + 0.05 * Math.min(R.levelIndex || 0, 30)),
+      basePrice: (rb("midas") ? 2 : 1) * (1 + 0.1 * lvl("baler")) * (1 + 0.08 * lvl("vip")) * (1 + 0.1 * lvl("tycoon")) * m.hayValue * (1 + 0.1 * P.hayValue) * (has("haggler") ? 1.2 : 1) * (1 + 0.05 * lvl("tip")) * (lvl("goose") ? 1.15 : 1) * (1 + 0.25 * rbs) * (1 + 0.25 * lvl("harvest")) * (1 + 0.05 * Math.min(R.levelIndex || 0, 30)),
       mul: comboMul * (R.storm > 0 ? 2 : 1),
-      cap: Math.floor((HH.BAG_TIERS[R.tier].cap + 40 * P.bagSize) * (has("baggoblin") ? 1.5 : 1) * (1 + 0.25 * lvl("compress")) * (boostOn("bagboost") ? 1.5 : 1)),
-      grab: (3 + lvl("grasp") + P.grab) * (rb("goldgloves") ? 2 : 1),
+      cap: Math.floor((rb("superbag") ? 2 : 1) * (1 + 0.2 * lvl("megabag")) * (1 + 0.5 * lvl("pockets")) * (HH.BAG_TIERS[R.tier].cap + 40 * P.bagSize) * (has("baggoblin") ? 1.5 : 1) * (1 + 0.25 * lvl("compress")) * (boostOn("bagboost") ? 1.5 : 1)),
+      grab: Math.round((3 + lvl("grasp") + P.grab) * (rb("goldgloves") ? 2 : 1) * (1 + 0.3 * lvl("qgrab"))),
       drill: 0.04 * lvl("drill"),
       autosell: rb("autosell") ? 1 : lvl("autosell") ? 0.9 : 0,
-      forkHaul: (has("forklord") ? 1.25 : 1) * (1 + 0.4 * lvl("megafork")),
+      forkHaul: (rb("titanfork") ? 2 : 1) * (has("forklord") ? 1.25 : 1) * (1 + 0.4 * lvl("megafork")) * (1 + 0.25 * lvl("goldfork")),
       stormFreq: (lvl("stormcall") ? 2 : 1) * (rb("rainbowrain") ? 2 : 1),
-      stormLen: rb("rainbowrain") ? 45 : 30,
+      stormLen: (rb("rainbowrain") ? 45 : 30) * (1 + 0.3 * lvl("stormmag")),
       nuke: lvl("nuke") > 0,
       nmagnet: lvl("nmagnet") > 0,
-      holeR: 2.2 + 0.4 * lvl("hsize"),
-      holeCd: 45 * Math.pow(0.85, lvl("hcool")),
-      handCd: 0.38 * Math.pow(0.9, lvl("speed")) * fast,
+      holeR: (2.2 + 0.4 * lvl("hsize")) * (1 + 0.25 * lvl("cosmic")),
+      holeCd: 45 * Math.pow(0.85, lvl("hcool")) * Math.pow(0.95, lvl("warp")) * (rb("timelord") ? 0.5 : 1),
+      handCd: 0.38 * Math.pow(0.9, lvl("speed")) * Math.pow(0.95, lvl("warp")) * (rb("timelord") ? 0.5 : 1),
       handR: 0.9 + 0.15 * lvl("glove"),
       reach: 4.5 + 0.6 * lvl("reach"),
       golden: 0.05 * lvl("golden"),
       forkR: (0.8 + 0.14 * lvl("fsweep")) * (has("forklord") ? 1.08 : 1),
-      forkCd: 1.0 * Math.pow(0.88, lvl("fcool")) * fast,
+      forkCd: 1.0 * Math.pow(0.88, lvl("fcool")) * Math.pow(0.95, lvl("warp")) * (rb("timelord") ? 0.5 : 1),
       fgold: 0.08 * lvl("fgold"),
-      tntR: (1.5 + 0.32 * lvl("tpower")) * (has("boomuncle") ? 1.2 : 1),
-      tntCd: 8 * Math.pow(0.85, lvl("tcool")),
+      tntR: (1.5 + 0.32 * lvl("tpower")) * (has("boomuncle") ? 1.2 : 1) * (1 + 0.15 * lvl("thermite")),
+      tntCd: 8 * Math.pow(0.85, lvl("tcool")) * Math.pow(0.95, lvl("warp")) * (rb("timelord") ? 0.5 : 1),
       tntFuse: 1.6,
       lucky: 0.04 * lvl("tlucky"),
       cluster: 0.1 * lvl("tcluster") + (has("boomuncle") ? 0.1 : 0),
-      vacRate: 30 * Math.pow(1.3, lvl("vpower")) * (1 + 0.5 * lvl("turbovac")) * (boostOn("vacboost") ? 2 : 1),
+      vacRate: 30 * (1 + 0.45 * lvl("vpower")) * (1 + 0.5 * lvl("turbovac")) * (1 + 0.2 * lvl("ovac")) * (boostOn("vacboost") ? 2 : 1),
       vacMax: 6 + 1.8 * lvl("vrun") + 0.25 * lvl("vrun") * lvl("vrun"),
       vacR: 1.4 + 0.3 * lvl("vwide") + 0.03 * lvl("vwide") * lvl("vwide"),
       vacReach: 4.5 + 0.6 * lvl("reach") + 5 + 1.5 * lvl("vrange"),
@@ -86,30 +85,35 @@ HH.Game = (function () {
       vacItem: lvl("vitem") ? 4 + 2.5 * lvl("vitem") : 0,
       torR: 1.1 + 0.28 * lvl("tsize"),
       torLife: 6 + 1.5 * lvl("tlast"),
-      torCd: 30 * Math.pow(0.88, lvl("tcd")),
+      torCd: 30 * Math.pow(0.88, lvl("tcd")) * Math.pow(0.95, lvl("warp")) * (rb("timelord") ? 0.5 : 1),
       torN: 1 + lvl("ttwin"),
-      drones: (lvl("drone") || has("dronewhisper")) ? 1 + lvl("dfleet") : 0,
+      drones: (lvl("drone") || has("dronewhisper") || rb("dronearmy")) ? 1 + lvl("dfleet") + (rb("dronearmy") ? 2 : 0) : 0,
       droneSpeed: (5 + 1.2 * lvl("dspeed")) * (has("dronewhisper") ? 1.3 : 1),
       droneCap: Math.floor((20 + 10 * lvl("dcap")) * (has("dronewhisper") ? 1.4 : 1)),
       magnet: lvl("magnet") ? 3 + 1.5 * lvl("magnet") : 0,
       radar: lvl("radar") > 0 || rb("needlesense"),
       radarRange: (2.2 + 1.1 * lvl("rrange") + (rb("needlesense") ? 2 : 0)) * (has("sniffer") ? 1.15 : 1),
       hamster: lvl("hamster") > 0 || rb("hamking"),
-      hamRate: 1.2 * Math.pow(2, lvl("hamlvl")) * (rb("hamking") ? 2 : 1),
+      hamRate: 1.2 * (1 + 1.2 * lvl("hamlvl")) * (rb("hamking") ? 2 : 1),
       bulk: 0.03 * lvl("bulk"),
-      gemMul: (1 + 0.1 * P.gemValue) * (1 + 0.25 * rbs) * (rb("gemfountain") ? 1.5 : 1),
+      gemMul: (1 + 0.1 * lvl("gemmag")) * (1 + 0.1 * P.gemValue) * (1 + 0.25 * rbs) * (rb("gemfountain") ? 1.5 : 1),
       move: {
         speed: (1 + 0.08 * lvl("walk")) * (has("speedy") ? 1.25 : 1) * zone * (R.vacOn ? 0.85 + 0.09 * lvl("vmove") : 1),
         jump: (1 + 0.1 * lvl("jump")) * (has("speedy") ? 1.2 : 1),
-        sprint: lvl("sprint"),
-        hover: lvl("hover") > 0
+        sprint: lvl("sprint") + lvl("hayboard") * 1.35,
+        hover: lvl("hover") > 0,
+        dbl: lvl("dblj") > 0,
+        jet: lvl("jetpack") > 0 || rb("infjet"),
+        jetFuel: rb("infjet") ? 9999 : 1.6 * (1 + 0.4 * lvl("jfuel")),
+        jetThrust: 1 + 0.15 * lvl("jthrust"),
+        jetRefuel: 0.5 * (1 + 0.3 * lvl("jrefuel"))
       }
     };
   }
 
   function upCost(u) {
     const k = Math.max(0, u.grow - 1) * lvl(u.id);
-    let c = u.base * 1.3 * (1 + k + 0.35 * k * k);
+    let c = u.base * 3.9 * (1 + k + 0.35 * k * k + 0.08 * k * k * k);
     if (u.group === "Pitchfork" && has("forklord")) c *= 0.75;
     return Math.round(c * 100) / 100;
   }
@@ -257,7 +261,7 @@ HH.Game = (function () {
     const np = R.needleOut ? R.needleOut.mesh.position : null;
     S().run = {
       map: R.map, seed: R.seed, nonce: R.nonce, cash: R.cash, bag: R.bag, bagValue: R.bagValue, up: R.up, tier: R.tier, tools: R.tools, total: R.total,
-      tool: R.tool, lastTool: R.lastTool, time: R.time, carrying: R.carrying, found: R.found, grid: V.encode(), stormNext: R.stormNext, scale: R.scale, tntCount: R.tntCount,
+      needlesDone: R.needlesDone || 0, tool: R.tool, lastTool: R.lastTool, time: R.time, carrying: R.carrying, found: R.found, grid: V.encode(), stormNext: R.stormNext, scale: R.scale, tntCount: R.tntCount,
       levelIndex: R.levelIndex, needleAt: np ? [np.x, np.y, np.z] : null
     };
     HH.Save.save();
@@ -301,6 +305,23 @@ HH.Game = (function () {
     }
   }
 
+  function needlesFor(i) { return HH.Net.active ? 1 : Math.min(6, 1 + Math.floor((i || 0) / 2)); }
+
+  function nextNeedle(st) {
+    R.needlesDone = (R.needlesDone || 0) + 1;
+    R.carrying = false;
+    R.found = false;
+    R.radarOff = null;
+    if (!V.hideNeedle()) { finish(st, me()); return; }
+    needleCache = { t: 0, p: null };
+    const g = Math.max(1, Math.round(mapDef(R.map).gems * 0.15 * st.gemMul));
+    S().gems += g;
+    HH.Audio.play("levelup");
+    emit("popup", { text: "+" + g + " gems", pos: HH.World.spots.wizard.clone().add(new THREE.Vector3(0, 2.5, 0)), color: "#7ff7ff", big: true });
+    emit("needlepart", { done: R.needlesDone, need: needlesFor(R.levelIndex) });
+    persist();
+  }
+
   function releaseNeedle(p) {
     if (R.found) return;
     R.found = true;
@@ -312,7 +333,7 @@ HH.Game = (function () {
   function densityFor(i) { return 1 + 0.14 * Math.min(i || 0, 25); }
 
   function dig(op, cb) {
-    const cut = Math.min(0.9, 0.1 * lvl("sharp") + 0.08 * lvl("loosen"));
+    const cut = Math.min(0.92, 0.1 * lvl("sharp") + 0.08 * lvl("loosen") + 0.06 * lvl("lore"));
     const D = 1 + ((R.density || 1) - 1) * (1 - cut);
     if (D > 1 && op.lim !== 1) { op.r = op.r / Math.cbrt(D); if (op.lim) op.lim = Math.max(1, Math.round(op.lim / D)); }
     op.by = me();
@@ -966,6 +987,7 @@ HH.Game = (function () {
     const wz = HH.World.spots.wizard;
     if (R.carrying && Math.hypot(pp.x - wz.x, pp.z - wz.z) < 3) {
       if (HH.Net.active) { if (!MP.delivered) { MP.delivered = true; HH.Net.send("deliver", { n: R.nonce }, "master"); setTimeout(function () { MP.delivered = false; }, 3000); } }
+      else if ((R.needlesDone || 0) + 1 < needlesFor(R.levelIndex)) nextNeedle(st);
       else finish(st, me());
     }
 
@@ -1046,6 +1068,7 @@ HH.Game = (function () {
     const t = HH.TOOLS.find(function (x) { return x.id === id; });
     if (!toolAvailable(t)) { HH.Audio.play("deny"); return false; }
     if (R.tools[id]) { selectTool(id); return true; }
+    if (t.minLevel && level() < t.minLevel) { HH.Audio.play("deny"); emit("toast", { text: "Reach <b>Level " + (t.minLevel + 1) + "</b> to unlock the " + t.name + "." }); return false; }
     if (R.cash < t.unlock) { HH.Audio.play("deny"); return false; }
     R.cash -= t.unlock;
     R.tools[id] = true;
@@ -1146,7 +1169,7 @@ HH.Game = (function () {
       const nb = HH.BAG_TIERS[R.tier + 1];
       if (nb && (!best || nb.cost < best.c)) best = { c: nb.cost, kind: "bag" };
       HH.TOOLS.forEach(function (t) {
-        if (!toolAvailable(t) || R.tools[t.id] || !t.unlock) return;
+        if (!toolAvailable(t) || R.tools[t.id] || !t.unlock || (t.minLevel && level() < t.minLevel)) return;
         if (!best || t.unlock < best.c) best = { c: t.unlock, kind: "tool", id: t.id };
       });
       if (!best || best.c > R.cash) break;
@@ -1336,7 +1359,7 @@ HH.Game = (function () {
   }
 
   return {
-    shareLook: shareLook, newRun: newRun, startLevel: startLevel, nextLevel: nextLevel, restore: restore, update: update, persist: persist, stats: stats, upCost: upCost, lvl: lvl, canBuy: canBuy,
+    needlesFor: needlesFor, shareLook: shareLook, newRun: newRun, startLevel: startLevel, nextLevel: nextLevel, restore: restore, update: update, persist: persist, stats: stats, upCost: upCost, lvl: lvl, canBuy: canBuy,
     buyTool: buyTool, buyUpgrade: buyUpgrade, buyBag: buyBag, selectTool: selectTool, toggleEquip: toggleEquip, mapDef: mapDef, has: has, levelDef: levelDef,
     level: level, rb: rb, toolAvailable: toolAvailable, upgradeVisible: upgradeVisible, tutorialDone: tutorialDone,
     canRebirth: canRebirth, rebirthReward: rebirthReward, rebirth: rebirth, buyRebirthItem: buyRebirthItem, cheat: cheat,

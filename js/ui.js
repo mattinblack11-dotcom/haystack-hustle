@@ -25,7 +25,8 @@ HH.UI = (function () {
     if (tut && t === 0) return "<b>Step 1:</b> Click the haystack to <b>grab hay</b> (" + Math.min(R.bag, 5) + "/5). Somewhere inside is a hidden <b>needle</b>!";
     if (tut && t === 1) return "<b>Step 2:</b> Sell your hay to <b>" + HH.NPC.buyer.name + "</b>. Walk into the yellow ring!";
     if (tut && t === 2) return "<b>Step 3:</b> Walk into <b>Hank's Hay Shop</b> (or press <kbd>Tab</kbd>) and buy <b>Auto-Grab</b>";
-    return "Dig to find the hidden <b>needle</b>, then carry it back to <b>" + W + "</b>!";
+    const need = HH.Game.needlesFor(R.levelIndex);
+    return "Dig to find the hidden <b>needle</b>, then carry it back to <b>" + W + "</b>!" + (need > 1 ? " <b>(" + ((R.needlesDone || 0) + 1) + " of " + need + ")</b>" : "");
   }
 
   function marker(id, worldPos, text) {
@@ -167,6 +168,10 @@ HH.UI = (function () {
     if (st.radar) set("radarfill", Math.round((R.radar || 0) * 100) + "%", "width");
     const showHeat = R.tool === "vac" && R.tools.vac && R.heat > 0.05;
     $("heat").classList.toggle("hidden", !showHeat);
+    const mv = st.move, jt = HH.Player.jet;
+    const showJet = mv.jet && (jt.flying || jt.fuel < mv.jetFuel - 0.01);
+    $("jetfuel").classList.toggle("hidden", !showJet);
+    if (showJet) set("jetfill", Math.round(jt.fuel / mv.jetFuel * 100) + "%", "width");
     if (showHeat) set("heatfill", Math.round(R.heat / st.vacMax * 100) + "%", "width");
     document.body.classList.toggle("locked", HH.Input.locked);
     document.body.classList.toggle("fp", HH.Player.fp);
@@ -385,7 +390,27 @@ HH.UI = (function () {
     turbovac: function (l) { return "+" + 50 * l + "% suction"; },
     harvest: function (l) { return "+" + 25 * l + "% hay value"; },
     sharp: function (l) { return "-" + 10 * l + "% hay density"; },
-    loosen: function (l) { return "-" + 8 * l + "% hay density"; }
+    loosen: function (l) { return "-" + 8 * l + "% hay density"; },
+    baler: function (l) { return "+" + 10 * l + "% hay value"; },
+    megabag: function (l) { return "+" + 20 * l + "% bag space"; },
+    gemmag: function (l) { return "+" + 10 * l + "% needle gems"; },
+    qgrab: function (l) { return "+" + 30 * l + "% per grab"; },
+    thermite: function (l) { return "+" + 15 * l + "% blast size"; },
+    ovac: function (l) { return "+" + 20 * l + "% suction"; },
+    stormmag: function (l) { return "+" + 30 * l + "% storm length"; },
+    goldfork: function (l) { return "+" + 25 * l + "% scoop"; },
+    vip: function (l) { return "+" + 8 * l + "% sell price"; },
+    lore: function (l) { return "-" + 6 * l + "% hay density"; },
+    cosmic: function (l) { return "+" + 25 * l + "% swallow size"; },
+    warp: function (l) { return "-" + Math.round((1 - Math.pow(0.95, l)) * 100) + "% cooldowns"; },
+    pockets: function (l) { return "+" + 50 * l + "% bag space"; },
+    tycoon: function (l) { return "+" + 10 * l + "% all income"; },
+    dblj: function (l) { return l ? "double jump on" : "single jump"; },
+    jetpack: function (l) { return l ? "fly with Space" : "no jetpack"; },
+    jfuel: function (l) { return (1.6 * (1 + 0.4 * l)).toFixed(1) + "s of fuel"; },
+    jthrust: function (l) { return "+" + 15 * l + "% thrust"; },
+    jrefuel: function (l) { return "+" + 30 * l + "% refuel speed"; },
+    hayboard: function (l) { return "+" + 20 * l + "% sprint"; }
   };
 
   function fxLine(u, l) {
@@ -403,6 +428,7 @@ HH.UI = (function () {
     { id: "gear", name: "Tool Upgrades", icon: "gear", groups: ["Pitchfork", "Dynamite", "Vacuum", "Tornado", "Black Hole"], blurb: "Make your tools stronger. You need to own a tool before you can upgrade it." },
     { id: "body", name: "Movement", icon: "speed", groups: ["Body"], blurb: "Run faster, jump higher and keep bigger combos going." },
     { id: "money", name: "Money & Helpers", icon: "cash", groups: ["Selling", "Helpers"], blurb: "Earn more for every sale, and get helpers that dig and sell for you." },
+    { id: "gadgets", name: "Gadgets", icon: "boost", groups: ["Gadgets"], blurb: "Jetpacks, double jump boots and hoverboards. Fly over the stack and dig from the top!" },
     { id: "packed", name: "Packed Hay", icon: "bolt", groups: ["Packed Hay"], blurb: "Later levels pack the hay tighter, so every tool digs less. These upgrades cut through it again." },
     { id: "needle", name: "Needle Finders", icon: "compass", groups: ["Needle Hunting"], blurb: "Gadgets that help you track down the needle." },
     { id: "late", name: "Late Game", icon: "crown", groups: ["Late Game"], blurb: "Powerful upgrades that unlock as your Farm Level goes up. You gain 1 level for every needle you return." }
@@ -428,6 +454,7 @@ HH.UI = (function () {
   function toolCard(t, tag) {
     const R = HH.Game.run;
     const owned = R.tools[t.id];
+    if (!owned && t.minLevel && HH.Game.level() < t.minLevel) return card({ icon: I(t.id, 30), title: t.name, lv: "key " + t.key, desc: TOOL_DESC[t.id], price: I("lock", 16) + " Reach Level " + (t.minLevel + 1), cls: "locked" });
     return card({ icon: I(t.id, 30), title: t.name, lv: "key " + t.key, desc: tag ? WHY[t.id] || TOOL_DESC[t.id] : TOOL_DESC[t.id], action: "tool", value: t.id, cost: owned ? undefined : t.unlock,
       price: owned ? (R.tool === t.id ? "IN HAND" : "HOLD IT") : "$" + HH.cash(t.unlock), cls: (owned ? (R.tool === t.id ? "eq" : "owned") : "") + (tag ? " suggest" : ""), tag: tag });
   }
@@ -449,7 +476,7 @@ HH.UI = (function () {
       if (out.length >= 4) return;
       if (id === "bag") { if (HH.BAG_TIERS[R.tier + 1]) out.push({ k: "bag", cost: HH.BAG_TIERS[R.tier + 1].cost }); return; }
       const t = HH.TOOLS.find(function (x) { return x.id === id; });
-      if (t) { if (G.toolAvailable(t) && !R.tools[id]) out.push({ k: "tool", t: t, cost: t.unlock }); return; }
+      if (t) { if (G.toolAvailable(t) && !R.tools[id] && !(t.minLevel && G.level() < t.minLevel)) out.push({ k: "tool", t: t, cost: t.unlock }); return; }
       const u = HH.UPGRADES.find(function (x) { return x.id === id; });
       if (u && G.canBuy(u)) out.push({ k: "up", u: u, cost: G.upCost(u) });
     });
@@ -526,7 +553,7 @@ HH.UI = (function () {
       h += '<div class="subhead">Rebirth Shop (permanent forever)</div>';
       HH.REBIRTH_ITEMS.forEach(function (it) {
         const own = S.rb && S.rb[it.id];
-        h += card({ icon: I(({ kitgrab: "hand", kitbag: "bag", kitfork: "fork", goldgloves: "hand", autosell: "cash", rainbowrain: "rainbow", clover: "star", hamking: "hamster", needlesense: "radar", gemfountain: "gem" })[it.id] || "star", 30), title: it.name, desc: it.desc, action: own ? null : "rbitem", value: it.id, cost: own ? undefined : it.cost, cur: "tokens", price: own ? "OWNED" : I("rebirth", 16) + " " + it.cost, cls: own ? "owned" : "" });
+        h += card({ icon: I(({ kitgrab: "hand", kitbag: "bag", kitfork: "fork", goldgloves: "hand", autosell: "cash", rainbowrain: "rainbow", clover: "star", hamking: "hamster", needlesense: "radar", gemfountain: "gem", infjet: "boost", dronearmy: "drone", superbag: "bag", titanfork: "fork", midas: "cash", timelord: "clock" })[it.id] || "star", 30), title: it.name, desc: it.desc, action: own ? null : "rbitem", value: it.id, cost: own ? undefined : it.cost, cur: "tokens", price: own ? "OWNED" : I("rebirth", 16) + " " + it.cost, cls: own ? "owned" : "" });
       });
     } else if (cat.id === "Classes") {
       HH.CLASSES.forEach(function (c) {

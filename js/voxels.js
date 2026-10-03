@@ -608,6 +608,28 @@ HH.Voxels = (function () {
     return limit ? out.slice(0, limit) : out;
   }
 
+  function hideNeedle() {
+    let maxTop = 0;
+    const tops = new Int16Array(NX * NZ);
+    for (let k = 0; k < NZ; k++) for (let i = 0; i < NX; i++) {
+      let t = 0;
+      for (let j = NY - 1; j >= 0; j--) if (grid[idx(i, j, k)]) { t = j + 1; break; }
+      tops[k * NX + i] = t;
+      if (t > maxTop) maxTop = t;
+    }
+    for (let tries = 0; tries < 400; tries++) {
+      const i = Math.floor(Math.random() * NX), k = Math.floor(Math.random() * NZ), top = tops[k * NX + i];
+      if (top < Math.max(3, maxTop * (tries < 300 ? 0.5 : 0.1))) continue;
+      const j = Math.floor(Math.random() * Math.max(1, top * 0.6));
+      const c = idx(i, j, k);
+      if (grid[c] !== HAY) continue;
+      grid[c] = NEEDLE;
+      needleC = c;
+      return true;
+    }
+    return false;
+  }
+
   function needlePos() {
     if (needleC < 0 || grid[needleC] !== NEEDLE) return null;
     const ijk = cellIJK(needleC);
@@ -692,7 +714,8 @@ HH.Voxels = (function () {
     setViewer: function (p, d) { viewer.p.copy(p); viewer.d.set(d.x, 0, d.z).normalize(); },
     get gridSize() { return grid ? grid.length : 0; },
     build: build, removeCells: removeCells, raycast: raycast, nearest: nearest,
-    solidAt: solidAt, boxHits: boxHits, topAt: topAt, needlePos: needlePos, randomSurface: randomSurface,
+    solidAt: solidAt, boxHits: boxHits, topAt: topAt, needlePos: needlePos, hideNeedle: hideNeedle,
+    fallingAt: function (x, z) { if (!fallCols.size) return false; const c = worldToCell(x, 0, z); return forcedFrom(c[0], c[2]) !== Infinity; }, randomSurface: randomSurface,
     encode: encode, decode: decode, sizeFor: sizeFor, update: update,
     get remaining() { return filled; },
     get total() { return total; },

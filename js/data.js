@@ -24,13 +24,13 @@ HH.MAPS = [
 HH.TOOLS = [
   { id: "hand", name: "Hands", key: "1", unlock: 0, icon: "&#9995;" },
   { id: "fork", name: "Pitchfork", key: "2", unlock: 15, icon: "&#128305;" },
-  { id: "tnt", name: "Dynamite", key: "3", unlock: 40, icon: "&#129512;", rb: 1 },
-  { id: "vac", name: "Vacuum", key: "4", unlock: 120, icon: "&#127744;", rb: 2 },
-  { id: "tornado", name: "Hay Tornado", key: "5", unlock: 300, icon: "&#127786;", rb: 3 },
-  { id: "hole", name: "Black Hole", key: "6", unlock: 1500, icon: "&#127761;", rb: 4 }
+  { id: "tnt", name: "Dynamite", key: "3", unlock: 150, minLevel: 1, icon: "&#129512;" },
+  { id: "vac", name: "Vacuum", key: "4", unlock: 600, minLevel: 3, icon: "&#127744;" },
+  { id: "tornado", name: "Hay Tornado", key: "5", unlock: 2500, icon: "&#127786;", rb: 1 },
+  { id: "hole", name: "Black Hole", key: "6", unlock: 12000, icon: "&#127761;", rb: 2 }
 ];
 
-HH.BAG_TIERS = [ { cap: 80, cost: 0 }, { cap: 160, cost: 4 }, { cap: 280, cost: 10 }, { cap: 460, cost: 22 }, { cap: 720, cost: 45 }, { cap: 1100, cost: 85 }, { cap: 1700, cost: 150 }, { cap: 2600, cost: 260 }, { cap: 3800, cost: 430 }, { cap: 5500, cost: 700 }, { cap: 8000, cost: 1100 }, { cap: 11500, cost: 1700 } ];
+HH.BAG_TIERS = [ { cap: 80, cost: 0 }, { cap: 160, cost: 12 }, { cap: 280, cost: 30 }, { cap: 460, cost: 70 }, { cap: 720, cost: 150 }, { cap: 1100, cost: 300 }, { cap: 1700, cost: 560 }, { cap: 2600, cost: 1000 }, { cap: 3800, cost: 1800 }, { cap: 5500, cost: 3200 }, { cap: 8000, cost: 5600 }, { cap: 11500, cost: 9500 }, { cap: 16000, cost: 16000 }, { cap: 22000, cost: 27000 }, { cap: 30000, cost: 45000 } ];
 
 HH.UPGRADES = [
   { id: "hold", group: "Hands", name: "Auto-Grab", desc: "Hold the mouse to keep grabbing", base: 1, grow: 1, max: 1 },
@@ -89,7 +89,27 @@ HH.UPGRADES = [
   { id: "stormcall", group: "Late Game", minLevel: 6, name: "Storm Caller", desc: "Hay Storms happen twice as often", base: 800, grow: 1, max: 1 },
   { id: "nuke", group: "Late Game", minLevel: 6, tool: "tnt", name: "Nuke-a-mite", desc: "Every 4th dynamite is a MEGA blast", base: 900, grow: 1, max: 1 },
   { id: "harvest", group: "Late Game", minLevel: 8, name: "Golden Harvest", desc: "All hay is worth +25% more", base: 1500, grow: 2.2, max: 3 },
-  { id: "nmagnet", group: "Late Game", minLevel: 8, name: "Needle Magnet", desc: "The needle rips itself out of the hay when you get within 3m", base: 2500, grow: 1, max: 1 }
+  { id: "nmagnet", group: "Late Game", minLevel: 8, name: "Needle Magnet", desc: "The needle rips itself out of the hay when you get within 3m", base: 2500, grow: 1, max: 1 },
+  { id: "baler", group: "Late Game", minLevel: 5, name: "Hay Baler", desc: "Bale your hay before selling: +10% hay value per level", base: 2000, grow: 1.8, max: 8 },
+  { id: "megabag", group: "Late Game", minLevel: 6, name: "Mega Bag", desc: "+20% bag space per level", base: 1500, grow: 1.9, max: 8 },
+  { id: "gemmag", group: "Late Game", minLevel: 7, name: "Gem Magnet", desc: "+10% gems from every needle per level", base: 3000, grow: 2, max: 5 },
+  { id: "qgrab", group: "Late Game", minLevel: 9, name: "Quantum Grab", desc: "Hand grabs take +30% more hay per level", base: 4000, grow: 1.9, max: 6 },
+  { id: "thermite", group: "Late Game", minLevel: 9, tool: "tnt", name: "Thermite Sticks", desc: "+15% blast radius per level", base: 5000, grow: 1.9, max: 6 },
+  { id: "ovac", group: "Late Game", minLevel: 10, tool: "vac", name: "Overclocked Vacuum", desc: "+20% suction per level", base: 6000, grow: 1.9, max: 6 },
+  { id: "stormmag", group: "Late Game", minLevel: 11, name: "Storm Magnet", desc: "Hay Storms last 30% longer per level", base: 8000, grow: 2, max: 4 },
+  { id: "goldfork", group: "Late Game", minLevel: 12, tool: "fork", name: "Golden Pitchfork", desc: "Pitchfork scoops 25% more hay per level", base: 9000, grow: 1.9, max: 6 },
+  { id: "vip", group: "Late Game", minLevel: 13, name: "Bjorn's VIP Card", desc: "+8% sell price per level", base: 12000, grow: 2, max: 6 },
+  { id: "lore", group: "Late Game", minLevel: 15, name: "Ancient Hay Lore", desc: "Packed hay gets 6% looser per level", base: 20000, grow: 2, max: 5 },
+  { id: "cosmic", group: "Late Game", minLevel: 15, tool: "hole", name: "Cosmic Black Hole", desc: "Black hole swallows 25% more per level", base: 25000, grow: 2, max: 5 },
+  { id: "warp", group: "Late Game", minLevel: 18, name: "Time Warp", desc: "Every tool cooldown is 5% shorter per level", base: 40000, grow: 2, max: 6 },
+  { id: "pockets", group: "Late Game", minLevel: 20, name: "Infinite Pockets", desc: "+50% bag space per level", base: 60000, grow: 2.2, max: 5 },
+  { id: "tycoon", group: "Late Game", minLevel: 25, name: "Hay Tycoon", desc: "+10% to ALL hay income per level", base: 100000, grow: 1.5, max: 8 },
+  { id: "dblj", group: "Gadgets", minLevel: 2, name: "Double Jump Boots", desc: "Press Space again in mid-air to jump a second time", base: 250, grow: 1, max: 1 },
+  { id: "jetpack", group: "Gadgets", minLevel: 3, name: "Jetpack", desc: "Hold Space in the air to fly! Fuel refills when you land", base: 900, grow: 1, max: 1 },
+  { id: "jfuel", group: "Gadgets", req: "jetpack", name: "Bigger Fuel Tank", desc: "+40% jetpack fuel per level", base: 350, grow: 1.8, max: 6 },
+  { id: "jthrust", group: "Gadgets", req: "jetpack", name: "Jet Thrusters", desc: "Fly up faster and steer quicker", base: 450, grow: 1.8, max: 5 },
+  { id: "jrefuel", group: "Gadgets", req: "jetpack", name: "Quick Refuel", desc: "Fuel refills 30% faster per level", base: 400, grow: 1.8, max: 5 },
+  { id: "hayboard", group: "Gadgets", minLevel: 6, name: "Hay Hoverboard", desc: "Sprinting is 20% faster per level and never tires", base: 2500, grow: 1.9, max: 5 }
 ];
 
 HH.REBIRTH_ITEMS = [
@@ -101,8 +121,14 @@ HH.REBIRTH_ITEMS = [
   { id: "rainbowrain", name: "Rainbow Rain", desc: "Hay Storms come twice as often and last longer.", cost: 3, icon: "&#127752;" },
   { id: "clover", name: "Lucky Clover", desc: "+50% rainbow hay and diamonds in every haystack.", cost: 4, icon: "&#127808;" },
   { id: "hamking", name: "Hamster King", desc: "Start every haystack with a Hay Hamster that works 2x faster.", cost: 4, icon: "&#128057;" },
-  { id: "needlesense", name: "Needle Sense", desc: "Free Needle Radar every haystack, with +4m range.", cost: 5, icon: "&#128225;" },
-  { id: "gemfountain", name: "Gem Fountain", desc: "+50% gems from everything, forever.", cost: 5, icon: "&#9970;" }
+  { id: "needlesense", name: "Needle Sense", desc: "Free Needle Radar every haystack, with +2m range.", cost: 5, icon: "&#128225;" },
+  { id: "gemfountain", name: "Gem Fountain", desc: "+50% gems from everything, forever.", cost: 5, icon: "&#9970;" },
+  { id: "infjet", name: "Rocket Fuel", desc: "A free Jetpack that NEVER runs out of fuel.", cost: 6, icon: "" },
+  { id: "dronearmy", name: "Drone Army", desc: "+2 free Hay Drones that collect and sell for you.", cost: 6, icon: "" },
+  { id: "superbag", name: "Bottomless Bag", desc: "Your bag holds DOUBLE, forever.", cost: 7, icon: "" },
+  { id: "titanfork", name: "Titan Pitchfork", desc: "Pitchfork scoops twice as much hay, forever.", cost: 7, icon: "" },
+  { id: "midas", name: "Midas Touch", desc: "ALL hay is worth DOUBLE, forever.", cost: 8, icon: "" },
+  { id: "timelord", name: "Time Lord", desc: "Every tool cooldown is cut in HALF, forever.", cost: 9, icon: "" }
 ];
 
 HH.LEVELS = [

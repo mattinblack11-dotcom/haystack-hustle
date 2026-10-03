@@ -69,6 +69,10 @@ HH.App = (function () {
       else UI.toast("The Hay Storm passed.", 2000);
     } else if (name === "comboEnd") {
       UI.toast("Combo ended at <b>x" + d.n + "</b>!", 1500);
+    } else if (name === "needlepart") {
+      UI.toast(HH.icon("needle", 20) + " <b>Needle " + d.done + " of " + d.need + " delivered!</b> Another needle is hidden deep in the stack.", 3500);
+      UI.confetti(40);
+      UI.flyIcons("gem", 6);
     } else if (name === "win") {
       if (!HH.Net.active) paused = true;
       winAt = performance.now();
@@ -85,7 +89,7 @@ HH.App = (function () {
     } else if (name === "run") {
       const L = d.level;
       if (d.restored) UI.toast("Welcome back! Your level was saved.", 2500);
-      else if (L) UI.toast("<b>Level " + (d.index + 1) + ": " + L.name + "</b><br>" + L.tip + (G.run && G.run.density > 1 ? "<br><small>Hay here is packed " + Math.round((G.run.density - 1) * 100) + "% tighter.</small>" : ""), 5000);
+      else if (L) UI.toast("<b>Level " + (d.index + 1) + ": " + L.name + "</b><br>" + L.tip + (G.needlesFor(d.index) > 1 ? "<br><b>Find " + G.needlesFor(d.index) + " needles</b> to finish this level." : "") + (G.run && G.run.density > 1 ? "<br><small>Hay here is packed " + Math.round((G.run.density - 1) * 100) + "% tighter.</small>" : ""), 5000);
     } else if (name === "mp") {
       if (d.kind === "hosting") UI.toast("Room <b>" + HH.Net.room + "</b> is open! Share the code or invite link.", 3500);
       if (d.kind === "joining") UI.toast("Joining room <b>" + HH.Net.room + "</b>...", 2500);
@@ -457,6 +461,7 @@ HH.App = (function () {
 
   async function boot() {
     UI.loading(0.05, "Loading the barn...");
+    try { if (document.fonts) await document.fonts.load("54px \"Lilita One\""); } catch (e) {}
     await breathe();
     HH.World.init(document.getElementById("game"));
     await HH.Platform.init();
