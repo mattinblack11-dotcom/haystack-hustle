@@ -244,7 +244,7 @@ HH.World = (function () {
 
   function setQuality(mode) {
     const fast = mode === "fast";
-    renderer.setPixelRatio(fast ? 0.75 : Math.min(window.devicePixelRatio || 1, 1.25));
+    renderer.setPixelRatio(fast ? 0.75 : 1);
     sun.castShadow = !fast;
     HH.Voxels.setTufts(!fast);
     resize();
@@ -930,7 +930,7 @@ HH.World = (function () {
 
   function init(canvas) {
     renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, powerPreference: "high-performance" });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.25));
+    renderer.setPixelRatio(1);
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.autoClear = false;

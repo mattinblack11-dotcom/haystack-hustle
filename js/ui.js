@@ -374,7 +374,7 @@ HH.UI = (function () {
     magnet: function (l) { return l ? p1(3 + 1.5 * l) + "m pull" : "no magnet"; },
     teleport: function (l) { return l ? "F = sell anywhere" : "walk to Bjorn"; },
     radar: function (l) { return l ? "radar on" : "no radar"; },
-    rrange: function (l) { return (3 + 2 * l) + "m range"; },
+    rrange: function (l) { return (2.2 + 1.1 * l).toFixed(1) + "m range (rough)"; },
     compass: function (l) { return l ? "compass on" : "no compass"; },
     hamster: function (l) { return l ? "hamster helps" : "no hamster"; },
     hamlvl: function (l) { return p1(1.2 * Math.pow(2, l) * 3) + " hay/sec"; },

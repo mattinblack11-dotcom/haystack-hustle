@@ -12,7 +12,7 @@ HH.MAPS = [
     sky: 0x23285e, fog: 0x343a78, ground: 0x3f6f58, hay: [0xd8c070, 0xc9ae5c, 0xe6d28a, 0xbfa050], night: true
   },
   {
-    id: "silo", name: "Spooky Silo", radius: 24, height: 46, hayValue: 0.042, gems: 300, needles: 3, par: 900, tall: true,
+    id: "silo", name: "Spooky Silo", radius: 30, height: 46, hayValue: 0.042, gems: 300, needles: 3, par: 900, tall: true,
     sky: 0x4b2d60, fog: 0x5e3d70, ground: 0x544636, hay: [0xc7a24a, 0xb89040, 0xd8b460, 0xa87f35], night: true
   },
   {
@@ -74,7 +74,7 @@ HH.UPGRADES = [
   { id: "dfleet", group: "Helpers", req: "drone", name: "Drone Fleet", desc: "+1 extra drone", base: 200, grow: 2.5, max: 2 },
   { id: "magnet", group: "Helpers", name: "Hay Magnet", desc: "Pulls in loose treasure and rainbow hay around you", base: 30, grow: 1.7, max: 5 },
   { id: "teleport", group: "Helpers", name: "Hay Teleporter", desc: "Press F to sell from anywhere (20% fee)", base: 150, grow: 1, max: 1 },
-  { id: "radar", group: "Needle Hunting", name: "Needle Radar", desc: "Beeps faster as you get close to the needle", base: 25, grow: 1, max: 1 },
+  { id: "radar", group: "Needle Hunting", name: "Needle Radar", desc: "Beeps when the needle is somewhere nearby (a rough hint, not exact)", base: 60, grow: 1, max: 1 },
   { id: "rrange", group: "Needle Hunting", req: "radar", name: "Radar Range", desc: "Detects the needle from further away", base: 10, grow: 1.8, max: 5 },
   { id: "compass", group: "Needle Hunting", name: "Needle Compass", desc: "Once 35% of the stack is cleared, a compass points toward the needle", base: 300, grow: 1, max: 1 },
   { id: "hsize", group: "Black Hole", tool: "hole", name: "Event Horizon", desc: "Black hole swallows a bigger area", base: 300, grow: 1.8, max: 5 },
@@ -104,18 +104,18 @@ HH.REBIRTH_ITEMS = [
 ];
 
 HH.LEVELS = [
-  { name: "First Haystack", map: "barnyard", layout: "dome", size: 0.75, tip: "A small stack to learn the ropes. Find the needle and bring it to Wizzo!" },
-  { name: "Twin Trouble", map: "barnyard", layout: "twin", size: 0.75, tip: "Two haystacks! The needle is in one of them." },
-  { name: "Golden Hill", map: "barnyard", layout: "dome", size: 0.9, tip: "A tall golden hill. Dig straight down to save time." },
-  { name: "Muddy Meadow", map: "meadow", layout: "cluster", size: 0.85, mud: 6, tip: "Five small stacks, and mud puddles slow you down." },
-  { name: "Hay Maze", map: "barnyard", layout: "maze", size: 0.9, tip: "Walls of hay form a maze. Dig through or find your way around." },
-  { name: "Windy Ridge", map: "meadow", layout: "wall", size: 1, wind: true, tip: "Long hay walls, and strong gusts of wind push you around." },
-  { name: "The Doughnut", map: "meadow", layout: "ring", size: 1, tip: "A ring-shaped stack. Check the inner wall too." },
-  { name: "Silo Tower", map: "silo", layout: "tower", size: 1, deep: true, tip: "A tall tower of hay. The needle is buried deep." },
-  { name: "Stepped Pyramid", map: "silo", layout: "pyramid", size: 1, mud: 4, tip: "A pyramid with mud around it. Climb carefully!" },
-  { name: "Foggy Fields", map: "meadow", layout: "cluster", size: 1.1, fog: true, mud: 5, tip: "Thick fog hides the far stacks. Use your radar!" },
-  { name: "Storm Front", map: "mega", layout: "twin", size: 1.05, wind: true, tip: "Wind and two big stacks." },
-  { name: "The Mega Stack", map: "mega", layout: "dome", size: 1.15, deep: true, tip: "The biggest haystack yet. Good luck!" }
+  { name: "First Haystack", map: "barnyard", layout: "dome", size: 0.8, tip: "A small stack to learn the ropes. Find the needle and bring it to Wizzo!" },
+  { name: "Twin Trouble", map: "barnyard", layout: "twin", size: 0.95, tip: "Two haystacks! The needle is in one of them." },
+  { name: "Golden Hill", map: "barnyard", layout: "dome", size: 1.05, tip: "A tall golden hill. Dig straight down to save time." },
+  { name: "Muddy Meadow", map: "meadow", layout: "cluster", size: 1.1, mud: 6, tip: "Five small stacks, and mud puddles slow you down." },
+  { name: "Hay Maze", map: "barnyard", layout: "maze", size: 1.1, tip: "Walls of hay form a maze. Dig through or find your way around." },
+  { name: "Windy Ridge", map: "meadow", layout: "wall", size: 1.15, wind: true, tip: "Long hay walls, and strong gusts of wind push you around." },
+  { name: "The Doughnut", map: "meadow", layout: "ring", size: 1.2, tip: "A ring-shaped stack. Check the inner wall too." },
+  { name: "Silo Tower", map: "silo", layout: "tower", size: 1.2, deep: true, tip: "A tall tower of hay. The needle is buried deep." },
+  { name: "Stepped Pyramid", map: "silo", layout: "pyramid", size: 1.25, mud: 4, tip: "A pyramid with mud around it. Climb carefully!" },
+  { name: "Foggy Fields", map: "meadow", layout: "cluster", size: 1.3, fog: true, mud: 5, tip: "Thick fog hides the far stacks. Use your radar!" },
+  { name: "Storm Front", map: "mega", layout: "twin", size: 1.3, wind: true, tip: "Wind and two big stacks." },
+  { name: "The Mega Stack", map: "mega", layout: "dome", size: 1.4, deep: true, tip: "The biggest haystack yet. Good luck!" }
 ];
 
 HH.BOOSTS = [

@@ -37,7 +37,7 @@ HH.Game = (function () {
     return Object.assign({}, base, {
       index: i,
       name: "Endless " + (n + 1) + ": " + base.name,
-      size: Math.min(1.4, base.size + 0.05 + n * 0.02),
+      size: Math.min(1.6, base.size + 0.05 + n * 0.02),
       mud: (base.mud || 0) + (n % 3 === 0 ? 3 : 0),
       wind: base.wind || n % 4 === 1,
       deep: true,
@@ -93,7 +93,7 @@ HH.Game = (function () {
       droneCap: Math.floor((20 + 10 * lvl("dcap")) * (has("dronewhisper") ? 1.4 : 1)),
       magnet: lvl("magnet") ? 3 + 1.5 * lvl("magnet") : 0,
       radar: lvl("radar") > 0 || rb("needlesense"),
-      radarRange: (3 + 2 * lvl("rrange") + (rb("needlesense") ? 4 : 0)) * (has("sniffer") ? 1.3 : 1),
+      radarRange: (2.2 + 1.1 * lvl("rrange") + (rb("needlesense") ? 2 : 0)) * (has("sniffer") ? 1.15 : 1),
       hamster: lvl("hamster") > 0 || rb("hamking"),
       hamRate: 1.2 * Math.pow(2, lvl("hamlvl")) * (rb("hamking") ? 2 : 1),
       bulk: 0.03 * lvl("bulk"),
@@ -144,7 +144,7 @@ HH.Game = (function () {
 
   function levelScale(L, mapId) {
     const grow = 1 + 0.045 * Math.min(L.index || 0, 16);
-    return Math.min(2, HH.stackScale(S().needles || 0, S().rebirths || 0, mapId) * (L.size || 1) * grow);
+    return Math.min(2.2, HH.stackScale(S().needles || 0, S().rebirths || 0, mapId) * (L.size || 1) * grow);
   }
 
   function setupLevelExtras(L, seed) {
@@ -968,11 +968,13 @@ HH.Game = (function () {
     }
     R.radar = 0;
     if (st.radar && !R.found && needleCache.p) {
-      const d = needleCache.p.distanceTo(new THREE.Vector3(pp.x, pp.y + 1, pp.z));
-      R.radar = d < st.radarRange ? 1 - d / st.radarRange : 0;
+      if (!R.radarOff) { const a = Math.random() * Math.PI * 2; R.radarOff = [Math.cos(a) * (1 + Math.random()), (Math.random() - 0.5) * 1.2, Math.sin(a) * (1 + Math.random())]; }
+      const fuzzy = needleCache.p.clone().add(new THREE.Vector3(R.radarOff[0], R.radarOff[1], R.radarOff[2]));
+      const d = fuzzy.distanceTo(new THREE.Vector3(pp.x, pp.y + 1, pp.z));
+      R.radar = d < st.radarRange ? Math.ceil((1 - d / st.radarRange) * 3) / 3 : 0;
       if (R.radar > 0) {
         beepT -= dt;
-        if (beepT <= 0) { beepT = 0.1 + (1 - R.radar) * 1.1; HH.Audio.play("beep", R.radar); }
+        if (beepT <= 0) { beepT = R.radar > 0.9 ? 0.45 : R.radar > 0.5 ? 0.9 : 1.6; HH.Audio.play("beep", R.radar); }
       }
     }
 

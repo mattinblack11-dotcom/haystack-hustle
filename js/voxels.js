@@ -87,11 +87,6 @@ HH.Voxels = (function () {
     return !get(i, j + 1, k) || !get(i + 1, j, k) || !get(i - 1, j, k) || !get(i, j, k + 1) || !get(i, j, k - 1) || (j > 0 && !get(i, j - 1, k));
   }
 
-  function shell(i, j, k) {
-    if (exposed(i, j, k)) return true;
-    return (get(i, j + 1, k) && exposed(i, j + 1, k)) || (get(i + 1, j, k) && exposed(i + 1, j, k)) || (get(i - 1, j, k) && exposed(i - 1, j, k)) || (get(i, j, k + 1) && exposed(i, j, k + 1)) || (get(i, j, k - 1) && exposed(i, j, k - 1));
-  }
-
   function hash3(a, b, c) {
     let h = (a * 374761393 + b * 668265263 + c * 2147483647) | 0;
     h = Math.imul(h ^ (h >>> 13), 1274126177);
@@ -194,7 +189,7 @@ HH.Voxels = (function () {
       for (let j = 0; j < NY; j++) {
         const c = idx(i, j, k);
         const t = grid[c];
-        const wantCore = t !== EMPTY && (j >= lo || shell(i, j, k));
+        const wantCore = t !== EMPTY && (j >= lo || exposed(i, j, k));
         const wantTuft = t !== EMPTY && t !== STONE && !get(i, j + 1, k);
         if (t === EMPTY) falls.delete(c);
         const n = instIndex[c];
@@ -240,10 +235,10 @@ HH.Voxels = (function () {
     const p0 = r() * 6.28;
     const blobs = [];
     if (lay === "dome") blobs.push([0, 0, R, H]);
-    else if (lay === "twin") { blobs.push([R * 0.46, 0, R * 0.52, H * 0.85]); blobs.push([-R * 0.46, 0, R * 0.5, H * 0.8]); }
+    else if (lay === "twin") { blobs.push([R * 0.44, 0, R * 0.6, H * 0.92]); blobs.push([-R * 0.44, 0, R * 0.58, H * 0.88]); }
     else if (lay === "cluster") {
-      blobs.push([0, 0, R * 0.36, H * 0.8]);
-      for (let q = 0; q < 4; q++) { const a = q * Math.PI / 2 + r() * 0.5; blobs.push([Math.cos(a) * R * 0.62, Math.sin(a) * R * 0.62, R * (0.3 + r() * 0.08), H * (0.55 + r() * 0.3)]); }
+      blobs.push([0, 0, R * 0.48, H * 0.9]);
+      for (let q = 0; q < 4; q++) { const a = q * Math.PI / 2 + r() * 0.5; blobs.push([Math.cos(a) * R * 0.64, Math.sin(a) * R * 0.64, R * (0.4 + r() * 0.08), H * (0.7 + r() * 0.25)]); }
     }
     let maze = null, mc = 7;
     if (lay === "maze") {
