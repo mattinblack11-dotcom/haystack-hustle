@@ -35,7 +35,9 @@ HH.UI = (function () {
     let x = p.x, y = p.y;
     if (!p.vis) { x = innerWidth - x; y = innerHeight - 80; }
     x = Math.max(50, Math.min(innerWidth - 50, x));
-    y = Math.max(100, Math.min(innerHeight - 160, y));
+    const topBox = $("center-top").getBoundingClientRect(), botBox = $("bottomstack").getBoundingClientRect();
+    const lo = Math.max(100, topBox.bottom + 40), hi = Math.min(innerHeight - 160, botBox.top - 30);
+    y = hi > lo ? Math.max(lo, Math.min(hi, y)) : (lo + hi) / 2;
     el.style.transform = "translate(" + Math.round(x) + "px," + Math.round(y) + "px) translate(-50%,-50%)";
     el.querySelector(".wp-text").textContent = text;
     el.classList.remove("hidden");

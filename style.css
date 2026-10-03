@@ -375,3 +375,14 @@ body.bagfull #fullfx { animation: fullfx 1s infinite alternate; }
 .chip.cash #cash::before { content: "$"; margin-right: 2px; opacity: 0.85; }
 .chip.cash.gain { animation: cashgain .5s; }
 @keyframes cashgain { 0% { transform: scale(1); } 35% { transform: scale(1.15); filter: brightness(1.35); } 100% { transform: scale(1); } }
+@media (max-height: 600px) {
+  .chip { font-size: 18px; min-width: 0; }
+  .chip.cash { font-size: 24px; }
+  #objective { font-size: 14px; padding: 4px 12px; }
+  #runinfo { display: none; }
+  #bottomstack { gap: 6px; }
+  #bigbag { padding: 4px 10px; }
+  #bottomstack #lockhint { font-size: 14px; padding: 4px 10px; }
+  .hbtn { font-size: 13px; padding: 5px 9px; }
+  .adoffer .ao-txt small { display: none; }
+}
