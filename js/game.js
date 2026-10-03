@@ -51,9 +51,9 @@ HH.Game = (function () {
     const fast = 1;
     const zone = R.zoneMul || 1;
     return {
-      basePrice: m.hayValue * (1 + 0.1 * P.hayValue) * (has("haggler") ? 1.2 : 1) * (1 + 0.05 * lvl("tip")) * (lvl("goose") ? 1.15 : 1) * (1 + 0.5 * rbs) * (1 + 0.5 * lvl("harvest")) * (1 + 0.08 * Math.min(R.levelIndex || 0, 20)),
+      basePrice: m.hayValue * (1 + 0.1 * P.hayValue) * (has("haggler") ? 1.2 : 1) * (1 + 0.05 * lvl("tip")) * (lvl("goose") ? 1.15 : 1) * (1 + 0.25 * rbs) * (1 + 0.25 * lvl("harvest")) * (1 + 0.05 * Math.min(R.levelIndex || 0, 30)),
       mul: comboMul * (R.storm > 0 ? 2 : 1),
-      cap: Math.floor((HH.BAG_TIERS[R.tier].cap + 15 * P.bagSize) * (has("baggoblin") ? 1.5 : 1) * (1 + 0.25 * lvl("compress")) * (boostOn("bagboost") ? 1.5 : 1)),
+      cap: Math.floor((HH.BAG_TIERS[R.tier].cap + 25 * P.bagSize) * (has("baggoblin") ? 1.5 : 1) * (1 + 0.25 * lvl("compress")) * (boostOn("bagboost") ? 1.5 : 1)),
       grab: (3 + lvl("grasp") + P.grab) * (rb("goldgloves") ? 2 : 1),
       drill: 0.04 * lvl("drill"),
       autosell: rb("autosell") ? 1 : lvl("autosell") ? 0.9 : 0,
@@ -108,7 +108,8 @@ HH.Game = (function () {
   }
 
   function upCost(u) {
-    let c = u.base * Math.pow(u.grow, lvl(u.id));
+    const k = Math.max(0, u.grow - 1) * lvl(u.id);
+    let c = u.base * 1.3 * (1 + k + 0.35 * k * k);
     if (u.group === "Pitchfork" && has("forklord")) c *= 0.75;
     return Math.round(c * 100) / 100;
   }
@@ -466,6 +467,15 @@ HH.Game = (function () {
         emit("popup", { text: "+" + g + " gems", pos: p, color: "#7ff7ff" });
       }
       if (lucky) emit("popup", { text: "LUCKY BLAST x" + lucky, pos: p, color: "#ff8ae2" });
+      const s2 = stats();
+      const got = Math.min(Math.max(0, s2.cap - R.bag), Math.floor(res.hay * 0.7));
+      if (got > 0) {
+        R.bag += got;
+        R.bagValue += got * s2.basePrice * s2.mul;
+        for (let q = 0; q < Math.min(30, got); q++) HH.World.spawn(p.clone().add(new THREE.Vector3((Math.random() - 0.5) * r, Math.random() * r * 0.6, (Math.random() - 0.5) * r)), new THREE.Vector3((Math.random() - 0.5) * 4, 4 + Math.random() * 3, (Math.random() - 0.5) * 4), 0xf2c94c, "suck", 2);
+        emit("popup", { text: "+" + got + " hay", pos: p.clone().add(new THREE.Vector3(0, 1.5, 0)), color: "#ffe08a" });
+        updateBagState(s2);
+      }
     });
   }
 

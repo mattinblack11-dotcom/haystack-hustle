@@ -360,7 +360,7 @@ HH.UI = (function () {
     drill: function (l) { return 4 * l + "% gem chance"; },
     megafork: function (l) { return "+" + 40 * l + "% scoop"; },
     turbovac: function (l) { return "+" + 50 * l + "% suction"; },
-    harvest: function (l) { return "+" + 50 * l + "% hay value"; }
+    harvest: function (l) { return "+" + 25 * l + "% hay value"; }
   };
 
   function fxLine(u, l) {
@@ -382,7 +382,7 @@ HH.UI = (function () {
     { id: "late", name: "Late Game", icon: "crown", groups: ["Late Game"], blurb: "Powerful upgrades that unlock as your Farm Level goes up. You gain 1 level for every needle you return." }
   ];
 
-  const TOOL_DESC = { hand: "Grab hay by hand. Always free.", fork: "Scoop a big chunk of hay with every swing.", tnt: "Throw dynamite: it lands, the fuse burns, then BOOM. Blown-up hay is lost, but it digs deep fast.", vac: "Hold the mouse to suck up hay nonstop. Let it cool down when it overheats.", tornado: "Summon a twister that wanders the stack and sucks hay into your bag.", hole: "Open a black hole that swallows a huge chunk of the stack." };
+  const TOOL_DESC = { hand: "Grab hay by hand. Always free.", fork: "Scoop a big chunk of hay with every swing.", tnt: "Throw dynamite: it lands, the fuse burns, then BOOM. Digs deep fast, and most of the blasted hay lands in your bag.", vac: "Hold the mouse to suck up hay nonstop. Let it cool down when it overheats.", tornado: "Summon a twister that wanders the stack and sucks hay into your bag.", hole: "Open a black hole that swallows a huge chunk of the stack." };
   const WHY = { hold: "Hold the mouse instead of clicking. Huge time saver!", bag: "Fewer trips to Bjorn = more digging.", fork: "Digs about 10x faster than your hands.", grasp: "More hay from every grab.", speed: "Grab faster.", tnt: "Blast deep holes to hunt for the needle.", vac: "Suck up hay nonstop.", radar: "Beeps when you're close to the needle.", drone: "Free money while you dig.", tornado: "A twister that digs for you.", tip: "Every sale pays more.", reach: "Grab from further away.", fsweep: "Bigger pitchfork scoops.", vpower: "Much faster vacuum.", walk: "Get around faster." };
 
   function upgradeCard(u, tag) {
@@ -494,7 +494,7 @@ HH.UI = (function () {
       const nextTool = HH.TOOLS.find(function (t) { return (t.rb || 0) === rbs + 1; });
       h += '<div class="rebirth-box"><div class="rb-title">' + I("rebirth", 28) + " REBIRTH " + (rbs + 1) + "</div>" +
         '<div class="rb-bar"><div style="width:' + Math.min(100, have / need * 100) + '%"></div><span>' + Math.min(have, need) + " / " + need + " needles returned</span></div>" +
-        '<div class="rb-list"><b>You get:</b> +' + HH.Game.rebirthReward() + " Rebirth Tokens &middot; +50% cash forever &middot; +25% gems forever &middot; bigger haystacks" + (nextTool ? " &middot; <b>unlocks the " + nextTool.name + "</b>" : "") + "</div>" +
+        '<div class="rb-list"><b>You get:</b> +' + HH.Game.rebirthReward() + " Rebirth Tokens &middot; +25% cash forever &middot; +25% gems forever &middot; bigger haystacks" + (nextTool ? " &middot; <b>unlocks the " + nextTool.name + "</b>" : "") + "</div>" +
         '<div class="rb-list"><b>You lose:</b> your gems and perks. Classes, levels and Rebirth items stay.</div>' +
         '<button class="btn rb-btn" data-a="rebirth"' + (ready ? "" : " disabled") + ">" + (ready ? "REBIRTH NOW" : "Return " + (need - have) + " more needle" + (need - have > 1 ? "s" : "")) + "</button></div>";
       h += '<div class="subhead">Rebirth Shop (permanent forever)</div>';

@@ -8,15 +8,15 @@ HH.MAPS = [
     sky: 0x8fd3ff, fog: 0xcfeaff, ground: 0x7fc15a, hay: [0xf2c94c, 0xe8b53a, 0xf7d774, 0xdcaa36, 0xf5d066], night: false
   },
   {
-    id: "meadow", name: "Moonlit Meadow", radius: 36, height: 30, hayValue: 0.05, gems: 160, needles: 1, par: 780,
+    id: "meadow", name: "Moonlit Meadow", radius: 36, height: 30, hayValue: 0.03, gems: 160, needles: 1, par: 780,
     sky: 0x23285e, fog: 0x343a78, ground: 0x3f6f58, hay: [0xd8c070, 0xc9ae5c, 0xe6d28a, 0xbfa050], night: true
   },
   {
-    id: "silo", name: "Spooky Silo", radius: 24, height: 46, hayValue: 0.12, gems: 300, needles: 3, par: 900, tall: true,
+    id: "silo", name: "Spooky Silo", radius: 24, height: 46, hayValue: 0.042, gems: 300, needles: 3, par: 900, tall: true,
     sky: 0x4b2d60, fog: 0x5e3d70, ground: 0x544636, hay: [0xc7a24a, 0xb89040, 0xd8b460, 0xa87f35], night: true
   },
   {
-    id: "mega", name: "The Mega Stack", radius: 44, height: 38, hayValue: 0.3, gems: 600, needles: 6, par: 1200,
+    id: "mega", name: "The Mega Stack", radius: 44, height: 38, hayValue: 0.056, gems: 600, needles: 6, par: 1200,
     sky: 0xffb27a, fog: 0xffd2a8, ground: 0x9cb85a, hay: [0xffd75e, 0xf2c14a, 0xffe08a, 0xe8b23a, 0xffcf40], night: false
   }
 ];
@@ -30,10 +30,7 @@ HH.TOOLS = [
   { id: "hole", name: "Black Hole", key: "6", unlock: 1500, icon: "&#127761;", rb: 4 }
 ];
 
-HH.BAG_TIERS = [
-  { cap: 30, cost: 0 }, { cap: 60, cost: 3 }, { cap: 120, cost: 6 }, { cap: 200, cost: 12 }, { cap: 350, cost: 25 },
-  { cap: 600, cost: 60 }, { cap: 1000, cost: 150 }, { cap: 1600, cost: 350 }, { cap: 2500, cost: 800 }
-];
+HH.BAG_TIERS = [ { cap: 50, cost: 0 }, { cap: 100, cost: 4 }, { cap: 180, cost: 10 }, { cap: 300, cost: 22 }, { cap: 480, cost: 45 }, { cap: 750, cost: 85 }, { cap: 1150, cost: 150 }, { cap: 1700, cost: 260 }, { cap: 2500, cost: 430 }, { cap: 3600, cost: 700 }, { cap: 5000, cost: 1100 }, { cap: 7000, cost: 1700 } ];
 
 HH.UPGRADES = [
   { id: "hold", group: "Hands", name: "Auto-Grab", desc: "Hold the mouse to keep grabbing", base: 1, grow: 1, max: 1 },
@@ -89,13 +86,13 @@ HH.UPGRADES = [
   { id: "turbovac", group: "Late Game", minLevel: 5, tool: "vac", name: "Turbo Vacuum", desc: "+50% suction and cools twice as fast", base: 500, grow: 2, max: 3 },
   { id: "stormcall", group: "Late Game", minLevel: 6, name: "Storm Caller", desc: "Hay Storms happen twice as often", base: 800, grow: 1, max: 1 },
   { id: "nuke", group: "Late Game", minLevel: 6, tool: "tnt", name: "Nuke-a-mite", desc: "Every 4th dynamite is a MEGA blast", base: 900, grow: 1, max: 1 },
-  { id: "harvest", group: "Late Game", minLevel: 8, name: "Golden Harvest", desc: "All hay is worth +50% more", base: 1500, grow: 2.2, max: 3 },
+  { id: "harvest", group: "Late Game", minLevel: 8, name: "Golden Harvest", desc: "All hay is worth +25% more", base: 1500, grow: 2.2, max: 3 },
   { id: "nmagnet", group: "Late Game", minLevel: 8, name: "Needle Magnet", desc: "The needle rips itself out of the hay when you get within 3m", base: 2500, grow: 1, max: 1 }
 ];
 
 HH.REBIRTH_ITEMS = [
   { id: "kitgrab", name: "Starter Kit: Auto-Grab", desc: "Every haystack starts with Auto-Grab already bought.", cost: 1, icon: "&#9995;" },
-  { id: "kitbag", name: "Starter Backpack", desc: "Every haystack starts with Bag 2 (120 hay).", cost: 2, icon: "&#127890;" },
+  { id: "kitbag", name: "Starter Backpack", desc: "Every haystack starts with Bag 3 (180 hay).", cost: 2, icon: "&#127890;" },
   { id: "kitfork", name: "Starter Pitchfork", desc: "Every haystack starts with the Pitchfork.", cost: 2, icon: "&#128305;" },
   { id: "goldgloves", name: "Golden Gloves", desc: "Hand grabs take twice as much hay, forever.", cost: 3, icon: "&#129508;" },
   { id: "autosell", name: "Bjorn's Contract", desc: "Your bag auto-sells when full, with NO fee.", cost: 3, icon: "&#128221;" },
@@ -137,7 +134,7 @@ HH.stackScale = function (needles, rebirths, mapId) {
 
 HH.PERKS = [
   { id: "hayValue", name: "Hay Value", desc: "+10% cash per hay", base: 20, grow: 1.45, max: 25 },
-  { id: "bagSize", name: "Bag Size", desc: "+15 bag space", base: 25, grow: 1.45, max: 25 },
+  { id: "bagSize", name: "Bag Size", desc: "+25 bag space", base: 25, grow: 1.45, max: 25 },
   { id: "grab", name: "Grab Amount", desc: "+1 hay per hand grab", base: 50, grow: 1.6, max: 10 },
   { id: "startCash", name: "Head Start", desc: "Start each run with +$5", base: 40, grow: 1.6, max: 10 },
   { id: "lucky", name: "Rainbow Luck", desc: "+15% rainbow hay in every stack", base: 60, grow: 1.6, max: 10 },

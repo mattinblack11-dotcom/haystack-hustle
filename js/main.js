@@ -164,7 +164,7 @@ HH.App = (function () {
         UI.flash();
         if (!HH.Net.active) G.startLevel(G.run.levelIndex);
         const nt = HH.TOOLS.find(function (t) { return (t.rb || 0) === S().rebirths; });
-        setTimeout(function () { UI.toast("<b>REBIRTH " + S().rebirths + "!</b> +" + reward + " tokens, +50% cash forever" + (nt ? ". New tool unlocked: <b>" + nt.name + "</b>!" : "!"), 5000); }, 400);
+        setTimeout(function () { UI.toast("<b>REBIRTH " + S().rebirths + "!</b> +" + reward + " tokens, +25% cash forever" + (nt ? ". New tool unlocked: <b>" + nt.name + "</b>!" : "!"), 5000); }, 400);
         return true;
       },
       rbitem: function (id) { return G.buyRebirthItem(id); },
