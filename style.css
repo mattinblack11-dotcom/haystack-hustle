@@ -411,3 +411,21 @@ body.bagfull #fullfx { animation: fullfx 1s infinite alternate; }
 #jetfuel { display: flex; align-items: center; gap: 8px; width: 220px; font-size: 12px; font-weight: 900; color: #fff; text-shadow: 0 2px 0 #000; }
 #jetfuel .bar { flex: 1; height: 12px; border-radius: 6px; background: rgba(0,0,0,0.45); border: 2px solid #ffd23f; overflow: hidden; }
 #jetfill { height: 100%; width: 100%; background: linear-gradient(90deg, #ff7a2a, #ffd23f); }
+#quest { pointer-events: none; display: flex; gap: 8px; align-items: center; width: 270px; max-width: 100%; padding: 8px 10px; border-radius: 14px; background: linear-gradient(180deg, rgba(58,110,190,0.95), rgba(34,70,140,0.95)); border: 3px solid #9fd0ff; box-shadow: 0 4px 0 rgba(0,0,0,0.3); }
+#quest .q-ic { width: 34px; height: 34px; flex: none; display: grid; place-items: center; background: rgba(255,255,255,0.2); border-radius: 10px; }
+#quest .q-ic svg { width: 26px; height: 26px; }
+#quest .q-main { flex: 1; min-width: 0; }
+#quest .q-top { display: flex; justify-content: space-between; gap: 6px; align-items: baseline; }
+#quest .q-title { font-size: 14px; overflow-wrap: anywhere; }
+#quest .q-rew { font-size: 12px; white-space: nowrap; color: #fff3a0; display: inline-flex; align-items: center; gap: 3px; }
+#quest .q-rew svg { width: 16px; height: 16px; }
+#quest .q-bar { height: 8px; border-radius: 5px; background: rgba(0,0,0,0.35); overflow: hidden; margin-top: 4px; }
+#quest .q-bar div { height: 100%; background: linear-gradient(90deg, #7ff7ff, #8aff8a); transition: width .2s; }
+#quest .q-num { font-size: 11px; opacity: 0.85; margin-top: 2px; }
+#quest.done { animation: questdone .9s; }
+@keyframes questdone { 0% { filter: brightness(1); } 30% { filter: brightness(1.8); box-shadow: 0 0 26px 8px rgba(140,255,160,0.8); } 100% { filter: brightness(1); } }
+#beginner { pointer-events: none; display: flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 12px; font-size: 12px; background: linear-gradient(90deg, #ff9a3d, #ff5cc8); border: 2px solid #ffe08a; max-width: 270px; overflow-wrap: anywhere; }
+#beginner svg { width: 20px; height: 20px; flex: none; }
+.hbtn.gift { display: flex; align-items: center; gap: 6px; background: #6b4bd6; box-shadow: 0 5px 0 #3f2a8a; font-size: 14px; }
+.hbtn.gift svg { width: 24px; height: 24px; }
+.hbtn.gift.ready { background: linear-gradient(180deg, #ffd23f, #f0a020); color: #3b2200; text-shadow: none; box-shadow: 0 5px 0 #9a5a00; animation: adglow 0.7s infinite alternate; }

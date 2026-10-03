@@ -19,6 +19,8 @@
         <div class="bar"><div id="bagfill"></div></div>
       </div>
       <div id="boosts"></div>
+      <div id="beginner" class="hidden"></div>
+      <div id="quest" class="hidden"></div>
     </div>
     <div id="center-top">
       <div id="objective"></div>
@@ -35,6 +37,7 @@
         <button class="hbtn mp" data-open="mp">FRIENDS</button>
         <button class="hbtn" data-open="pause">&#9776;</button>
       </div>
+      <button class="hbtn gift hidden" id="gift" data-open="gift"></button>
       <button class="hbtn boost adoffer" id="adoffer" data-open="adoffer"><span id="adoffer-ic"></span><span class="ao-txt"><small>FREE (watch ad)</small><b id="adoffer-name"></b></span><kbd>V</kbd></button>
       <div id="mphud" class="hidden"></div>
       <div id="combo" class="hidden"></div>
@@ -94,6 +97,7 @@
 <script src="js/player.js"></script>
 <script src="js/net.js"></script>
 <script src="js/game.js"></script>
+<script src="js/quests.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/main.js"></script>
 <script src="js/models.js" async onload="HH.modelsReady && HH.modelsReady()"></script>

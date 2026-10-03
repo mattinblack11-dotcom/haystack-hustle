@@ -366,6 +366,7 @@ HH.App = (function () {
 
   function openPanel(name) {
     if (name === "adoffer") { if (ready && UI.panel !== "win") watchAd(adOffer()); return; }
+    if (name === "gift") { if (ready && UI.panel !== "win") HH.Quests.openGift(); return; }
     if (!ready || UI.panel === "win") return;
     if (UI.panel === name) { closePanel(); return; }
     if (UI.panel === "pause") { paused = false; HH.Platform.gameplayStart(); }
@@ -392,6 +393,7 @@ HH.App = (function () {
     if (code === "KeyG") { openPanel("gems"); return true; }
     if (code === "KeyC") { openPanel("style"); return true; }
     if (code === "KeyV" && !UI.panel) { watchAd(adOffer()); return true; }
+    if (code === "KeyJ" && !UI.panel) { HH.Quests.openGift(); return true; }
     if (code === "KeyR" && !UI.panel && G.run) { HH.Player.spawn(HH.World.spots.spawn.clone()); HH.Audio.play("boost"); UI.flash(); return true; }
     if (code === "KeyU") { if (G.run) { const n = G.buyMax(); if (UI.panel) UI.render(); UI.toast(n ? "<b>Bought " + n + " upgrade" + (n > 1 ? "s" : "") + "!</b>" : "Can't afford anything yet.", 1500); } return true; }
     if (code === "KeyB" && !UI.panel) { openPanel("boosts"); return true; }
@@ -433,6 +435,7 @@ HH.App = (function () {
     HH.Net.tick(dt);
     adHud(dt);
     pitCheck(dt);
+    HH.Quests.update(dt, !paused);
     if (UI.tickWin(dt)) goNext();
     if (paused && !UI.panel && G.run && G.run.done && !HH.Net.active && performance.now() - winAt > 2500) goNext();
     const frozen = !!UI.panel;

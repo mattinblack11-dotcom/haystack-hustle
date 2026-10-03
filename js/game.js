@@ -50,7 +50,7 @@ HH.Game = (function () {
     const comboMul = 1 + Math.min(R.combo || 0, 100) * 0.01 * (1 + 0.2 * lvl("combo"));
     const zone = R.zoneMul || 1;
     return {
-      basePrice: (rb("midas") ? 2 : 1) * (1 + 0.1 * lvl("baler")) * (1 + 0.08 * lvl("vip")) * (1 + 0.1 * lvl("tycoon")) * m.hayValue * (1 + 0.1 * P.hayValue) * (has("haggler") ? 1.2 : 1) * (1 + 0.05 * lvl("tip")) * (lvl("goose") ? 1.15 : 1) * (1 + 0.25 * rbs) * (1 + 0.25 * lvl("harvest")) * (1 + 0.05 * Math.min(R.levelIndex || 0, 30)),
+      basePrice: (HH.Quests && HH.Quests.boostOn ? 2 : 1) * (rb("midas") ? 2 : 1) * (1 + 0.1 * lvl("baler")) * (1 + 0.08 * lvl("vip")) * (1 + 0.1 * lvl("tycoon")) * m.hayValue * (1 + 0.1 * P.hayValue) * (has("haggler") ? 1.2 : 1) * (1 + 0.05 * lvl("tip")) * (lvl("goose") ? 1.15 : 1) * (1 + 0.25 * rbs) * (1 + 0.25 * lvl("harvest")) * (1 + 0.05 * Math.min(R.levelIndex || 0, 30)),
       mul: comboMul * (R.storm > 0 ? 2 : 1),
       cap: Math.floor((rb("superbag") ? 2 : 1) * (1 + 0.2 * lvl("megabag")) * (1 + 0.5 * lvl("pockets")) * (HH.BAG_TIERS[R.tier].cap + 40 * P.bagSize) * (has("baggoblin") ? 1.5 : 1) * (1 + 0.25 * lvl("compress")) * (boostOn("bagboost") ? 1.5 : 1)),
       grab: Math.round((3 + lvl("grasp") + P.grab) * (rb("goldgloves") ? 2 : 1) * (1 + 0.3 * lvl("qgrab"))),
@@ -420,7 +420,7 @@ HH.Game = (function () {
     const st = stats();
     const bulk = 1 + st.bulk * Math.floor(R.bag / 100);
     const v = R.bagValue * bulk * rate * (boostOn("sellboost") ? 2 : 1);
-    R.cash += v; S().stats.cash += v;
+    R.cash += v; S().stats.cash += v; S().stats.sells = (S().stats.sells || 0) + 1;
     const pp = HH.Player.pos;
     emit("popup", { text: (auto ? "AUTO-SOLD +$" : "+$") + HH.cash(v) + (bulk > 1 ? "  BULK x" + bulk.toFixed(2) : ""), pos: pp.clone().add(new THREE.Vector3(0, 2.4, 0)), color: "#8aff8a", big: true });
     HH.Audio.play("sell", R.bag > 100);
