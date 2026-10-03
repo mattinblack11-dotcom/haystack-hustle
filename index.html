@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Haystack Hustle</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="fp">
+<canvas id="game"></canvas>
+
+<div id="hud">
+  <div id="topbar">
+    <div id="stats">
+      <div class="chip cash"><span class="ic" id="cashic"></span><span id="cash">0.00</span></div>
+      <div class="chip gems"><span class="ic" id="gemic"></span><span id="gems">0</span></div>
+      <div class="chip lvl" id="lvlchip"></div>
+      <div class="bag">
+        <div class="bag-top"><span>BAG</span><span id="bagtxt">0/30</span></div>
+        <div class="bar"><div id="bagfill"></div></div>
+      </div>
+      <div id="boosts"></div>
+    </div>
+    <div id="center-top">
+      <div id="objective"></div>
+      <div id="objarrow" class="objarrow hidden"><div id="objarrow-icon"></div><div id="objarrow-text"></div></div>
+      <div id="runinfo"><span id="timer">0:00</span> &middot; <span id="cleared">0%</span> cleared &middot; <span id="mapname"></span></div>
+      <div id="storm"></div>
+      <div id="toast"></div>
+    </div>
+    <div id="rightcol">
+      <div id="buttons">
+        <button class="hbtn shop" data-open="shop">SHOP <kbd>Tab</kbd></button>
+        <button class="hbtn gem" data-open="gems">GEMS <kbd>G</kbd></button>
+        <button class="hbtn style" data-open="style">STYLE <kbd>C</kbd></button>
+        <button class="hbtn mp" data-open="mp">FRIENDS</button>
+        <button class="hbtn" data-open="pause">&#9776;</button>
+      </div>
+      <button class="hbtn boost adoffer" id="adoffer" data-open="adoffer"><span id="adoffer-ic"></span><span class="ao-txt"><small>FREE (watch ad)</small><b id="adoffer-name"></b></span><kbd>V</kbd></button>
+      <div id="mphud" class="hidden"></div>
+      <div id="combo" class="hidden"></div>
+    </div>
+  </div>
+  <div id="bottomleft">
+    <div id="compass" class="hidden"><div id="compass-needle">&#11014;</div><span>NEEDLE</span></div>
+    <div id="radar" class="hidden"><div class="radar-label">NEEDLE RADAR</div><div class="bar"><div id="radarfill"></div></div></div>
+  </div>
+  <div id="bottomstack">
+    <div id="lockhint">Click to start digging &middot; mouse to look around</div>
+    <div id="say"></div>
+    <div id="heat" class="hidden"><div class="bar"><div id="heatfill"></div></div></div>
+    <div id="bigbag"><div id="bigbag-ic"></div><div class="bb-main"><div class="bb-top"><span id="bigbag-label">BAG</span><span id="bigbag-num">0</span></div><div class="bb-bar"><div id="bigbag-fill"></div></div></div></div>
+    <div id="hotbar"></div>
+  </div>
+</div>
+<div id="crosshair"></div>
+<div id="waypoint" class="marker hidden"><div class="wp-dot"></div><div class="wp-text"></div></div>
+<div id="popups"></div>
+<div id="flash"></div>
+<div id="fullfx"></div>
+<div id="overlay" class="hidden"><div id="panel"></div></div>
+<div id="loading">
+  <div class="load-box">
+    <div class="load-title">HAYSTACK<br>HUSTLE</div>
+    <div class="load-bar"><div id="load-fill"></div></div>
+    <div id="load-text">Stacking hay...</div>
+  </div>
+</div>
+
+<script src="lib/three.min.js"></script>
+<script src="lib/GLTFLoader.js"></script>
+<script src="lib/fflate.min.js"></script>
+<script src="lib/FBXLoader.js"></script>
+<script src="js/data.js"></script>
+<script src="js/icons.js"></script>
+<script src="js/sdk.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/music.js"></script>
+<script src="js/input.js"></script>
+<script src="js/voxels.js"></script>
+<script src="js/buildings.js"></script>
+<script src="js/world.js"></script>
+<script src="js/looks.js"></script>
+<script src="js/remote.js"></script>
+<script src="js/armsdata.js"></script>
+<script src="js/arms.js"></script>
+<script src="js/player.js"></script>
+<script src="js/net.js"></script>
+<script src="js/game.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/main.js"></script>
+<script src="js/models.js" async onload="HH.modelsReady && HH.modelsReady()"></script>
+<script src="js/chars.js" async></script>
+</body>
+</html>
