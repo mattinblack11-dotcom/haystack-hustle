@@ -45,6 +45,7 @@ HH.icon = function (name, size, cls) {
 };
 
 HH.UPGRADE_ICON = {
+  sharp: "fork", loosen: "bolt",
   hold: "hand", grasp: "hand", speed: "bolt", reach: "hand", golden: "star", glove: "hand",
   walk: "speed", jump: "arrow", combo: "combo", sprint: "speed", hover: "wind",
   tip: "cash", bulk: "bag", goose: "goose",

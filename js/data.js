@@ -79,6 +79,8 @@ HH.UPGRADES = [
   { id: "compass", group: "Needle Hunting", name: "Needle Compass", desc: "Once 55% of the stack is cleared, a compass points toward the needle", base: 300, grow: 1, max: 1 },
   { id: "hsize", group: "Black Hole", tool: "hole", name: "Event Horizon", desc: "Black hole swallows a bigger area", base: 300, grow: 1.8, max: 5 },
   { id: "hcool", group: "Black Hole", tool: "hole", name: "Hawking Radiation", desc: "15% shorter black hole cooldown", base: 300, grow: 1.8, max: 5 },
+  { id: "sharp", group: "Packed Hay", minLevel: 1, name: "Sharpened Tools", desc: "Every tool cuts through packed hay better (-10% hay density per level)", base: 30, grow: 1.9, max: 6 },
+  { id: "loosen", group: "Packed Hay", minLevel: 4, name: "Hay Loosener", desc: "Spray the stack so packed hay crumbles (-8% hay density per level)", base: 350, grow: 2, max: 4 },
   { id: "compress", group: "Late Game", minLevel: 3, name: "Hay Compressor", desc: "Squish hay so your bag holds 25% more", base: 120, grow: 1.9, max: 5 },
   { id: "drill", group: "Late Game", minLevel: 3, name: "Diamond Drill", desc: "+4% chance any grab digs up a bonus gem", base: 150, grow: 1.9, max: 5 },
   { id: "autosell", group: "Late Game", minLevel: 4, name: "Auto-Seller", desc: "Your bag sells itself the moment it's full (10% fee)", base: 400, grow: 1, max: 1 },

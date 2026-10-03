@@ -382,7 +382,9 @@ HH.UI = (function () {
     drill: function (l) { return 4 * l + "% gem chance"; },
     megafork: function (l) { return "+" + 40 * l + "% scoop"; },
     turbovac: function (l) { return "+" + 50 * l + "% suction"; },
-    harvest: function (l) { return "+" + 25 * l + "% hay value"; }
+    harvest: function (l) { return "+" + 25 * l + "% hay value"; },
+    sharp: function (l) { return "-" + 10 * l + "% hay density"; },
+    loosen: function (l) { return "-" + 8 * l + "% hay density"; }
   };
 
   function fxLine(u, l) {
@@ -400,6 +402,7 @@ HH.UI = (function () {
     { id: "gear", name: "Tool Upgrades", icon: "gear", groups: ["Pitchfork", "Dynamite", "Vacuum", "Tornado", "Black Hole"], blurb: "Make your tools stronger. You need to own a tool before you can upgrade it." },
     { id: "body", name: "Movement", icon: "speed", groups: ["Body"], blurb: "Run faster, jump higher and keep bigger combos going." },
     { id: "money", name: "Money & Helpers", icon: "cash", groups: ["Selling", "Helpers"], blurb: "Earn more for every sale, and get helpers that dig and sell for you." },
+    { id: "packed", name: "Packed Hay", icon: "bolt", groups: ["Packed Hay"], blurb: "Later levels pack the hay tighter, so every tool digs less. These upgrades cut through it again." },
     { id: "needle", name: "Needle Finders", icon: "compass", groups: ["Needle Hunting"], blurb: "Gadgets that help you track down the needle." },
     { id: "late", name: "Late Game", icon: "crown", groups: ["Late Game"], blurb: "Powerful upgrades that unlock as your Farm Level goes up. You gain 1 level for every needle you return." }
   ];
@@ -414,7 +417,7 @@ HH.UI = (function () {
     const c = G.upCost(u);
     let price = "$" + HH.cash(c), cls = "", action = "up";
     if (maxed) { price = "MAXED"; cls = "owned"; action = null; }
-    else if (u.minLevel && G.level() < u.minLevel) { price = I("lock", 16) + " Reach Level " + u.minLevel; cls = "locked"; action = null; }
+    else if (u.minLevel && G.level() < u.minLevel) { price = I("lock", 16) + " Reach Level " + (u.minLevel + 1); cls = "locked"; action = null; }
     else if (lockTool) { price = I("lock", 16) + " Buy " + HH.TOOLS.find(function (t) { return t.id === u.tool; }).name + " first"; cls = "locked"; action = null; }
     else if (lockReq) { price = I("lock", 16) + " Buy " + HH.UPGRADES.find(function (x) { return x.id === u.req; }).name + " first"; cls = "locked"; action = null; }
     return card({ icon: uicon(u.id), title: u.name, lv: u.max > 1 ? "Lv " + l + "/" + u.max : "", desc: tag ? WHY[u.id] || u.desc : u.desc, fx: fxLine(u, l), pips: pips(l, u.max),

@@ -312,7 +312,8 @@ HH.Game = (function () {
   function densityFor(i) { return 1 + 0.14 * Math.min(i || 0, 25); }
 
   function dig(op, cb) {
-    const D = R.density || 1;
+    const cut = Math.min(0.9, 0.1 * lvl("sharp") + 0.08 * lvl("loosen"));
+    const D = 1 + ((R.density || 1) - 1) * (1 - cut);
     if (D > 1 && op.lim !== 1) { op.r = op.r / Math.cbrt(D); if (op.lim) op.lim = Math.max(1, Math.round(op.lim / D)); }
     op.by = me();
     op.oid = ++MP.oid;
