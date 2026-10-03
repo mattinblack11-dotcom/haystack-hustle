@@ -1,7 +1,7 @@
 HH.CONFIG = {
   sdkUrl: "https://sdk.crazygames.com/crazygames-sdk-v3.js",
   useSdk: true,
-  adsEnabled: false,
+  adsEnabled: true,
   rewardedEnabled: true,
   rewardedTestMode: true,
   photonAppId: "575a3218-39d1-468f-a129-02417fd6ec52",

@@ -71,7 +71,7 @@ HH.World = (function () {
       const loader = new THREE.GLTFLoader(manager);
       const data = (HH.MODEL_DATA && HH.MODEL_DATA[name]) || (HH.EXTRA_MODELS && HH.EXTRA_MODELS[name]);
       if (!data) { reject(new Error("model missing " + name)); return; }
-      loader.parse(base64ToBuffer(data), "", resolve, reject);
+      loader.parse(typeof data === "string" ? base64ToBuffer(data) : data, "", resolve, reject);
     });
     if (!fresh) { modelCache[name] = pr; pr.catch(function () { if (modelCache[name] === pr) delete modelCache[name]; }); }
     return pr;
