@@ -25,15 +25,20 @@ HH.App = (function () {
     }).catch(function () { return false; });
   }
 
+  let fpsStage = 0;
   function watchFps(dt) {
     if (S().settings.gfx !== "auto" || autoDowngraded || paused || UI.panel) return;
     fpsLog.push(dt);
-    if (fpsLog.length > 180) fpsLog.shift();
+    if (fpsLog.length > 120) fpsLog.shift();
     fpsT += dt;
-    if (fpsT < 4 || fpsLog.length < 180) return;
+    if (fpsT < 3 || fpsLog.length < 120) return;
     fpsT = 0;
     const avg = fpsLog.reduce(function (a, b) { return a + b; }, 0) / fpsLog.length;
-    if (avg > 1 / 38) {
+    if (fpsStage === 0 && avg > 1 / 45) {
+      fpsStage = 1;
+      fpsLog.length = 0;
+      HH.Voxels.setTufts(false);
+    } else if (fpsStage === 1 && avg > 1 / 32) {
       autoDowngraded = true;
       HH.World.setQuality("fast");
       UI.toast("Switched to <b>Fast</b> graphics for smoother play (change it in the pause menu).", 3500);
@@ -299,7 +304,7 @@ HH.App = (function () {
       gfx: function () {
         st.gfx = st.gfx === "auto" ? "high" : st.gfx === "high" ? "fast" : "auto";
         HH.World.setQuality(st.gfx === "fast" ? "fast" : "high");
-        fpsLog.length = 0; autoDowngraded = false;
+        fpsLog.length = 0; autoDowngraded = false; fpsStage = 0;
         HH.Save.save();
       },
       redeem: function () {

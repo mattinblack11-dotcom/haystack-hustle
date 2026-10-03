@@ -28,23 +28,27 @@ HH.World = (function () {
   }
 
   function label(text, color, bg, scale) {
+    const font = "900 54px \"Lilita One\", \"Arial Black\", Arial, sans-serif";
     const c = document.createElement("canvas");
-    c.width = 512; c.height = 128;
+    const m = c.getContext("2d");
+    m.font = font;
+    const W = Math.max(512, Math.ceil(m.measureText(text).width + 110)), H = 128;
+    c.width = W; c.height = H;
     const g = c.getContext("2d");
     g.fillStyle = bg || "rgba(60,36,12,0.85)";
     g.beginPath();
-    g.moveTo(40, 10); g.lineTo(472, 10); g.quadraticCurveTo(502, 10, 502, 64); g.quadraticCurveTo(502, 118, 472, 118);
+    g.moveTo(40, 10); g.lineTo(W - 40, 10); g.quadraticCurveTo(W - 10, 10, W - 10, 64); g.quadraticCurveTo(W - 10, 118, W - 40, 118);
     g.lineTo(40, 118); g.quadraticCurveTo(10, 118, 10, 64); g.quadraticCurveTo(10, 10, 40, 10);
     g.fill();
     g.strokeStyle = "#f2c94c"; g.lineWidth = 6; g.stroke();
-    g.font = "900 54px \"Lilita One\", \"Arial Black\", Arial, sans-serif";
+    g.font = font;
     g.textAlign = "center"; g.textBaseline = "middle";
-    g.lineWidth = 10; g.strokeStyle = "#2a1606"; g.strokeText(text, 256, 68);
-    g.fillStyle = color || "#ffffff"; g.fillText(text, 256, 68);
+    g.lineWidth = 10; g.strokeStyle = "#2a1606"; g.strokeText(text, W / 2, 68);
+    g.fillStyle = color || "#ffffff"; g.fillText(text, W / 2, 68);
     const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), depthTest: false }));
     s.renderOrder = 10;
     const k = scale || 1;
-    s.scale.set(3.2 * k, 0.8 * k, 1);
+    s.scale.set(3.2 * k * (W / 512), 0.8 * k, 1);
     return s;
   }
 
