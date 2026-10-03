@@ -30,7 +30,7 @@ HH.TOOLS = [
   { id: "hole", name: "Black Hole", key: "6", unlock: 12000, icon: "&#127761;", rb: 2 }
 ];
 
-HH.BAG_TIERS = [ { cap: 80, cost: 0 }, { cap: 160, cost: 12 }, { cap: 280, cost: 30 }, { cap: 460, cost: 70 }, { cap: 720, cost: 150 }, { cap: 1100, cost: 300 }, { cap: 1700, cost: 560 }, { cap: 2600, cost: 1000 }, { cap: 3800, cost: 1800 }, { cap: 5500, cost: 3200 }, { cap: 8000, cost: 5600 }, { cap: 11500, cost: 9500 }, { cap: 16000, cost: 16000 }, { cap: 22000, cost: 27000 }, { cap: 30000, cost: 45000 } ];
+HH.BAG_TIERS = [ { cap: 80, cost: 0 }, { cap: 160, cost: 12 }, { cap: 280, cost: 36 }, { cap: 460, cost: 95 }, { cap: 720, cost: 240 }, { cap: 1100, cost: 560 }, { cap: 1700, cost: 1250 }, { cap: 2600, cost: 2700 }, { cap: 3800, cost: 5600 }, { cap: 5500, cost: 11500 }, { cap: 8000, cost: 23000 }, { cap: 11500, cost: 45000 }, { cap: 16000, cost: 88000 }, { cap: 22000, cost: 170000 }, { cap: 30000, cost: 320000 } ];
 
 HH.UPGRADES = [
   { id: "hold", group: "Hands", name: "Auto-Grab", desc: "Hold the mouse to keep grabbing", base: 1, grow: 1, max: 1 },

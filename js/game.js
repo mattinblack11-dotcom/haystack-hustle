@@ -113,7 +113,7 @@ HH.Game = (function () {
 
   function upCost(u) {
     const k = Math.max(0, u.grow - 1) * lvl(u.id);
-    let c = u.base * 3.9 * (1 + k + 0.35 * k * k + 0.08 * k * k * k);
+    let c = u.base * 3.9 * (1 + k + 0.35 * k * k + 0.08 * k * k * k) * Math.pow(1.45, lvl(u.id));
     if (u.group === "Pitchfork" && has("forklord")) c *= 0.75;
     return Math.round(c * 100) / 100;
   }
