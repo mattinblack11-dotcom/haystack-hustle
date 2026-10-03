@@ -297,7 +297,9 @@ HH.Player = (function () {
       } else if (hits(pos.x, ny, pos.z)) vel.y = 0; else pos.y = ny;
       if (hits(pos.x, pos.y, pos.z)) pos.y += HH.VS * 0.5;
       const r = Math.hypot(pos.x, pos.z), lim = HH.World.fenceR - 0.6;
-      if (r > lim) { pos.x *= lim / r; pos.z *= lim / r; }
+      const outer = HH.World.fenceR + 40;
+      if (r > outer) { pos.x *= outer / r; pos.z *= outer / r; }
+      else if (r > lim && r < HH.World.fenceR + 0.6 && pos.y < 1.7) { pos.x *= lim / r; pos.z *= lim / r; }
     }
     if (pos.y < -5) pos.copy(HH.World.spots.spawn).setY(2);
 

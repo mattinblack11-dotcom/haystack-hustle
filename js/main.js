@@ -429,6 +429,32 @@ HH.App = (function () {
     if (pitT > 4) { pitTold = true; UI.toast("Deep hole! <b>Hold Space</b> against the hay to climb out, or press <kbd>R</kbd> to go back to the start.", 4500); }
   }
 
+  let escAudio = null, escT = 0;
+  function escapeCheck(dt) {
+    if (!G.run) return;
+    const p = HH.Player.pos, out = Math.hypot(p.x, p.z) > HH.World.fenceR + 0.8;
+    if (escT > 0) {
+      escT -= dt;
+      if (escT <= 0) {
+        HH.Player.spawn(HH.World.spots.spawn.clone());
+        if (escAudio) { escAudio.pause(); escAudio.currentTime = 0; }
+        UI.flash();
+      }
+      return;
+    }
+    if (out) {
+      escT = 10;
+      try {
+        if (!escAudio) { escAudio = new Audio("assets/escape.mp3"); escAudio.loop = true; }
+        escAudio.volume = S().settings.music === false && S().settings.sfx === false ? 0 : 0.8;
+        escAudio.currentTime = 0;
+        const pr = escAudio.play();
+        if (pr && pr.catch) pr.catch(function () {});
+      } catch (e) {}
+      UI.toast("<b>You escaped the farm!</b> Enjoy the view... back to work in 10 seconds.", 4000);
+    }
+  }
+
   function loop(t) {
     const dt = Math.min(0.05, Math.max(0, (t - last) / 1000));
     last = t;
@@ -436,6 +462,7 @@ HH.App = (function () {
     HH.Net.tick(dt);
     adHud(dt);
     pitCheck(dt);
+    escapeCheck(paused ? 0 : dt);
     HH.Quests.update(dt, !paused);
     if (UI.tickWin(dt)) goNext();
     if (paused && !UI.panel && G.run && G.run.done && !HH.Net.active && performance.now() - winAt > 2500) goNext();
