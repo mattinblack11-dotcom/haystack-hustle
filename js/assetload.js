@@ -4,7 +4,9 @@
   const EXTRA = ["character-female-a", "character-female-b", "character-female-c", "character-female-d", "character-female-e", "character-female-f",
     "character-male-a", "character-male-b", "character-male-c", "character-male-d", "character-male-f", "aid-glasses", "aid-sunglasses"];
 
+  const VER = (document.currentScript && (document.currentScript.src.split("?v=")[1] || "")) || "";
   function addScript(src, cb) {
+    if (VER) src += "?v=" + VER;
     const s = document.createElement("script");
     s.src = src;
     s.async = true;
@@ -18,7 +20,7 @@
   }
 
   function bin(url) {
-    return fetch(url).then(function (r) { if (!r.ok) throw new Error(url + " " + r.status); return r.arrayBuffer(); });
+    return fetch(VER ? url + "?v=" + VER : url).then(function (r) { if (!r.ok) throw new Error(url + " " + r.status); return r.arrayBuffer(); });
   }
 
   if (!web || !window.fetch) { fallback(); return; }
