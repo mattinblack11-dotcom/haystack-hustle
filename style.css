@@ -369,3 +369,9 @@ body.bagfull #fullfx { animation: fullfx 1s infinite alternate; }
 .confetti i { position: absolute; top: -20px; width: 10px; height: 16px; border-radius: 2px; animation: confall 2.6s cubic-bezier(.3,.6,.6,1) forwards; opacity: 0.95; }
 @keyframes confall { to { transform: translate(var(--dx), 110vh) rotate(var(--rot)); } }
 #bottomstack #lockhint { position: static; transform: none; left: auto; top: auto; max-width: 100%; text-align: center; overflow-wrap: anywhere; }
+.chip.cash { font-size: 34px; font-weight: 900; padding: 6px 22px 6px 8px; background: linear-gradient(180deg, #46c35a, #23863a); border: 3px solid #b9ffb0; color: #fff; box-shadow: 0 5px 0 #145a24, 0 0 18px rgba(80,255,120,0.35); letter-spacing: 0.5px; }
+.chip.cash .ic { width: 40px; height: 40px; }
+.chip.cash .ic svg { width: 40px; height: 40px; }
+.chip.cash #cash::before { content: "$"; margin-right: 2px; opacity: 0.85; }
+.chip.cash.gain { animation: cashgain .5s; }
+@keyframes cashgain { 0% { transform: scale(1); } 35% { transform: scale(1.15); filter: brightness(1.35); } 100% { transform: scale(1); } }

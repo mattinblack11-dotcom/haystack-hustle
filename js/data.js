@@ -136,7 +136,7 @@ HH.PERKS = [
   { id: "hayValue", name: "Hay Value", desc: "+10% cash per hay", base: 20, grow: 1.45, max: 25 },
   { id: "bagSize", name: "Bag Size", desc: "+25 bag space", base: 25, grow: 1.45, max: 25 },
   { id: "grab", name: "Grab Amount", desc: "+1 hay per hand grab", base: 50, grow: 1.6, max: 10 },
-  { id: "startCash", name: "Head Start", desc: "Start each run with +$5", base: 40, grow: 1.6, max: 10 },
+  { id: "startCash", name: "Head Start", desc: "Start each run with +$500", base: 40, grow: 1.6, max: 10 },
   { id: "lucky", name: "Rainbow Luck", desc: "+15% rainbow hay in every stack", base: 60, grow: 1.6, max: 10 },
   { id: "gemValue", name: "Gem Value", desc: "+10% gems from everything", base: 150, grow: 1.7, max: 10 }
 ];
@@ -177,6 +177,7 @@ HH.fmt = function (n) {
   return n.toFixed(n < 10 ? 2 : 1) + u[i];
 };
 
+HH.cash = function (n) { const v = Math.floor((n || 0) * 100 + 1e-6); if (v < 100000) return v.toLocaleString("en-US"); return HH.fmt(v); }; 
 HH.fmtInt = function (n) {
   n = Math.floor(n);
   if (n < 10000) return String(n);

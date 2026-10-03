@@ -3,7 +3,7 @@ HH.UI = (function () {
   const I = function (n, s) { return HH.icon(n, s); };
   const cache = {};
   let toastT = null, sayT = null, winCountdown = 0;
-  let panel = null, handlers = {}, shopTab = "start", gemTab = "Perks", styleTab = "chars", winData = null;
+  let lastCash = 0, panel = null, handlers = {}, shopTab = "start", gemTab = "Perks", styleTab = "chars", winData = null;
 
   function set(id, v, prop) {
     const key = id + (prop || "");
@@ -41,17 +41,34 @@ HH.UI = (function () {
     el.classList.remove("hidden");
   }
 
+  function stackPoint() {
+    const pp = HH.Player.pos;
+    const ext = HH.Voxels.extent;
+    const d = Math.hypot(pp.x, pp.z) || 1;
+    const r = Math.max(1, ext * 0.55);
+    const x = pp.x / d * r, z = pp.z / d * r;
+    const top = HH.Voxels.topAt ? HH.Voxels.topAt(x, z) : 2;
+    return new THREE.Vector3(x, Math.max(1.2, (top || 1) + 0.6), z);
+  }
+
   function objectiveTarget(R, st) {
     const sp = HH.World.spots;
     const tut = HH.Save.data.settings.tutorial !== false;
-    if (R.carrying) return { p: sp.wizard.clone().add(new THREE.Vector3(0, 3, 0)), text: HH.NPC.wizard.name, kind: "needle" };
+    const t = HH.Save.data.tutorial;
+    function at(p, h, text, kind, extra) { return Object.assign({ p: p.clone().add(new THREE.Vector3(0, h, 0)), base: new THREE.Vector3(p.x, 0, p.z), text: text, kind: kind, beam: true }, extra || {}); }
+    if (R.carrying) return at(sp.wizard, 3, HH.NPC.wizard.name, "needle");
     if (R.needleOut) return { p: R.needleOut.mesh.position.clone().add(new THREE.Vector3(0, 0.8, 0)), text: "NEEDLE!", kind: "needle" };
     if (HH.Net.active && HH.Game.carrier !== null && HH.Game.carrier !== undefined) {
       const av = HH.Remote.get(HH.Game.carrier);
       if (av) return { p: av.root.position.clone().add(new THREE.Vector3(0, 2.4, 0)), text: HH.Net.playerName(HH.Game.carrier), kind: "needle" };
     }
-    if (tut && HH.Save.data.tutorial === 1 && R.bag > 0) return { p: sp.sell.clone().add(new THREE.Vector3(0, 3.5, 0)), text: "Bjorn", kind: "sell" };
-    if (tut && HH.Save.data.tutorial === 2 && R.cash >= 1) return { p: sp.shop.clone().add(new THREE.Vector3(0, 3, 0)), text: "Hank's Hay Shop", kind: "shop" };
+    if (tut && t === 0) { const sp0 = stackPoint(); return { p: sp0, base: new THREE.Vector3(sp0.x, 0, sp0.z), text: "Grab hay here", kind: "hay", beam: true }; }
+    if (tut && t === 1) {
+      if (R.bag > 0) return at(sp.sell, 3.5, "Sell to " + HH.NPC.buyer.name, "sell");
+      const sp1 = stackPoint();
+      return { p: sp1, base: new THREE.Vector3(sp1.x, 0, sp1.z), text: "Grab hay here", kind: "hay", beam: true };
+    }
+    if (tut && t === 2) return at(sp.shop, 3, "Hank's Shop", "shop");
     const pp = HH.Player.pos;
     if (Math.hypot(pp.x, pp.z) > HH.Voxels.extent * 0.8) return { p: new THREE.Vector3(0, 2, 0), text: "Haystack", kind: "hay", noMarker: true };
     return null;
@@ -113,7 +130,9 @@ HH.UI = (function () {
     if (!R) return;
     const st = HH.Game.stats();
     const S0 = HH.Save.data;
-    set("cash", HH.fmt(R.cash));
+    set("cash", HH.cash(R.cash));
+    if (R.cash > lastCash + 0.001) { const cc = document.querySelector(".chip.cash"); if (cc) { cc.classList.remove("gain"); void cc.offsetWidth; cc.classList.add("gain"); } }
+    lastCash = R.cash;
     set("gems", HH.fmtInt(S0.gems));
     set("bagtxt", HH.fmtInt(R.bag) + "/" + HH.fmtInt(st.cap));
     set("bagfill", Math.min(100, (R.bag / st.cap) * 100).toFixed(1) + "%", "width");
@@ -137,7 +156,7 @@ HH.UI = (function () {
       cd = Math.round(cd * 20) / 20;
       hb += '<div class="slot' + (R.tool === t.id ? " sel" : "") + '"><span class="key">' + t.key + '</span><span class="em">' + I(t.id, 34) + '</span><span class="nm">' + t.name + "</span>" +
         (cd > 0.01 ? '<div class="cd" style="height:' + Math.round(cd * 100) + '%"></div>' : "") +
-        (owned ? "" : '<div class="lock">$' + HH.fmt(t.unlock) + "</div>") + "</div>";
+        (owned ? "" : '<div class="lock">$' + HH.cash(t.unlock) + "</div>") + "</div>";
     });
     hb += '<div class="slot mini' + (R.tool === "none" ? " sel" : "") + '"><span class="key">Q</span><span class="nm">' + (R.tool === "none" ? "Equip" : "Put away") + "</span></div>";
     set("hotbar", hb);
@@ -159,6 +178,7 @@ HH.UI = (function () {
 
     const target = objectiveTarget(R, st);
     marker("waypoint", target && !target.noMarker ? target.p : null, target ? target.text : "");
+    HH.World.setBeam(target && target.beam ? target.base : null, target ? target.kind : "");
     arrow(target);
 
     const cleared = 1 - HH.Voxels.remaining / Math.max(1, R.total);
@@ -282,7 +302,7 @@ HH.UI = (function () {
   function money() {
     const R = HH.Game.run;
     const tk = HH.Save.data.tokens || 0;
-    return '<div class="money"><span class="m-cash">' + I("cash", 20) + ' $<span id="p-cash">' + HH.fmt(R ? R.cash : 0) + '</span></span><span class="m-gem">' + I("gem", 20) + ' <span id="p-gems">' + HH.fmtInt(HH.Save.data.gems) + "</span></span>" +
+    return '<div class="money"><span class="m-cash">' + I("cash", 20) + ' $<span id="p-cash">' + HH.cash(R ? R.cash : 0) + '</span></span><span class="m-gem">' + I("gem", 20) + ' <span id="p-gems">' + HH.fmtInt(HH.Save.data.gems) + "</span></span>" +
       (tk || HH.Save.data.rebirths ? '<span class="m-tok">' + I("rebirth", 20) + ' <span id="p-tok">' + tk + "</span></span>" : "") + "</div>";
   }
 
@@ -390,7 +410,7 @@ HH.UI = (function () {
     const l = G.lvl(u.id), maxed = l >= u.max;
     const lockTool = u.tool && !R.tools[u.tool], lockReq = u.req && !G.lvl(u.req);
     const c = G.upCost(u);
-    let price = "$" + HH.fmt(c), cls = "", action = "up";
+    let price = "$" + HH.cash(c), cls = "", action = "up";
     if (maxed) { price = "MAXED"; cls = "owned"; action = null; }
     else if (u.minLevel && G.level() < u.minLevel) { price = I("lock", 16) + " Reach Level " + u.minLevel; cls = "locked"; action = null; }
     else if (lockTool) { price = I("lock", 16) + " Buy " + HH.TOOLS.find(function (t) { return t.id === u.tool; }).name + " first"; cls = "locked"; action = null; }
@@ -403,7 +423,7 @@ HH.UI = (function () {
     const R = HH.Game.run;
     const owned = R.tools[t.id];
     return card({ icon: I(t.id, 30), title: t.name, lv: "key " + t.key, desc: tag ? WHY[t.id] || TOOL_DESC[t.id] : TOOL_DESC[t.id], action: "tool", value: t.id, cost: owned ? undefined : t.unlock,
-      price: owned ? (R.tool === t.id ? "IN HAND" : "HOLD IT") : "$" + HH.fmt(t.unlock), cls: (owned ? (R.tool === t.id ? "eq" : "owned") : "") + (tag ? " suggest" : ""), tag: tag });
+      price: owned ? (R.tool === t.id ? "IN HAND" : "HOLD IT") : "$" + HH.cash(t.unlock), cls: (owned ? (R.tool === t.id ? "eq" : "owned") : "") + (tag ? " suggest" : ""), tag: tag });
   }
 
   function bagCard(i, tag) {
@@ -412,7 +432,7 @@ HH.UI = (function () {
     const owned = R.tier >= i, next = R.tier + 1 === i;
     const fx = next ? "<span class='now'>" + HH.BAG_TIERS[R.tier].cap + " hay</span> &#10140; <b>" + b.cap + " hay</b>" : owned ? "<b>" + b.cap + " hay</b>" : b.cap + " hay";
     return card({ icon: I("bag", 30), title: "Bag " + i, desc: tag ? WHY.bag : owned ? (R.tier === i ? "Your current bag. With bonuses you carry " + st.cap + " hay." : "Already upgraded past this.") : next ? "Next bag size up." : "Buy the bag before this one first.", fx: fx,
-      action: next ? "bag" : null, cost: next ? b.cost : undefined, price: owned ? "OWNED" : next ? "$" + HH.fmt(b.cost) : I("lock", 16) + " Locked", cls: (owned ? "owned" : next ? "" : "locked") + (tag ? " suggest" : ""), tag: tag });
+      action: next ? "bag" : null, cost: next ? b.cost : undefined, price: owned ? "OWNED" : next ? "$" + HH.cash(b.cost) : I("lock", 16) + " Locked", cls: (owned ? "owned" : next ? "" : "locked") + (tag ? " suggest" : ""), tag: tag });
   }
 
   function suggestions() {
@@ -522,7 +542,7 @@ HH.UI = (function () {
       }
     } else {
       const s = S.stats;
-      [["needle", "Needles returned", S.needles], ["map", "Highest level", (S.campaign || 0) + 1], ["bag", "Hay collected", HH.fmtInt(s.hay)], ["cash", "Cash earned", "$" + HH.fmt(s.cash)], ["diamond", "Diamonds found", s.diamonds], ["tnt", "Dynamite blasts", s.blasts]].forEach(function (r) {
+      [["needle", "Needles returned", S.needles], ["map", "Highest level", (S.campaign || 0) + 1], ["bag", "Hay collected", HH.fmtInt(s.hay)], ["cash", "Cash earned", "$" + HH.cash(s.cash)], ["diamond", "Diamonds found", s.diamonds], ["tnt", "Dynamite blasts", s.blasts]].forEach(function (r) {
         h += card({ icon: I(r[0], 30), title: r[1], desc: String(r[2]), price: "" });
       });
     }
@@ -632,7 +652,7 @@ HH.UI = (function () {
       '<div class="setting"><span>Graphics</span><button class="tog on" data-a="gfx">' + ({ auto: "Auto", high: "Pretty", fast: "Fast" })[st.gfx || "auto"] + "</button></div>" +
       '<div class="setting"><span>Secret code</span><span class="codebox"><input id="codein" type="text" maxlength="80" placeholder="Enter code..." autocomplete="off" spellcheck="false"><button class="tog" data-a="redeem">Redeem</button></span></div>' +
       (HH.Save.data.cheats ? '<div class="cheats"><b>CHEATS</b>' +
-        [["cash", "+$100K cash"], ["gems", "+10K gems"], ["level", "+5 levels"], ["rebirth", "Ready to rebirth"], ["tokens", "+10 tokens"], ["needle", "Pop out needle"], ["maxall", "Max this run"], ["skiplevel", "Skip level"]].map(function (c) { return '<button class="tog on" data-a="cheat" data-v="' + c[0] + '">' + c[1] + "</button>"; }).join("") + "</div>" : "") +
+        [["cash", "+$10M cash"], ["gems", "+10K gems"], ["level", "+5 levels"], ["rebirth", "Ready to rebirth"], ["tokens", "+10 tokens"], ["needle", "Pop out needle"], ["maxall", "Max this run"], ["skiplevel", "Skip level"]].map(function (c) { return '<button class="tog on" data-a="cheat" data-v="' + c[0] + '">' + c[1] + "</button>"; }).join("") + "</div>" : "") +
       "</div><div class=\"controls\">WASD move &middot; Space jump &middot; Shift sprint &middot; Mouse look &middot; Click use tool &middot; 1-6 tools &middot; Q put away / equip &middot; F remote sell &middot; Tab shop &middot; U buy max &middot; G gems &middot; C style &middot; V watch ad for a boost &middot; B all boosts &middot; M next song &middot; Esc pause</div>" +
       '<div class="row"><button class="btn ghost" data-a="restart">Restart level</button><button class="btn ghost" data-a="wipe">Erase save</button></div>';
   }
@@ -687,7 +707,7 @@ HH.UI = (function () {
     const R = HH.Game.run;
     const cash = R ? R.cash : 0, gems = HH.Save.data.gems;
     const pc = $("p-cash"), pg = $("p-gems");
-    if (pc) pc.textContent = HH.fmt(cash);
+    if (pc) pc.textContent = HH.cash(cash);
     if (pg) pg.textContent = HH.fmtInt(gems);
     const tok = HH.Save.data.tokens || 0;
     const pt = $("p-tok");

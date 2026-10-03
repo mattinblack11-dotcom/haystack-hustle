@@ -734,6 +734,34 @@ HH.World = (function () {
     return g;
   }
 
+  let beam = null;
+  const BEAM_COL = { hay: 0xffe14d, sell: 0x8aff8a, shop: 0x5cd6ff, needle: 0xff8ae2 };
+  function setBeam(base, kind) {
+    if (!base) { if (beam) beam.visible = false; return; }
+    if (!beam) {
+      beam = new THREE.Group();
+      const m = new THREE.MeshBasicMaterial({ color: 0xffe14d, transparent: true, opacity: 0.35, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide });
+      const col = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.7, 40, 18, 1, true), m);
+      col.position.y = 20;
+      beam.add(col);
+      const ring = new THREE.Mesh(new THREE.RingGeometry(1.1, 1.5, 32), m.clone());
+      ring.rotation.x = -Math.PI / 2;
+      ring.position.y = 0.06;
+      ring.material.opacity = 0.7;
+      beam.add(ring);
+      beam.userData.ring = ring;
+      beam.renderOrder = 5;
+      scene.add(beam);
+    }
+    beam.visible = true;
+    beam.position.set(base.x, base.y || 0, base.z);
+    const c = BEAM_COL[kind] || 0xffe14d;
+    beam.children.forEach(function (o) { o.material.color.setHex(c); });
+    const t = performance.now() / 1000;
+    const s = 1 + Math.sin(t * 4) * 0.12;
+    beam.userData.ring.scale.set(s, s, s);
+  }
+
   function addPickup(kind, pos) {
     let mesh;
     if (kind === "needle") mesh = makeNeedle(true);
@@ -872,7 +900,7 @@ HH.World = (function () {
 
   return {
     init: init, buildEnv: buildEnv, frame: frame, spawn: spawn, addPickup: addPickup, removePickup: removePickup, setQuality: setQuality, setLevelExtras: setLevelExtras, setWind: setWind,
-    label: label, sph: sph, cyl: cyl, box: box, mat: mat, character: character, loadModel: loadModel, loadBuildings: loadBuildings, forget: function (ch) { const q = chars.indexOf(ch); if (q >= 0) chars.splice(q, 1); }, loadNPCs: loadNPCs, makeNeedle: makeNeedle,
+    label: label, sph: sph, cyl: cyl, box: box, mat: mat, character: character, loadModel: loadModel, loadBuildings: loadBuildings, setBeam: setBeam, forget: function (ch) { const q = chars.indexOf(ch); if (q >= 0) chars.splice(q, 1); }, loadNPCs: loadNPCs, makeNeedle: makeNeedle,
     get scene() { return scene; }, get camera() { return camera; }, get renderer() { return renderer; },
     get vmScene() { return vmScene; }, get vmCamera() { return vmCamera; },
     get spots() { return spots; }, get pickups() { return pickups; }, get fenceR() { return fenceR; },

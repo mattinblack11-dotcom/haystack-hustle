@@ -391,7 +391,7 @@ HH.Game = (function () {
     const v = R.bagValue * bulk * rate * (boostOn("sellboost") ? 2 : 1);
     R.cash += v; S().stats.cash += v;
     const pp = HH.Player.pos;
-    emit("popup", { text: (auto ? "AUTO-SOLD +$" : "+$") + HH.fmt(v) + (bulk > 1 ? "  BULK x" + bulk.toFixed(2) : ""), pos: pp.clone().add(new THREE.Vector3(0, 2.4, 0)), color: "#8aff8a", big: true });
+    emit("popup", { text: (auto ? "AUTO-SOLD +$" : "+$") + HH.cash(v) + (bulk > 1 ? "  BULK x" + bulk.toFixed(2) : ""), pos: pp.clone().add(new THREE.Vector3(0, 2.4, 0)), color: "#8aff8a", big: true });
     HH.Audio.play("sell", R.bag > 100);
     if (buyerT <= 0 && !auto) {
       buyerT = 3;
@@ -691,7 +691,7 @@ HH.Game = (function () {
         });
         setTimeout(function () { d.busy = false; }, 1500);
       } else {
-        if (d.value > 0) { R.cash += d.value; S().stats.cash += d.value; emit("popup", { text: "+$" + HH.fmt(d.value), pos: m.position.clone(), color: "#8aff8a" }); }
+        if (d.value > 0) { R.cash += d.value; S().stats.cash += d.value; emit("popup", { text: "+$" + HH.cash(d.value), pos: m.position.clone(), color: "#8aff8a" }); }
         d.value = 0; d.phase = "toPile"; d.wait = 0.3;
       }
     });
@@ -949,7 +949,7 @@ HH.Game = (function () {
         const v = st.basePrice * 2 * 40;
         R.cash += v; S().stats.cash += v;
         HH.Audio.play("gem");
-        emit("popup", { text: "+$" + HH.fmt(v), pos: p.mesh.position.clone(), color: "#ffd23f" });
+        emit("popup", { text: "+$" + HH.cash(v), pos: p.mesh.position.clone(), color: "#ffd23f" });
       }
     }
 
@@ -1168,7 +1168,7 @@ HH.Game = (function () {
     const s = S();
     s.boost = s.boost || {};
     if (b.dur) s.boost[id] = Math.max(Date.now(), s.boost[id] || 0) + b.dur * 1000;
-    else if (id === "cashboost" && R) { const st0 = stats(); const v = Math.max(25, st0.basePrice * st0.cap * 3); R.cash += v; emit("popup", { text: "+$" + HH.fmt(v), pos: HH.Player.pos.clone().add(new THREE.Vector3(0, 2, 0)), color: "#8aff8a", big: true }); }
+    else if (id === "cashboost" && R) { const st0 = stats(); const v = Math.max(25, st0.basePrice * st0.cap * 3); R.cash += v; emit("popup", { text: "+$" + HH.cash(v), pos: HH.Player.pos.clone().add(new THREE.Vector3(0, 2, 0)), color: "#8aff8a", big: true }); }
     else if (id === "doubleboost") s.doubleNext = true;
     HH.Save.save();
     HH.Audio.play("boost");
