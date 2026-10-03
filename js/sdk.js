@@ -84,6 +84,9 @@ HH.Platform = (function () {
     hideInvite: function () {
       if (ready && sdk && sdk.game.hideInviteButton) { try { sdk.game.hideInviteButton(); } catch (e) {} }
     },
+    isInstantMultiplayer: function () {
+      try { return !!(ready && sdk && sdk.game && sdk.game.isInstantMultiplayer); } catch (e) { return false; }
+    },
     inviteRoom: function () {
       if (ready && sdk && sdk.game.getInviteParam) { try { const r = sdk.game.getInviteParam("roomId"); if (r) return String(r); } catch (e) {} }
       try { return new URL(location.href).searchParams.get("room"); } catch (e) { return null; }

@@ -527,6 +527,12 @@ HH.App = (function () {
       HH.Platform.username().then(function (u) {
         HH.Net.connect(inviteRoom.toUpperCase(), u || S().playerName || ("Farmer" + Math.floor(Math.random() * 900 + 100)));
       });
+    } else if (HH.Platform.isInstantMultiplayer()) {
+      HH.Platform.username().then(function (u) {
+        const code = HH.Net.newRoomCode();
+        HH.Net.connect(code, u || S().playerName || ("Farmer" + Math.floor(Math.random() * 900 + 100)));
+        HH.Platform.showInvite(code);
+      });
     }
     last = performance.now();
     requestAnimationFrame(loop);
