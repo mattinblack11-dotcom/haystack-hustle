@@ -4,7 +4,7 @@ HH.CONFIG = {
   adsEnabled: false,
   rewardedEnabled: true,
   rewardedTestMode: true,
-  photonAppId: "",
+  photonAppId: "575a3218-39d1-468f-a129-02417fd6ec52",
   photonVersion: "1.0",
   photonRegion: "us",
   maxPlayers: 6,

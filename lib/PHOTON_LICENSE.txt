@@ -1,0 +1,3 @@
+Photon Realtime JavaScript SDK 4.4.0 (c) Exit Games GmbH.
+Source: npm package "photon-realtime" (browser part, Node WebSocket shim removed).
+License: https://www.photonengine.com/terms

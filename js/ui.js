@@ -655,8 +655,8 @@ HH.UI = (function () {
   function mpHtml() {
     const N = HH.Net;
     let h = '<div class="ptop"><div class="sign">' + I("users", 30) + " PLAY WITH FRIENDS</div></div>";
-    const online = N.PHOTON_READY();
-    h += '<div class="note">' + (online ? "Online multiplayer is ready (Photon)." : "<b>Local test mode:</b> rooms work between browser tabs on this computer. Add a Photon App ID to play online.") + "</div>";
+    const online = !!HH.CONFIG.photonAppId;
+    h += '<div class="note">' + (online ? "Online multiplayer is on! Make a room and share the code (or invite link) with friends anywhere." : "<b>Local test mode:</b> rooms work between browser tabs on this computer. Add a Photon App ID to play online.") + "</div>";
     if (N.active) {
       const link = HH.Platform.inviteLink(N.room);
       h += '<div class="mpbox"><div class="mp-code">Room code: <b>' + N.room + "</b></div>" +
