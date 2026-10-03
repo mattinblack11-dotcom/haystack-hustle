@@ -100,6 +100,7 @@ HH.UI = (function () {
     el.classList.toggle("full", state === 2);
     set("bigbag-label", state === 2 ? (st.autosell ? "FULL &middot; AUTO-SELLING" : "BAG FULL!") : state === 1 ? "ALMOST FULL" : "BAG");
     document.body.classList.toggle("bagfull", state === 2 && !st.autosell);
+    $("sellhint").classList.toggle("hidden", !(state === 2 && !st.autosell && HH.Game.lvl("teleport") > 0));
   }
 
   function boostsHud() {
