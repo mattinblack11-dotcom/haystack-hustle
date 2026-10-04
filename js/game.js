@@ -94,10 +94,10 @@ HH.Game = (function () {
     const comboMul = 1 + Math.min(R.combo || 0, 100) * 0.01 * (1 + 0.2 * lvl("combo"));
     const zone = R.zoneMul || 1;
     return {
-      basePrice: (1 + 0.1 * (ench(R.tool).fortune || 0) + (forgeFx(R.tool).cash || 0)) * (boostOn("p_roll") ? 1.5 : 1) * (1 + rbfx("cash")) * (HH.Quests && HH.Quests.boostOn ? 2 : 1) * (rb("midas") ? 2 : 1) * (1 + 0.1 * lvl("baler")) * (1 + 0.08 * lvl("vip")) * (1 + 0.1 * lvl("tycoon")) * (1 + 0.08 * lvl("wrapper")) * (1 + 0.1 * lvl("pellet")) * (1 + 0.12 * lvl("brick")) * (1 + 0.15 * lvl("paper")) * m.hayValue * (1 + 0.1 * P.hayValue) * (has("haggler") ? 1.2 : 1) * (1 + 0.05 * lvl("tip")) * (lvl("goose") ? 1.15 : 1) * (1 + 0.25 * rbs) * (1 + 0.25 * lvl("harvest")) * (1 + 0.05 * Math.min(R.levelIndex || 0, 30)),
+      basePrice: (1 + 0.1 * (ench(R.tool).fortune || 0) + (forgeFx(R.tool).cash || 0)) * (boostOn("p_roll") ? 1.5 : 1) * (1 + rbfx("cash")) * (HH.Quests && HH.Quests.boostOn ? 2 : 1) * (rb("midas") ? 2 : 1) * (1 + 0.1 * lvl("baler")) * (1 + 0.08 * lvl("vip")) * (1 + 0.1 * lvl("tycoon")) * m.hayValue * (1 + 0.1 * P.hayValue) * (has("haggler") ? 1.2 : 1) * (1 + 0.05 * lvl("tip")) * (lvl("goose") ? 1.15 : 1) * (1 + 0.25 * rbs) * (1 + 0.25 * lvl("harvest")) * (1 + 0.05 * Math.min(R.levelIndex || 0, 30)),
       mul: comboMul * (R.storm > 0 ? 2 : 1),
       cap: Math.floor((boostOn("p_bread") ? 1.5 : 1) * (1 + rbfx("bag")) * (rb("superbag") ? 2 : 1) * (1 + 0.2 * lvl("megabag")) * (1 + 0.5 * lvl("pockets")) * (HH.BAG_TIERS[R.tier].cap + 40 * P.bagSize) * (has("baggoblin") ? 1.5 : 1) * (1 + 0.25 * lvl("compress")) * (boostOn("bagboost") ? 1.5 : 1)),
-      grab: Math.round((1 + rbfx("grab")) * (3 + lvl("grasp") + P.grab + 2 * lvl("tshovel") + 4 * lvl("shovel") + 6 * lvl("bucket") + 3 * lvl("bigbucket") + 10 * lvl("barrow")) * (rb("goldgloves") ? 2 : 1) * (1 + 0.3 * lvl("qgrab"))),
+      grab: Math.round((1 + rbfx("grab")) * (3 + lvl("grasp") + P.grab) * (rb("goldgloves") ? 2 : 1) * (1 + 0.3 * lvl("qgrab"))),
       drill: 0.04 * lvl("drill") + 0.02 * (ench(R.tool).lucky || 0),
       autosell: rb("autosell") ? 1 : lvl("autosell") ? 0.9 : 0,
       forkHaul: (1 + rbfx("fork")) * (rb("titanfork") ? 2 : 1) * (has("forklord") ? 1.25 : 1) * (1 + 0.4 * lvl("megafork")) * (1 + 0.25 * lvl("goldfork")),
@@ -111,7 +111,7 @@ HH.Game = (function () {
       handR: (0.9 + 0.15 * lvl("glove")) * sizeMul("hand"),
       reach: 4.5 + 0.6 * lvl("reach"),
       golden: 0.05 * lvl("golden"),
-      forkR: ((0.8 + 0.14 * lvl("fsweep")) * (1 + 0.12 * lvl("rake")) * (has("forklord") ? 1.08 : 1)) * sizeMul("fork"),
+      forkR: ((0.8 + 0.14 * lvl("fsweep")) * (has("forklord") ? 1.08 : 1)) * sizeMul("fork"),
       forkCd: (1.0 * Math.pow(0.88, lvl("fcool")) * Math.pow(0.95, lvl("warp")) * (rb("timelord") ? 0.5 : 1) * Math.max(0.4, 1 - rbfx("cd")) * (boostOn("p_donut") ? 0.7 : 1)) * cdMul("fork"),
       fgold: 0.08 * lvl("fgold"),
       tntR: ((1 + rbfx("tnt")) * (1.5 + 0.32 * lvl("tpower")) * (has("boomuncle") ? 1.2 : 1) * (1 + 0.15 * lvl("thermite"))) * sizeMul("tnt"),
@@ -138,9 +138,7 @@ HH.Game = (function () {
       radar: lvl("radar") > 0 || rb("needlesense"),
       radarRange: (2.2 + 1.1 * lvl("rrange") + (rb("needlesense") ? 2 : 0)) * (has("sniffer") ? 1.15 : 1),
       hamster: lvl("hamster") > 0 || rb("hamking"),
-      beltRate: 3 * lvl("belt") * (1 + 0.2 * lvl("generator")),
-      armRate: 0.4 * (1 + 0.25 * lvl("armspd")) * (1 + 0.2 * lvl("generator")),
-      armGrab: 1 + 0.5 * lvl("armreach"),
+      beltRate: 3 * lvl("belt"),
       hamRate: 1.2 * (1 + 1.2 * lvl("hamlvl")) * (rb("hamking") ? 2 : 1),
       bulk: 0.03 * lvl("bulk"),
       gemMul: (boostOn("p_cake") ? 2 : 1) * (1 + rbfx("gems")) * (1 + 0.1 * lvl("gemmag")) * (1 + 0.1 * P.gemValue) * (1 + 0.25 * rbs) * (rb("gemfountain") ? 1.5 : 1),
@@ -827,31 +825,12 @@ HH.Game = (function () {
 
   function tutorialDone() { return S().tutorial >= 3 || S().settings.tutorial === false; }
 
-  const ARM_ANG = [0.8, 2.35, -0.8, -2.35, 1.15];
-  const mach = { arms: [], belt: null, beltAcc: 0, beltCash: 0, beltT: 0 };
+  const mach = { belt: null, beltAcc: 0, beltCash: 0, beltT: 0 };
 
   function clearMachines() {
     const sc = HH.World.scene;
-    mach.arms.forEach(function (a) { sc.remove(a.mesh); });
-    mach.arms.length = 0;
     if (mach.belt) { sc.remove(mach.belt.mesh); mach.belt = null; }
     mach.beltAcc = 0; mach.beltCash = 0;
-  }
-
-  function armMesh() {
-    const W = HH.World, g = new THREE.Group();
-    const base = W.cyl(0.45, 0.55, 0.4, 0x2d2d33, 12); base.position.y = 0.2; g.add(base);
-    const yawG = new THREE.Group(); yawG.position.y = 0.4; g.add(yawG);
-    const turret = W.cyl(0.3, 0.35, 0.35, 0xff7a1a, 10); turret.position.y = 0.17; yawG.add(turret);
-    const shoulder = new THREE.Group(); shoulder.position.y = 0.35; yawG.add(shoulder);
-    const lower = W.box(0.22, 1.6, 0.22, 0xff7a1a); lower.position.y = 0.8; shoulder.add(lower);
-    const elbow = new THREE.Group(); elbow.position.y = 1.6; shoulder.add(elbow);
-    const joint = W.sph(0.17, 0x2d2d33, 8); elbow.add(joint);
-    const upper = W.box(0.18, 1.3, 0.18, 0xff7a1a); upper.position.y = 0.65; elbow.add(upper);
-    const claw = W.box(0.32, 0.12, 0.32, 0x2d2d33); claw.position.y = 1.3; elbow.add(claw);
-    [-0.12, 0.12].forEach(function (x) { const f = W.box(0.05, 0.3, 0.08, 0x9aa0aa); f.position.set(x, 1.48, 0); elbow.add(f); });
-    g.userData = { yaw: yawG, shoulder: shoulder, elbow: elbow };
-    return g;
   }
 
   function beltMesh() {
@@ -868,37 +847,6 @@ HH.Game = (function () {
   }
 
   function updateMachines(dt, st) {
-    const sc = HH.World.scene, ext = V.extent;
-    const want = lvl("arm");
-    while (mach.arms.length < want) {
-      const a = ARM_ANG[mach.arms.length % ARM_ANG.length], r = ext + 2.2;
-      const m = armMesh();
-      m.position.set(Math.cos(a) * r, 0, Math.sin(a) * r);
-      m.scale.setScalar(1.9);
-      sc.add(m);
-      mach.arms.push({ mesh: m, a: a, acc: Math.random(), t: 0, aim: 0 });
-    }
-    mach.arms.forEach(function (arm) {
-      const u = arm.mesh.userData, p = arm.mesh.position;
-      arm.t = Math.max(0, arm.t - dt);
-      const k = Math.sin(Math.min(1, arm.t / 0.6) * Math.PI);
-      u.shoulder.rotation.x = -0.35 - 0.55 * k;
-      u.elbow.rotation.x = -0.9 - 0.4 * k;
-      u.yaw.rotation.y += (arm.aim - u.yaw.rotation.y) * Math.min(1, dt * 4);
-      arm.acc += dt * st.armRate;
-      if (arm.acc < 1 || R.bag >= st.cap) { arm.acc = Math.min(arm.acc, 1.2); return; }
-      arm.acc = 0;
-      const dx = -Math.cos(arm.a), dz = -Math.sin(arm.a), maxD = 3 + 2.5 * lvl("armreach");
-      for (let d = 1.4; d <= maxD; d += 0.8) {
-        const x = p.x + dx * d, z = p.z + dz * d, top = V.topAt(x, z);
-        if (top <= 0.3) continue;
-        const c = new THREE.Vector3(x, Math.min(top - 0.4, 6), z);
-        arm.aim = Math.atan2(dx, dz);
-        arm.t = 0.6;
-        dig({ p: [c.x, c.y, c.z], r: 1.3, lim: Math.round(4 * st.armGrab), mode: "take", sp: st.cap - R.bag }, function (res) { collect(res, stats(), c, null, true); });
-        break;
-      }
-    });
     if (lvl("belt") && !mach.belt) mach.belt = beltMesh();
     if (mach.belt) {
       const u = mach.belt.mesh.userData, moving = R.bag > 0;

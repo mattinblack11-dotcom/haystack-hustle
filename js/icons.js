@@ -45,7 +45,7 @@ HH.icon = function (name, size, cls) {
 };
 
 HH.UPGRADE_ICON = {
-  tshovel: "hsize", shovel: "hsize", bucket: "bag", bigbucket: "bag", barrow: "compress", belt: "arrow", rake: "fsweep", arm: "gear", armspd: "speed", armreach: "hold", generator: "bolt", wrapper: "compress", pellet: "rainbow", brick: "stone", paper: "map",
+  belt: "arrow",
   sharp: "fork", loosen: "bolt", baler: "cash", megabag: "bag", gemmag: "gem", qgrab: "hand", thermite: "tnt", ovac: "vac", stormmag: "wind", goldfork: "fork", vip: "cash", lore: "bolt", cosmic: "hole", warp: "clock", pockets: "bag", tycoon: "crown", dblj: "walk", jetpack: "boost", jfuel: "boost", jthrust: "speed", jrefuel: "clock", hayboard: "speed",
   hold: "hand", grasp: "hand", speed: "bolt", reach: "hand", golden: "star", glove: "hand",
   walk: "speed", jump: "arrow", combo: "combo", sprint: "speed", hover: "wind",
