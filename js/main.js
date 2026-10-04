@@ -432,7 +432,7 @@ HH.App = (function () {
   let escAudio = null, escT = 0;
   function escapeCheck(dt) {
     if (!G.run) return;
-    const p = HH.Player.pos, out = Math.hypot(p.x, p.z) > HH.World.fenceR + 0.8;
+    const p = HH.Player.pos, out = Math.hypot(p.x, p.z) > HH.World.fenceR + 1.6;
     if (escT > 0) {
       escT -= dt;
       if (escT <= 0) {
@@ -443,7 +443,7 @@ HH.App = (function () {
       return;
     }
     if (out) {
-      escT = 10;
+      escT = 20;
       try {
         if (!escAudio) { escAudio = new Audio("assets/escape.mp3"); escAudio.loop = true; }
         escAudio.volume = S().settings.music === false && S().settings.sfx === false ? 0 : 0.8;
@@ -451,7 +451,7 @@ HH.App = (function () {
         const pr = escAudio.play();
         if (pr && pr.catch) pr.catch(function () {});
       } catch (e) {}
-      UI.toast("<b>You escaped the farm!</b> Enjoy the view... back to work in 10 seconds.", 4000);
+      UI.toast("<b>You escaped the farm!</b> Enjoy the view... back to work in 20 seconds.", 4000);
     }
   }
 
