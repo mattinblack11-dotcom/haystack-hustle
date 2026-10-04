@@ -300,3 +300,12 @@ HH.WARDROBE = {
     { id: "golden", name: "Solid Gold", wood: 0xd4a017, metal: 0xffd700, body: 0xffc93c, cost: 250 }
   ]
 };
+
+HH.PASTRIES = [
+  { id: "p_roll", name: "Cinnamon Roll", desc: "+50% hay money for 3 minutes", dur: 180, bags: 2, icon: "cash" },
+  { id: "p_croissant", name: "Butter Croissant", desc: "+30% walk speed for 3 minutes", dur: 180, bags: 1, icon: "walk" },
+  { id: "p_bread", name: "Hay Bread", desc: "+50% bag space for 3 minutes", dur: 180, bags: 1.5, icon: "bag" },
+  { id: "p_donut", name: "Energy Donut", desc: "Tool cooldowns -30% for 2 minutes", dur: 120, bags: 2, icon: "clock" },
+  { id: "p_cake", name: "Wizard Cake", desc: "Double gems from diamonds and skeletons for 5 minutes", dur: 300, gems: 40, icon: "gem" },
+  { id: "p_pie", name: "Golden Pie", desc: "Your next returned needle pays DOUBLE gems", dur: 0, gems: 30, icon: "star" }
+];

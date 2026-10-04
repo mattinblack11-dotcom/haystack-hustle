@@ -447,3 +447,4 @@ html, body { overflow: hidden; overscroll-behavior: none; }
 #stats { padding: 2px 4px 10px 2px; margin: -2px -4px -10px -2px; }
 #stats .chip { overflow-wrap: normal; white-space: nowrap; flex-shrink: 0; }
 #stats .chip.cash, #stats .chip.gems { position: relative; left: 0; top: 0; transform: none; }
+.sign.bakery { color: #ffd0a8; }

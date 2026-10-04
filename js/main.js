@@ -1,7 +1,7 @@
 HH.App = (function () {
   const G = HH.Game, UI = HH.UI, I = HH.Input;
   let hudT = 0, last = 0, winAt = 0, paused = false, shake = 0, affordT = 0, ready = false;
-  const zoneLatch = { shop: false, gems: false };
+  const zoneLatch = { shop: false, gems: false, bakery: false };
   const CODE_HASH = "33367ff41fe04e1a2629327f9086e510dd90c24fb4bbeb24a859135be283da7f";
   const fpsLog = [];
   let autoDowngraded = false, fpsT = 0, adBusy = false;
@@ -364,6 +364,18 @@ HH.App = (function () {
     };
   }
 
+  function bakeryHandlers() {
+    return {
+      pastry: function (id) {
+        const ok = G.buyPastry(id);
+        if (ok) { HH.Audio.play("buy"); UI.flash(); UI.say("Baker Bun", ["Fresh from the oven!", "Enjoy, farmer!", "Don't tell Hank about me!", "Best buns in the valley!"][Math.floor(Math.random() * 4)], "#ffd0a8"); }
+        else UI.toast("You can't afford that yet.", 1400);
+        return ok;
+      },
+      close: closePanel
+    };
+  }
+
   function openPanel(name) {
     if (name === "adoffer") { if (ready && UI.panel !== "win") watchAd(adOffer()); return; }
     if (name === "gift") { if (ready && UI.panel !== "win") HH.Quests.openGift(); return; }
@@ -377,6 +389,7 @@ HH.App = (function () {
     else if (name === "boosts") UI.open("boosts", boostHandlers());
     else if (name === "mp") UI.open("mp", mpHandlers());
     else if (name === "style") UI.open("style", styleHandlers());
+    else if (name === "bakery") UI.open("bakery", bakeryHandlers());
     else if (name === "pause") { if (!HH.Net.active) { paused = true; HH.Platform.gameplayStop(); } UI.open("pause", pauseHandlers()); }
   }
 
@@ -431,7 +444,7 @@ HH.App = (function () {
 
   let escAudio = null, escT = 0;
   function escapeCheck(dt) {
-    if (!G.run) return;
+    if (!G.run || UI.panel === "bakery") return;
     const p = HH.Player.pos, r = Math.hypot(p.x, p.z), out = r > HH.World.fenceR + 1.6, back = r < HH.World.fenceR - 0.4;
     if (escT > 0) {
       if (back) {
@@ -499,6 +512,11 @@ HH.App = (function () {
       affordT -= dt;
       if (UI.panel && affordT <= 0) { affordT = 0.1; UI.refreshAfford(); }
       const pp = HH.Player.pos, sp = HH.World.spots;
+      if (sp.bakery) {
+        const inB = Math.hypot(pp.x - sp.bakery.x, pp.z - sp.bakery.z) < 2.6;
+        if (inB && !zoneLatch.bakery && !UI.panel) { zoneLatch.bakery = true; openPanel("bakery"); UI.say("Baker Bun", "Well hello! You found my secret bakery!", "#ffd0a8"); HH.Audio.play("levelup"); }
+        if (!inB) zoneLatch.bakery = false;
+      }
       ["shop", "gems"].forEach(function (z) {
         const inside = Math.hypot(pp.x - sp[z].x, pp.z - sp[z].z) < 2.0 && pp.y < 1;
         if (inside && !zoneLatch[z] && !UI.panel) { zoneLatch[z] = true; openPanel(z); if (z === "shop") UI.say(HH.NPC.shop.name, "Howdy! What can I getcha?", "#ffe14d"); }

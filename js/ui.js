@@ -109,7 +109,7 @@ HH.UI = (function () {
 
   function boostsHud() {
     let h = "";
-    HH.BOOSTS.forEach(function (b) {
+    HH.BOOSTS.concat(HH.PASTRIES || []).forEach(function (b) {
       if (!b.dur) return;
       const left = HH.Game.boostLeft(b.id);
       if (left > 0) h += '<span class="boostchip">' + I(b.icon, 18) + " " + b.name + " " + Math.floor(left / 60) + ":" + String(left % 60).padStart(2, "0") + "</span>";
@@ -654,6 +654,22 @@ HH.UI = (function () {
     return h;
   }
 
+  function bakeryHtml() {
+    const S0 = HH.Save.data, st = HH.Game.stats();
+    let h = '<div class="ptop"><div class="sign bakery">' + I("star", 30) + " BUN'S SECRET BAKERY</div>" + money() + "</div>";
+    h += '<div class="note">' + I("star", 18) + " Psst! Not many farmers find this place. Fresh pastries give you powerful buffs. Your escape timer is paused while you shop. Click outside to close.</div>";
+    h += '<div class="grid">';
+    (HH.PASTRIES || []).forEach(function (p) {
+      const left = p.dur ? HH.Game.boostLeft(p.id) : 0;
+      const active = left > 0 || (p.id === "p_pie" && S0.doubleNext);
+      const cost = HH.Game.pastryCost(p, st);
+      h += card({ icon: I(p.icon, 30), title: p.name, desc: p.desc, fx: active ? "<b>Active" + (left ? ": " + Math.floor(left / 60) + ":" + String(left % 60).padStart(2, "0") : "") + "</b>" : "",
+        action: "pastry", value: p.id, cost: cost, cur: p.gems ? "gems" : "cash", price: p.gems ? I("gem", 16) + " " + cost : "$" + HH.cash(cost), cls: active ? "owned" : "" });
+    });
+    h += '</div><div class="row"><button class="btn go" data-a="close">Back to the farm</button></div>';
+    return h;
+  }
+
   function boostsHtml() {
     const ad = HH.Platform.sdkReady ? "" : (HH.CONFIG.rewardedTestMode ? "<p class='big-p'><i>Test mode: no real ad plays here. On CrazyGames a short video ad plays first.</i></p>" : "");
     let h = '<div class="ptop"><div class="sign">' + I("boost", 30) + " FREE BOOSTS</div>" + money() + "</div>";
@@ -746,6 +762,7 @@ HH.UI = (function () {
     else if (panel === "boosts") h = boostsHtml();
     else if (panel === "mp") h = mpHtml();
     else if (panel === "style") h = styleHtml();
+    else if (panel === "bakery") h = bakeryHtml();
     const grid = $("panel").querySelector(".grid");
     const sc = grid ? grid.scrollTop : 0;
     $("panel").innerHTML = h;

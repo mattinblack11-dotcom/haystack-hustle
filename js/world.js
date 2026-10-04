@@ -47,6 +47,7 @@ HH.World = (function () {
     g.fillStyle = color || "#ffffff"; g.fillText(text, W / 2, 68);
     const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), depthTest: false }));
     s.renderOrder = 10;
+    s.userData.label = true;
     const k = scale || 1;
     s.scale.set(3.2 * k * (W / 512), 0.8 * k, 1);
     return s;
@@ -389,7 +390,7 @@ HH.World = (function () {
   }
 
   const buildTpl = {};
-  let villageSpots = [];
+  let villageSpots = [], bakerCh = null, bakerGen = 0;
   function loadBuildings() {
     if (!HH.BUILD_DATA) return Promise.resolve();
     const files = HH.BUILD_DATA.files;
@@ -521,6 +522,40 @@ HH.World = (function () {
       villageSpots.push([x, z, p[1] * 0.75 + 3]);
       envGroup.add(b);
     });
+    const townKinds = ["building_home_A_blue", "building_tavern_blue", "building_church_yellow", "building_market_yellow", "building_home_B_yellow", "building_home_A_green", "building_tower_A_green", "building_market_blue", "building_home_B_green", "building_home_A_red", "building_home_B_red", "building_blacksmith_red"];
+    const townH = { building_church_yellow: 11, building_tower_A_green: 12, building_tavern_blue: 9.5, building_market_yellow: 6, building_market_blue: 6 };
+    for (let q = 0; q < 22; q++) {
+      const a = q / 22 * Math.PI * 2 + (r() - 0.5) * 0.12, d = fr + 50 + (q % 3) * 7 + r() * 4;
+      const x = Math.cos(a) * d, z = Math.sin(a) * d, kind = townKinds[q % townKinds.length], h = townH[kind] || (7 + r() * 1.5);
+      if (villageSpots.some(function (s) { return Math.hypot(s[0] - x, s[1] - z) < s[2] + h * 0.6; })) continue;
+      const b = building(kind, h, x, z, true, (r() - 0.5) * 0.5);
+      if (!b) continue;
+      villageSpots.push([x, z, h * 0.75 + 3]);
+      envGroup.add(b);
+    }
+    const ba = 1.85, bd = fr + 9;
+    const bx = Math.cos(ba) * bd, bz = Math.sin(ba) * bd;
+    const bakery = building("building_home_B_yellow", 8, bx, bz, true);
+    if (bakery) {
+      envGroup.add(bakery);
+      villageSpots.push([bx, bz, 9]);
+      const sign = label("BAKERY", "#ffd0a8", "rgba(110,50,20,0.92)", 1.3);
+      sign.material.depthTest = true;
+      sign.position.set(bx * 0.93, 8.6, bz * 0.93);
+      envGroup.add(sign);
+      const cx = Math.cos(ba) * (fr + 4), cz = Math.sin(ba) * (fr + 4);
+      spots.bakery = new THREE.Vector3(cx, 0, cz);
+      const gen = ++bakerGen;
+      if (bakerCh) { scene.remove(bakerCh.root); bakerCh = null; }
+      if (HH.Looks) HH.Looks.build({ char: "male-f", hat: "chef" }, 1.7).then(function (ch) {
+        if (gen !== bakerGen) return;
+        bakerCh = ch;
+        ch.root.position.set(cx, 0, cz);
+        ch.root.rotation.y = Math.atan2(-cx, -cz);
+        ch.play(ch.actions["emote-yes"] && Math.random() < 0.5 ? "emote-yes" : "idle", 0.2);
+        scene.add(ch.root);
+      }).catch(function () {});
+    }
     const sa = 3.25, sd = fr + 13;
     const stage = building("building_stage_A", 3.2, Math.cos(sa) * sd, Math.sin(sa) * sd, true);
     if (stage) { stage.scale.x = stage.scale.z = stage.scale.y * 1.6; envGroup.add(stage); villageSpots.push([Math.cos(sa) * sd, Math.sin(sa) * sd, 7]); }

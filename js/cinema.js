@@ -31,7 +31,7 @@ HH.Cinema = (function () {
       return { id: id, a: a, ang: Math.PI * 0.5 + (i - 1.5) * 0.32, tool: tools[i], sw: 0 };
     });
     W.scene.traverse(function (o) {
-      if (o.isSprite && o.material && o.material.depthTest === false) o.visible = false;
+      if (o.isSprite && o.material && (o.material.depthTest === false || o.userData.label)) o.visible = false;
       if (o.isMesh && o.geometry && o.geometry.parameters && o.geometry.parameters.radiusTop === 0.12 && o.geometry.parameters.radiusBottom === 0.16) o.visible = false;
     });
     s = { ext: ext, top: top };
