@@ -22,7 +22,7 @@ HH.I18N = (function () {
     const lv = /^Level (\d+): (.+)$/.exec(s);
     if (lv) return (d.Level || "Level") + " " + lv[1] + ": " + (d[lv[2]] || lv[2]);
     const nums = [];
-    const tpl = s.replace(/[0-9][0-9,.:]*/g, function (m) { nums.push(m); return "#"; });
+    const tpl = s.replace(/[0-9][0-9,.:]*(?:[KMBT]\b)?/g, function (m) { nums.push(m); return "#"; });
     const t = d[tpl];
     if (!t) return s;
     let i = 0;

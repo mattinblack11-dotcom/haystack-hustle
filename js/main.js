@@ -165,7 +165,7 @@ HH.App = (function () {
       },
       rebirth: function () {
         if (!G.canRebirth()) return false;
-        if (!confirm("Rebirth now? You'll lose your gems and perks, but keep classes and levels, and get permanent boosts + Rebirth Tokens.")) return false;
+        if (!confirm(HH.I18N.tr("Rebirth now? You'll lose your gems and perks, but keep classes and levels, and get permanent boosts + Rebirth Tokens."))) return false;
         const reward = G.rebirthReward();
         G.rebirth();
         HH.Audio.play("win");
@@ -180,7 +180,7 @@ HH.App = (function () {
       replay: function (v) {
         const R = G.run;
         if (HH.Net.active) return false;
-        if (R && !R.done && R.cash > 5 && !confirm("Leave this level? This level's cash and cash upgrades will be lost.")) return false;
+        if (R && !R.done && R.cash > 5 && !confirm(HH.I18N.tr("Leave this level? This level's cash and cash upgrades will be lost."))) return false;
         UI.close();
         paused = false;
         G.startLevel(parseInt(v, 10));
@@ -326,9 +326,9 @@ HH.App = (function () {
         return true;
       },
       cheat: function (v) { if (!S().cheats) return false; G.cheat(v); if (v === "skiplevel") UI.close(); UI.toast("Cheat applied!", 900); return true; },
-      restart: function () { if (HH.Net.active) { UI.toast("Can't restart during multiplayer.", 1800); return false; } if (confirm("Restart this level with a fresh haystack? You keep your upgrades.")) restartLevel(); },
+      restart: function () { if (HH.Net.active) { UI.toast("Can't restart during multiplayer.", 1800); return false; } if (confirm(HH.I18N.tr("Restart this level with a fresh haystack? You keep your upgrades."))) restartLevel(); },
       wipe: function () {
-        if (!confirm("Erase ALL progress (gems, perks, classes, levels)?")) return;
+        if (!confirm(HH.I18N.tr("Erase ALL progress (gems, perks, classes, levels)?"))) return;
         HH.Net.leave();
         HH.Save.reset();
         UI.close();
