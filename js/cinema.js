@@ -27,6 +27,7 @@ HH.Cinema = (function () {
       HH.Remote.setLook(id, look);
       const a = HH.Remote.ensure(id, "");
       a.root.scale.setScalar(1.35);
+      a.root.traverse(function (o) { if (o.isMesh && o.geometry && o.geometry.type === "RingGeometry") o.visible = false; });
       return { id: id, a: a, ang: Math.PI * 0.5 + (i - 1.5) * 0.32, tool: tools[i], sw: 0 };
     });
     W.scene.traverse(function (o) {

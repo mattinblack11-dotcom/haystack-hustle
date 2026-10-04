@@ -1,5 +1,5 @@
 HH.World = (function () {
-  let renderer, scene, camera, hemi, sun, vmScene, vmCamera;
+  let shadowTick = 0, renderer, scene, camera, hemi, sun, vmScene, vmCamera;
   let envGroup = null, skyMat = null, clouds = [], windmill = null, starPts = null;
   const npc = { buyer: null, wizard: null, shop: null };
   const spots = { sell: new THREE.Vector3(), wizard: new THREE.Vector3(), spawn: new THREE.Vector3(), shop: new THREE.Vector3(), gems: new THREE.Vector3() };
@@ -432,9 +432,8 @@ HH.World = (function () {
 
   let villagers = [], villagerGen = 0, villagerR = 0;
   const VILLAGER_LOOKS = [
-    { char: "female-b", hat: "straw" }, { char: "male-a", hat: "cap" }, { char: "female-c", hat: "none" }, { char: "male-b", hat: "cowboy" },
-    { char: "female-d", hat: "none" }, { char: "male-c", hat: "none" }, { char: "female-f", hat: "straw" }, { char: "male-f", hat: "chef" },
-    { char: "female-a", hat: "party" }, { char: "male-d", hat: "tophat" }
+    { char: "female-b", hat: "straw" }, { char: "male-a", hat: "cap" }, { char: "male-b", hat: "cowboy" },
+    { char: "male-f", hat: "chef" }, { char: "female-a", hat: "party" }, { char: "male-d", hat: "tophat" }
   ];
   function clearVillagers() {
     villagerGen++;
@@ -865,32 +864,28 @@ HH.World = (function () {
     strawTex = new THREE.CanvasTexture(c);
     return strawTex;
   }
+  const baleCache = {};
   function makeBale(gold) {
-    const g = new THREE.Group();
-    const m = new THREE.MeshLambertMaterial({ map: baleTex(), color: gold ? 0xffd84a : 0xff9ae6, emissive: gold ? 0x6a4800 : 0x4a1a46 });
-    const body = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.38, 0.4), m);
-    body.castShadow = true;
-    g.add(body);
-    const tw = new THREE.MeshLambertMaterial({ color: gold ? 0x8a3a12 : 0x5a2a8a });
-    [-0.17, 0.17].forEach(function (x) {
-      const band = new THREE.Mesh(new THREE.BoxGeometry(0.035, 0.395, 0.405), tw);
-      band.position.x = x;
-      g.add(band);
-    });
-    for (let q = 0; q < 6; q++) {
-      const s = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.012, 0.12), m);
-      s.position.set((Math.random() - 0.5) * 0.55, 0.2, (Math.random() - 0.5) * 0.3);
-      s.rotation.set(Math.random() - 0.5, Math.random() * 3, 0);
-      g.add(s);
+    const key = gold ? "g" : "r";
+    if (!baleCache[key]) {
+      const c = document.createElement("canvas");
+      c.width = 128; c.height = 64;
+      const x = c.getContext("2d");
+      x.drawImage(baleTex().image, 0, 0, 128, 64);
+      x.fillStyle = gold ? "#8a3a12" : "#5a2a8a";
+      x.fillRect(30, 0, 8, 64); x.fillRect(90, 0, 8, 64);
+      const tex = new THREE.CanvasTexture(c);
+      baleCache[key] = {
+        geo: new THREE.BoxGeometry(0.62, 0.38, 0.4),
+        mat: new THREE.MeshLambertMaterial({ map: tex, color: gold ? 0xffd84a : 0xff9ae6, emissive: gold ? 0x6a4800 : 0x4a1a46 })
+      };
     }
-    if (gold) {
-      const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex("rgba(255,240,160,0.9)", "rgba(255,200,60,0.3)"), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
-      glow.scale.set(1.3, 1.3, 1);
-      g.add(glow);
-    }
-    g.scale.setScalar(gold ? 1 : 0.85);
-    g.userData.mat = m;
-    return g;
+    const b = baleCache[key];
+    const m = new THREE.Mesh(b.geo, gold ? b.mat : b.mat.clone());
+    m.castShadow = false;
+    m.scale.setScalar(gold ? 1 : 0.85);
+    m.userData.mat = m.material;
+    return m;
   }
 
   function addPickup(kind, pos) {
@@ -903,6 +898,10 @@ HH.World = (function () {
     const p = { kind: kind, mesh: mesh, vel: new THREE.Vector3((Math.random() - 0.5) * 3, 4 + Math.random() * 2, (Math.random() - 0.5) * 3), t: Math.random() * 5, rest: false };
     if (kind === "needle") p.vel.set(0, 4, 0);
     if (kind === "gold") p.vel.set(0, -6, 0);
+    if (kind !== "needle") {
+      let n = 0;
+      for (let q = pickups.length - 1; q >= 0; q--) if (pickups[q].kind !== "needle" && ++n >= 30) { scene.remove(pickups[q].mesh); pickups.splice(q, 1); }
+    }
     pickups.push(p);
     return p;
   }
@@ -937,6 +936,7 @@ HH.World = (function () {
     renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, powerPreference: "high-performance" });
     renderer.setPixelRatio(1);
     renderer.shadowMap.enabled = true;
+    renderer.shadowMap.autoUpdate = false;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.autoClear = false;
     scene = new THREE.Scene();
@@ -1023,6 +1023,8 @@ HH.World = (function () {
     HH.Voxels.setViewer(camera.position, tmpV);
     if (extras) extras.children.forEach(function (o) { if (o.userData.spin) o.rotation.y += dt * o.userData.spin; });
     HH.Voxels.update(time, dt);
+    shadowTick = (shadowTick + 1) % 4;
+    if (shadowTick === 0) renderer.shadowMap.needsUpdate = true;
     renderer.clear();
     renderer.render(scene, camera);
     if (fp && vm) {

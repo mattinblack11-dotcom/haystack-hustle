@@ -1,6 +1,6 @@
 HH.App = (function () {
   const G = HH.Game, UI = HH.UI, I = HH.Input;
-  let last = 0, winAt = 0, paused = false, shake = 0, affordT = 0, ready = false;
+  let hudT = 0, last = 0, winAt = 0, paused = false, shake = 0, affordT = 0, ready = false;
   const zoneLatch = { shop: false, gems: false };
   const CODE_HASH = "33367ff41fe04e1a2629327f9086e510dd90c24fb4bbeb24a859135be283da7f";
   const fpsLog = [];
@@ -432,8 +432,14 @@ HH.App = (function () {
   let escAudio = null, escT = 0;
   function escapeCheck(dt) {
     if (!G.run) return;
-    const p = HH.Player.pos, out = Math.hypot(p.x, p.z) > HH.World.fenceR + 1.6;
+    const p = HH.Player.pos, r = Math.hypot(p.x, p.z), out = r > HH.World.fenceR + 1.6, back = r < HH.World.fenceR - 0.4;
     if (escT > 0) {
+      if (back) {
+        escT = 0;
+        if (escAudio) { escAudio.pause(); escAudio.currentTime = 0; }
+        UI.toast("Welcome back to the farm!", 1800);
+        return;
+      }
       escT -= dt;
       if (escT <= 0) {
         HH.Player.spawn(HH.World.spots.spawn.clone());
@@ -445,8 +451,21 @@ HH.App = (function () {
     if (out) {
       escT = 20;
       try {
-        if (!escAudio) { escAudio = new Audio("assets/escape.mp3"); escAudio.loop = true; }
-        escAudio.volume = S().settings.music === false && S().settings.sfx === false ? 0 : 0.8;
+        if (!escAudio) {
+          escAudio = new Audio("assets/escape.mp3");
+          escAudio.loop = true;
+          try {
+            const ac = HH.Audio.ctx;
+            if (ac && location.protocol.indexOf("http") === 0) {
+              const src = ac.createMediaElementSource(escAudio), g = ac.createGain();
+              g.gain.value = 1.3;
+              src.connect(g); g.connect(ac.destination);
+              escAudio.boosted = true;
+            }
+          } catch (e) {}
+        }
+        const muted = S().settings.music === false && S().settings.sfx === false;
+        escAudio.volume = muted ? 0 : (escAudio.boosted ? 0.8 : 1);
         escAudio.currentTime = 0;
         const pr = escAudio.play();
         if (pr && pr.catch) pr.catch(function () {});
@@ -456,6 +475,7 @@ HH.App = (function () {
   }
 
   function loop(t) {
+    if (t - last < 1000 / 75 && !(HH.Cinema && HH.Cinema.active)) { requestAnimationFrame(loop); return; }
     const dt = Math.min(0.05, Math.max(0, (t - last) / 1000));
     last = t;
     if (HH.Cinema && HH.Cinema.active) { HH.Cinema.tick(dt); requestAnimationFrame(loop); return; }
@@ -475,6 +495,7 @@ HH.App = (function () {
     if (!paused) {
       HH.Player.update(dt, I, frozen, mods);
       G.update(dt, I, !frozen);
+      HH.Monsters.update(dt);
       affordT -= dt;
       if (UI.panel && affordT <= 0) { affordT = 0.1; UI.refreshAfford(); }
       const pp = HH.Player.pos, sp = HH.World.spots;
@@ -492,7 +513,8 @@ HH.App = (function () {
     }
     watchFps(dt);
     HH.World.frame(paused ? 0 : dt, HH.Player.pos, HH.Player.fp, true);
-    UI.hud();
+    hudT -= dt;
+    if (hudT <= 0) { hudT = 0.05; UI.hud(); }
     requestAnimationFrame(loop);
   }
 

@@ -18,7 +18,7 @@ HH.Quests = (function () {
     { text: "Earn $1,000,000", icon: "cash", get: function (S) { return [Math.floor(S.stats.cash * 100), 1000000]; }, gems: 150 },
     { text: "Return 10 needles", icon: "needle", get: function (S) { return [S.needles, 10]; }, gems: 250 }
   ];
-  let cool = 0, lastHtml = "", giftShown = "";
+  let cool = 0, uiT = 0, lastHtml = "", giftShown = "";
 
   function S() { return HH.Save.data; }
 
@@ -76,6 +76,9 @@ HH.Quests = (function () {
     if (!R) return;
     if (active) s.playTime = (s.playTime || 0) + dt;
     cool -= dt;
+    uiT -= dt;
+    if (uiT > 0) return;
+    uiT = 0.2;
     const q = LIST[s.quest || 0];
     const el = document.getElementById("quest");
     if (el) {

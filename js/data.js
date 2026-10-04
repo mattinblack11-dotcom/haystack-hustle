@@ -131,6 +131,29 @@ HH.REBIRTH_ITEMS = [
   { id: "timelord", name: "Time Lord", desc: "Every tool cooldown is cut in HALF, forever.", cost: 9, icon: "" }
 ];
 
+HH.RB_TIER_NAMES = ["Bronze", "Silver", "Gold", "Platinum", "Diamond", "Cosmic"];
+(function () {
+  const kinds = [
+    { k: "cash", name: "Coin Purse", icon: "cash", per: 0.10, txt: function (v) { return "+" + Math.round(v * 100) + "% hay money, forever"; } },
+    { k: "gems", name: "Gem Pouch", icon: "gem", per: 0.10, txt: function (v) { return "+" + Math.round(v * 100) + "% gems, forever"; } },
+    { k: "bag", name: "Satchel", icon: "bag", per: 0.15, txt: function (v) { return "+" + Math.round(v * 100) + "% bag space, forever"; } },
+    { k: "grab", name: "Work Gloves", icon: "hand", per: 0.15, txt: function (v) { return "Hand grabs take +" + Math.round(v * 100) + "% hay, forever"; } },
+    { k: "fork", name: "Pitchfork Tines", icon: "fork", per: 0.12, txt: function (v) { return "Pitchfork scoops +" + Math.round(v * 100) + "% hay, forever"; } },
+    { k: "tnt", name: "Blasting Caps", icon: "tnt", per: 0.08, txt: function (v) { return "+" + Math.round(v * 100) + "% dynamite blast size, forever"; } },
+    { k: "vac", name: "Turbo Fan", icon: "vac", per: 0.12, txt: function (v) { return "+" + Math.round(v * 100) + "% vacuum suction, forever"; } },
+    { k: "speed", name: "Running Boots", icon: "walk", per: 0.02, txt: function (v) { return "+" + Math.round(v * 100) + "% walk speed, forever"; } },
+    { k: "cd", name: "Pocket Watch", icon: "clock", per: 0.03, txt: function (v) { return "All tool cooldowns -" + Math.round(v * 100) + "%, forever"; } },
+    { k: "density", name: "Hay Shears", icon: "bolt", per: 0.04, txt: function (v) { return "Packed hay is " + Math.round(v * 100) + "% looser, forever"; } }
+  ];
+  HH.RB_TIER_NAMES.forEach(function (tn, ti) {
+    const tier = ti + 1;
+    kinds.forEach(function (kd) {
+      const v = +(kd.per * tier).toFixed(3);
+      HH.REBIRTH_ITEMS.push({ id: "t" + tier + "_" + kd.k, name: tn + " " + kd.name, desc: kd.txt(v), cost: tier, tier: tier, fx: [kd.k, v], ic: kd.icon });
+    });
+  });
+})();
+
 HH.LEVELS = [
   { name: "First Haystack", map: "barnyard", layout: "dome", size: 0.8, tip: "A small stack to learn the ropes. Find the needle and bring it to Wizzo!" },
   { name: "Twin Trouble", map: "barnyard", layout: "twin", size: 0.95, tip: "Two haystacks! The needle is in one of them." },
@@ -143,7 +166,19 @@ HH.LEVELS = [
   { name: "Stepped Pyramid", map: "silo", layout: "pyramid", size: 1.25, mud: 4, tip: "A pyramid with mud around it. Climb carefully!" },
   { name: "Foggy Fields", map: "meadow", layout: "cluster", size: 1.3, fog: true, mud: 5, tip: "Thick fog hides the far stacks. Use your radar!" },
   { name: "Storm Front", map: "mega", layout: "twin", size: 1.3, wind: true, tip: "Wind and two big stacks." },
-  { name: "The Mega Stack", map: "mega", layout: "dome", size: 1.4, deep: true, tip: "The biggest haystack yet. Good luck!" }
+  { name: "The Mega Stack", map: "mega", layout: "dome", size: 1.4, deep: true, tip: "The biggest haystack yet. Good luck!" },
+  { name: "Haunted Hayride", map: "meadow", layout: "maze", size: 1.3, fog: true, mud: 6, deep: true, hard: 1, tip: "A foggy hay maze at night. Stay close to the walls!" },
+  { name: "Twin Peaks", map: "mega", layout: "twin", size: 1.45, wind: true, deep: true, hard: 1, tip: "Two enormous stacks battered by wind." },
+  { name: "The Hay Fortress", map: "silo", layout: "wall", size: 1.45, mud: 8, deep: true, hard: 1, tip: "Thick hay walls guard the needle. Bring dynamite!" },
+  { name: "Ring of Fire", map: "mega", layout: "ring", size: 1.5, wind: true, fog: true, deep: true, hard: 2, tip: "A giant ring in a sandstorm of straw." },
+  { name: "Leaning Tower", map: "silo", layout: "tower", size: 1.5, wind: true, deep: true, hard: 2, tip: "The tallest tower yet, and the wind never stops." },
+  { name: "Swamp Stacks", map: "meadow", layout: "cluster", size: 1.55, mud: 14, fog: true, deep: true, hard: 2, tip: "Five huge stacks in a muddy swamp." },
+  { name: "The Great Pyramid", map: "mega", layout: "pyramid", size: 1.6, mud: 6, deep: true, hard: 3, tip: "An ancient pyramid of packed hay." },
+  { name: "Midnight Labyrinth", map: "meadow", layout: "maze", size: 1.55, fog: true, wind: true, deep: true, hard: 3, tip: "The biggest maze. Fog, wind and dead ends." },
+  { name: "Storm Citadel", map: "silo", layout: "wall", size: 1.6, wind: true, fog: true, mud: 8, deep: true, hard: 3, tip: "Everything at once. Good luck, farmer." },
+  { name: "Mount Strawmore", map: "mega", layout: "dome", size: 1.7, wind: true, deep: true, hard: 4, tip: "A mountain of hay. The needle is near the bottom." },
+  { name: "Twin Titans", map: "mega", layout: "twin", size: 1.75, fog: true, mud: 10, deep: true, hard: 4, tip: "Two titanic stacks in thick fog." },
+  { name: "The Final Haystack", map: "mega", layout: "cluster", size: 1.8, wind: true, fog: true, mud: 12, deep: true, hard: 5, tip: "The hardest haystack in the world. Prove you are the Hay Master!" }
 ];
 
 HH.BOOSTS = [

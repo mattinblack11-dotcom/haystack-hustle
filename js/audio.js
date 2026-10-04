@@ -107,6 +107,7 @@ HH.Audio = (function () {
   }
 
   return {
+    get ctx() { return ctx; },
     unlock: function () {
       if (!ensure()) return;
       if (ctx.state === "suspended") ctx.resume();

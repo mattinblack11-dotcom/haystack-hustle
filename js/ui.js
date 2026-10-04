@@ -528,6 +528,7 @@ HH.UI = (function () {
     { id: "Perks", icon: "star", blurb: "Upgrades that last across every haystack (until you Rebirth)." },
     { id: "Rebirth", icon: "rebirth", blurb: "Start over stronger! Rebirthing resets your gems, perks and shop upgrades, but gives you a permanent cash boost, unlocks new tools and earns Rebirth Tokens for permanent items." },
     { id: "Classes", icon: "crown", blurb: "Pick one class to equip. Each one gives you a special bonus." },
+    { id: "Talismans", icon: "star", blurb: "Unique talismans dropped by defeated skeleton raiders. Every talisman you own gives its bonus forever, even after Rebirth." },
     { id: "Levels", icon: "map", blurb: "Your level progress. New levels load automatically when you return the needle. You can replay levels you've already beaten." },
     { id: "Stats", icon: "trophy", blurb: "Your lifetime records." }
   ];
@@ -550,13 +551,29 @@ HH.UI = (function () {
       const nextTool = HH.TOOLS.find(function (t) { return (t.rb || 0) === rbs + 1; });
       h += '<div class="rebirth-box"><div class="rb-title">' + I("rebirth", 28) + " REBIRTH " + (rbs + 1) + "</div>" +
         '<div class="rb-bar"><div style="width:' + Math.min(100, have / need * 100) + '%"></div><span>' + Math.min(have, need) + " / " + need + " needles returned</span></div>" +
-        '<div class="rb-list"><b>You get:</b> +' + HH.Game.rebirthReward() + " Rebirth Tokens &middot; +25% cash forever &middot; +25% gems forever &middot; bigger haystacks" + (nextTool ? " &middot; <b>unlocks the " + nextTool.name + "</b>" : "") + "</div>" +
+        '<div class="rb-list"><b>You get:</b> +' + HH.Game.rebirthReward() + " Rebirth Tokens &middot; +25% cash forever &middot; +25% gems forever &middot; 10 new permanent upgrades &middot; bigger haystacks" + (nextTool ? " &middot; <b>unlocks the " + nextTool.name + "</b>" : "") + "</div>" +
         '<div class="rb-list"><b>You lose:</b> your gems and perks. Classes, levels and Rebirth items stay.</div>' +
         '<button class="btn rb-btn" data-a="rebirth"' + (ready ? "" : " disabled") + ">" + (ready ? "REBIRTH NOW" : "Return " + (need - have) + " more needle" + (need - have > 1 ? "s" : "")) + "</button></div>";
       h += '<div class="subhead">Rebirth Shop (permanent forever)</div>';
-      HH.REBIRTH_ITEMS.forEach(function (it) {
-        const own = S.rb && S.rb[it.id];
-        h += card({ icon: I(({ kitgrab: "hand", kitbag: "bag", kitfork: "fork", goldgloves: "hand", autosell: "cash", rainbowrain: "rainbow", clover: "star", hamking: "hamster", needlesense: "radar", gemfountain: "gem", infjet: "boost", dronearmy: "drone", superbag: "bag", titanfork: "fork", midas: "cash", timelord: "clock" })[it.id] || "star", 30), title: it.name, desc: it.desc, action: own ? null : "rbitem", value: it.id, cost: own ? undefined : it.cost, cur: "tokens", price: own ? "OWNED" : I("rebirth", 16) + " " + it.cost, cls: own ? "owned" : "" });
+      const RB_IC = { kitgrab: "hand", kitbag: "bag", kitfork: "fork", goldgloves: "hand", autosell: "cash", rainbowrain: "rainbow", clover: "star", hamking: "hamster", needlesense: "radar", gemfountain: "gem", infjet: "boost", dronearmy: "drone", superbag: "bag", titanfork: "fork", midas: "cash", timelord: "clock" };
+      const rbCard = function (it) {
+        const own = S.rb && S.rb[it.id], locked = it.tier && (S.rebirths || 0) < it.tier;
+        return card({ icon: I(it.ic || RB_IC[it.id] || "star", 30), title: it.name, desc: it.desc, action: own || locked ? null : "rbitem", value: it.id, cost: own || locked ? undefined : it.cost, cur: "tokens", price: own ? "OWNED" : locked ? I("lock", 16) + " Rebirth " + it.tier : I("rebirth", 16) + " " + it.cost, cls: own ? "owned" : locked ? "locked" : "" });
+      };
+      HH.REBIRTH_ITEMS.filter(function (it) { return !it.tier; }).forEach(function (it) { h += rbCard(it); });
+      HH.RB_TIER_NAMES.forEach(function (tn, ti) {
+        const tier = ti + 1, items = HH.REBIRTH_ITEMS.filter(function (it) { return it.tier === tier; });
+        const ownN = items.filter(function (it) { return S.rb && S.rb[it.id]; }).length;
+        h += '<div class="subhead">' + tn + " upgrades (unlock at Rebirth " + tier + ") &middot; " + ownN + "/" + items.length + "</div>";
+        items.forEach(function (it) { h += rbCard(it); });
+      });
+    } else if (cat.id === "Talismans") {
+      const tal = S.talis || {};
+      const ownN = HH.TALISMANS.filter(function (t) { return tal[t.id]; }).length;
+      h += '<div class="subhead">Collected ' + ownN + " / " + HH.TALISMANS.length + " &middot; Skeleton raids start on Level 3. Warriors (Level 7+) can drop the rare ones.</div>";
+      HH.TALISMANS.forEach(function (t) {
+        const own = tal[t.id];
+        h += card({ icon: I(own ? "star" : "lock", 30), title: own ? t.name : "???", desc: own ? t.desc : (t.rare ? "Rare drop from Skeleton Warriors" : "Drop from Skeleton raiders"), price: own ? "OWNED" : "Not found yet", cls: own ? "owned" : "locked" });
       });
     } else if (cat.id === "Classes") {
       HH.CLASSES.forEach(function (c) {
