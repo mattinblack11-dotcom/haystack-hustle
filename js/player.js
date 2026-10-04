@@ -7,7 +7,7 @@ HH.Player = (function () {
   const V = HH.Voxels;
   const cur = { R: null, L: null };
 
-  function hits(x, y, z) { return V.boxHits(x - HW, y, z - HW, x + HW, y + HT, z + HW); }
+  function hits(x, y, z) { return V.boxHits(x - HW, y, z - HW, x + HW, y + HT, z + HW) || (HH.Parkour && HH.Parkour.boxHits(x - HW, y, z - HW, x + HW, y + HT, z + HW)); }
 
   function nearWall() {
     const o = 0.14, y = pos.y + 0.4;

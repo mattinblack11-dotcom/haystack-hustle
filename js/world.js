@@ -733,6 +733,7 @@ HH.World = (function () {
     });
     scene.add(envGroup);
     spawnVillagers(fenceR);
+    if (HH.Parkour) HH.Parkour.build(scene, ext);
 
     pickups.forEach(function (p) { scene.remove(p.mesh); });
     pickups.length = 0;

@@ -306,7 +306,7 @@ HH.Game = (function () {
     const np = R.needleOut ? R.needleOut.mesh.position : null;
     S().run = {
       map: R.map, seed: R.seed, nonce: R.nonce, cash: R.cash, bag: R.bag, bagValue: R.bagValue, up: R.up, tier: R.tier, tools: R.tools, total: R.total,
-      needlesDone: R.needlesDone || 0, tool: R.tool, lastTool: R.lastTool, time: R.time, carrying: R.carrying, found: R.found, grid: V.encode(), stormNext: R.stormNext, scale: R.scale, tntCount: R.tntCount,
+      needlesDone: R.needlesDone || 0, parkourDone: !!R.parkourDone, tool: R.tool, lastTool: R.lastTool, time: R.time, carrying: R.carrying, found: R.found, grid: V.encode(), stormNext: R.stormNext, scale: R.scale, tntCount: R.tntCount,
       levelIndex: R.levelIndex, needleAt: np ? [np.x, np.y, np.z] : null
     };
     HH.Save.save();
