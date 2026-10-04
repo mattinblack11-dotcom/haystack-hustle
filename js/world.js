@@ -390,7 +390,8 @@ HH.World = (function () {
   }
 
   const buildTpl = {};
-  let villageSpots = [], bakerCh = null, bakerGen = 0;
+  let villageSpots = [], villagePOI = [], bakerCh = null, bakerGen = 0;
+  function poiKind(n) { return /home/.test(n) ? "home" : /market/.test(n) ? "shop" : /tavern/.test(n) ? "tavern" : /well/.test(n) ? "well" : "work"; }
   function loadBuildings() {
     if (!HH.BUILD_DATA) return Promise.resolve();
     const files = HH.BUILD_DATA.files;
@@ -441,6 +442,12 @@ HH.World = (function () {
     villagers.forEach(function (v) { scene.remove(v.ch.root); const q = chars.indexOf(v.ch); if (q >= 0) chars.splice(q, 1); });
     villagers = [];
   }
+  const DAY = 240;
+  function pois(kind) { return villagePOI.filter(function (p) { return p.kind === kind; }); }
+  function pickPoi(kinds, seed) {
+    for (let k = 0; k < kinds.length; k++) { const l = pois(kinds[k]); if (l.length) return l[Math.abs(seed) % l.length]; }
+    return villagePOI.length ? villagePOI[Math.abs(seed) % villagePOI.length] : null;
+  }
   function spawnVillagers(fr) {
     clearVillagers();
     villagerR = fr;
@@ -449,31 +456,52 @@ HH.World = (function () {
     VILLAGER_LOOKS.forEach(function (look, i) {
       HH.Looks.build(look, 1.65).then(function (ch) {
         if (gen !== villagerGen) { const q = chars.indexOf(ch); if (q >= 0) chars.splice(q, 1); return; }
-        const v = { ch: ch, a: (i / VILLAGER_LOOKS.length) * Math.PI * 2 + Math.random() * 0.4, r: fr + 2.6 + (i % 3) * 1.1, dir: i % 2 ? 1 : -1, t: Math.random() * 4, walking: Math.random() < 0.6, cheer: 0 };
+        const home = pickPoi(["home"], i * 3 + 1), work = pickPoi(i % 3 === 0 ? ["work"] : i % 3 === 1 ? ["shop", "work"] : ["work", "well"], i * 7 + 2);
+        const start = home || { a: i, d: fr + 5 };
+        const v = { ch: ch, a: start.a, d: start.d, home: home, work: work, slot: "", tgt: null, idle: 0, anim: "idle", seed: i };
         ch.root.traverse(function (o) { if (o.isMesh) o.castShadow = false; });
         scene.add(ch.root);
         villagers.push(v);
-        placeVillager(v);
+        placeVillager(v, false);
       }).catch(function () {});
     });
   }
-  function placeVillager(v) {
-    v.ch.root.position.set(Math.cos(v.a) * v.r, 0, Math.sin(v.a) * v.r);
-    const tx = -Math.sin(v.a) * v.dir, tz = Math.cos(v.a) * v.dir;
-    v.ch.root.rotation.y = v.walking ? Math.atan2(tx, tz) : Math.atan2(-Math.cos(v.a), -Math.sin(v.a));
+  function placeVillager(v, walking, dirA, dirD) {
+    v.ch.root.position.set(Math.cos(v.a) * v.d, 0, Math.sin(v.a) * v.d);
+    if (walking) {
+      const tx = -Math.sin(v.a) * dirA * v.d + Math.cos(v.a) * dirD, tz = Math.cos(v.a) * dirA * v.d + Math.sin(v.a) * dirD;
+      v.ch.root.rotation.y = Math.atan2(tx, tz);
+    } else v.ch.root.rotation.y = Math.atan2(-Math.cos(v.a), -Math.sin(v.a));
   }
   function updateVillagers(dt) {
+    if (!villagers.length) return;
+    const phase = (time % DAY) / DAY;
+    const slot = phase < 0.3 ? "work" : phase < 0.5 ? "shop" : phase < 0.75 ? "tavern" : "home";
+    const ring = villagerR + 4.5;
     villagers.forEach(function (v) {
-      v.t -= dt;
-      if (v.t <= 0) {
-        v.walking = !v.walking;
-        v.t = v.walking ? 4 + Math.random() * 6 : 2 + Math.random() * 4;
-        if (v.walking && Math.random() < 0.4) v.dir = -v.dir;
-        v.anim = Math.random() < 0.3 ? "emote-yes" : "idle";
+      if (v.slot !== slot) {
+        v.slot = slot;
+        v.tgt = slot === "work" ? v.work : slot === "shop" ? pickPoi(["shop", "well"], v.seed + Math.floor(time / DAY)) : slot === "tavern" ? pickPoi(["tavern", "well"], v.seed) : v.home;
       }
-      if (v.walking) v.a += v.dir * 1.25 / v.r * dt;
-      v.ch.play(v.walking ? "walk" : (v.anim || "idle"), 0.3);
-      placeVillager(v);
+      const t = v.tgt;
+      let moving = false, dA = 0, dD = 0;
+      if (t) {
+        let da = t.a - v.a;
+        while (da > Math.PI) da -= Math.PI * 2;
+        while (da < -Math.PI) da += Math.PI * 2;
+        const step = 1.3 * dt;
+        if (Math.abs(da) > 0.02) {
+          if (Math.abs(v.d - ring) > 0.2) { dD = Math.sign(ring - v.d); v.d += dD * Math.min(step, Math.abs(ring - v.d)); }
+          else { dA = Math.sign(da); v.a += dA * Math.min(Math.abs(da), step / Math.max(1, v.d)); }
+          moving = true;
+        } else if (Math.abs(v.d - t.d) > 0.2) { dD = Math.sign(t.d - v.d); v.d += dD * Math.min(step, Math.abs(t.d - v.d)); moving = true; }
+      }
+      if (!moving) {
+        v.idle -= dt;
+        if (v.idle <= 0) { v.idle = 3 + Math.random() * 5; v.anim = v.slot === "tavern" || v.slot === "shop" ? (Math.random() < 0.5 ? "emote-yes" : "idle") : (Math.random() < 0.6 ? "interact-right" : "idle"); }
+      }
+      v.ch.play(moving ? "walk" : v.anim, 0.3);
+      placeVillager(v, moving, dA, dD);
       if (v.ch.spin) v.ch.spin.rotation.y += dt * 10;
     });
   }
@@ -498,6 +526,7 @@ HH.World = (function () {
       const b = building(p[0], p[1], x, z, true, (r() - 0.5) * 0.5);
       if (!b) return;
       villageSpots.push([x, z, p[1] * 0.75 + 3]);
+      villagePOI.push({ a: Math.atan2(z, x), d: d - (p[1] * 0.55 + 1.2), kind: poiKind(p[0]) });
       envGroup.add(b);
       if (p[0] === "building_windmill_red") {
         const fan = b.getObjectByName("building_windmill_top_fan_red");
@@ -507,7 +536,7 @@ HH.World = (function () {
     for (let q = 0; q < 9; q++) {
       const a = -0.35 + q * 0.11 + (r() - 0.5) * 0.04, d = fr + 9 + (q % 3) * 5.2;
       const g = building("building_grain", 1.4, Math.cos(a) * d, Math.sin(a) * d, false, r() * 6);
-      if (g) { g.scale.x = g.scale.z = 2.2; envGroup.add(g); }
+      if (g) { g.scale.x = g.scale.z = 2.2; envGroup.add(g); if (q === 4) villagePOI.push({ a: a, d: d - 3, kind: "work" }); }
     }
     const outer = [
       ["building_home_B_red", 8, 0.25, 34], ["building_home_A_red", 7, -0.9, 33], ["building_tavern_red", 9, 1.85, 35],
@@ -520,6 +549,7 @@ HH.World = (function () {
       const b = building(p[0], p[1], x, z, true, (r() - 0.5) * 0.6);
       if (!b) return;
       villageSpots.push([x, z, p[1] * 0.75 + 3]);
+      villagePOI.push({ a: Math.atan2(z, x), d: d - (p[1] * 0.55 + 1.2), kind: poiKind(p[0]) });
       envGroup.add(b);
     });
     const townKinds = ["building_home_A_blue", "building_tavern_blue", "building_church_yellow", "building_market_yellow", "building_home_B_yellow", "building_home_A_green", "building_tower_A_green", "building_market_blue", "building_home_B_green", "building_home_A_red", "building_home_B_red", "building_blacksmith_red"];
@@ -672,6 +702,7 @@ HH.World = (function () {
     envGroup.add(fields(r, night));
     windmill = null;
     villageSpots = [];
+    villagePOI = [];
     const hasVillage = village(fenceR, r);
     if (!hasVillage) {
       envGroup.add(barn(-fenceR - 12, -8, Math.PI / 2));
