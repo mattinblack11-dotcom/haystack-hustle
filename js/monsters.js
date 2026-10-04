@@ -10,12 +10,7 @@ HH.TALISMANS = [
   { id: "time", name: "Talisman of Time", desc: "All tool cooldowns -8%", fx: ["cd", 0.08], rare: false },
   { id: "sun", name: "Talisman of the Sun", desc: "Packed hay is 8% looser", fx: ["density", 0.08], rare: false },
   { id: "bonecrown", name: "Skull Crown", desc: "+30% hay money (Warrior drop)", fx: ["cash", 0.3], rare: true },
-  { id: "amulet", name: "Bone Amulet", desc: "Deal double damage to monsters (Warrior drop)", fx: ["dmg", 1], rare: true },
-  { id: "gladiator", name: "Gladiator's Crest", desc: "+40% hay money (Arena prize)", fx: ["cash", 0.4], arena: true },
-  { id: "colossus", name: "Colossus Band", desc: "+40% bag space (Arena prize)", fx: ["bag", 0.4], arena: true },
-  { id: "viper", name: "Viper Fang", desc: "+12% walk speed (Arena prize)", fx: ["speed", 0.12], arena: true },
-  { id: "champion", name: "Champion's Medal", desc: "+35% gems (Arena prize)", fx: ["gems", 0.35], arena: true },
-  { id: "duelist", name: "Duelist's Hourglass", desc: "All tool cooldowns -12% (Arena prize)", fx: ["cd", 0.12], arena: true }
+  { id: "amulet", name: "Bone Amulet", desc: "Deal double damage to monsters (Warrior drop)", fx: ["dmg", 1], rare: true }
 ];
 
 HH.Monsters = (function () {
@@ -60,12 +55,12 @@ HH.Monsters = (function () {
     m.bar.userData.tex.needsUpdate = true;
   }
 
-  function spawn(kind, pos, arena) {
+  function spawn(kind, pos) {
     const name = models[kind];
     if (!name) return;
     const lvl = HH.Game.run.levelIndex || 0, hard = (HH.Game.run.level && HH.Game.run.level.hard) || 0;
-    const max = Math.round((kind === "warrior" ? 9 : 4) * (1 + 0.08 * lvl + 0.35 * hard) * (arena ? 1 + 0.15 * arena : 1));
-    const m = { kind: kind, hp: max, max: max, pos: pos.clone(), ch: null, state: "rise", t: 0, root: new THREE.Group(), speed: kind === "warrior" ? 2.7 : 3.3, arena: arena || 0, cd: 0 };
+    const max = Math.round((kind === "warrior" ? 9 : 4) * (1 + 0.08 * lvl + 0.35 * hard));
+    const m = { kind: kind, hp: max, max: max, pos: pos.clone(), ch: null, state: "rise", t: 0, root: new THREE.Group(), speed: kind === "warrior" ? 2.7 : 3.3 };
     m.root.position.copy(pos);
     m.bar = hpBar();
     m.bar.position.y = kind === "warrior" ? 2.6 : 2.2;
@@ -96,8 +91,8 @@ HH.Monsters = (function () {
     HH.UI.popup("+" + g + " gems", m.root.position.clone().add(new THREE.Vector3(0, 2, 0)), "#7ff7ff", false);
     HH.UI.flyIcons("gem", 4);
     s.talis = s.talis || {};
-    const pool = HH.TALISMANS.filter(function (t) { return !s.talis[t.id] && !t.arena && (!t.rare || m.kind === "warrior"); });
-    if (!m.arena && pool.length && Math.random() < (m.kind === "warrior" ? 0.35 : 0.12)) {
+    const pool = HH.TALISMANS.filter(function (t) { return !s.talis[t.id] && (!t.rare || m.kind === "warrior"); });
+    if (pool.length && Math.random() < (m.kind === "warrior" ? 0.35 : 0.12)) {
       const t = pool[Math.floor(Math.random() * pool.length)];
       s.talis[t.id] = true;
       HH.Audio.play("levelup");
@@ -178,29 +173,6 @@ HH.Monsters = (function () {
       if (m.state === "rise") { if (m.t > 1.4) { m.state = "chase"; if (m.ch) m.ch.play("Running_A", 0.2); } return; }
       if (m.state === "dead") { if (m.t > 1.8) remove(m); return; }
       if (m.state === "flee") { p.y -= dt * 2; if (m.t > 1.2) remove(m); return; }
-      if (m.arena) {
-        const A = HH.Arena, c = A.center, inA = A.inside;
-        const tx = inA ? pp.x : c.x, tz = inA ? pp.z : c.z;
-        const ax = tx - p.x, az = tz - p.z, ad = Math.hypot(ax, az);
-        m.cd -= dt;
-        if (inA && ad < 1.2 && Math.abs(pp.y - p.y) < 2.2) {
-          if (m.cd <= 0) {
-            m.cd = 1.1;
-            A.hurt(m.kind === "warrior" ? 15 : 8);
-            if (m.ch && m.ch.actions["1H_Melee_Attack_Chop"]) m.ch.play("1H_Melee_Attack_Chop", 0.05, true);
-          }
-          return;
-        }
-        if (ad > 0.6) {
-          const sp = Math.min(ad, m.speed * dt);
-          p.x += ax / ad * sp; p.z += az / ad * sp;
-          const ox = p.x - c.x, oz = p.z - c.z, od = Math.hypot(ox, oz), lim = A.radius - 0.5;
-          if (od > lim) { p.x = c.x + ox / od * lim; p.z = c.z + oz / od * lim; }
-          p.y = 0;
-          m.root.rotation.y = Math.atan2(ax, az);
-        }
-        return;
-      }
       const dx = pp.x - p.x, dz = pp.z - p.z, d = Math.hypot(dx, dz);
       if (d < 1.1 && Math.abs(pp.y - p.y) < 2.2) {
         const lost = Math.min(R.bag, Math.max(5, Math.floor(R.bag * 0.15)));
@@ -224,8 +196,6 @@ HH.Monsters = (function () {
   }
 
   function clear() { list.slice().forEach(remove); raidT = 120; }
-  function clearArena() { list.filter(function (m) { return m.arena; }).forEach(remove); }
-  function arenaLeft() { return list.filter(function (m) { return m.arena && m.state !== "dead"; }).length; }
 
-  return { update: update, hit: hit, spawn: spawn, clearArena: clearArena, arenaLeft: arenaLeft, ready: function () { loadModels(); return !!models.minion; }, blast: blast, clear: clear, raid: function () { loadModels(); if (models.minion) startRaid(); }, get list() { return list; }, get count() { return list.length; } };
+  return { update: update, hit: hit, blast: blast, clear: clear, raid: function () { loadModels(); if (models.minion) startRaid(); }, get list() { return list; }, get count() { return list.length; } };
 })();

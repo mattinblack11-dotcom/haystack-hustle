@@ -529,8 +529,6 @@ HH.App = (function () {
       HH.Player.update(dt, I, frozen, mods);
       G.update(dt, I, !frozen);
       HH.Monsters.update(dt);
-      HH.Parkour.update(dt);
-      HH.Arena.update(dt);
       affordT -= dt;
       if (UI.panel && affordT <= 0) { affordT = 0.1; UI.refreshAfford(); }
       const pp = HH.Player.pos, sp = HH.World.spots;

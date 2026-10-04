@@ -719,7 +719,6 @@ HH.World = (function () {
     for (let n = 0; n < 14; n++) {
       const a = r() * Math.PI * 2, d = ext + 5 + r() * (fenceR - ext - 7);
       if (Math.abs(Math.cos(a) * d) < 4 && Math.sin(a) * d < 0) continue;
-      if (Math.hypot(Math.cos(a) * d - Math.cos(-2.36) * (ext + 7.6), Math.sin(a) * d - Math.sin(-2.36) * (ext + 7.6)) < 7.5) continue;
       const b = cyl(0.9, 0.9, 1.3, 0xe8c25a, 16);
       b.rotation.z = Math.PI / 2; b.rotation.y = r() * 3;
       b.position.set(Math.cos(a) * d, 0.9, Math.sin(a) * d);
@@ -762,8 +761,6 @@ HH.World = (function () {
     });
     scene.add(envGroup);
     spawnVillagers(fenceR);
-    if (HH.Parkour) HH.Parkour.build(scene, ext);
-    if (HH.Arena) HH.Arena.build(scene, ext);
 
     pickups.forEach(function (p) { scene.remove(p.mesh); });
     pickups.length = 0;
