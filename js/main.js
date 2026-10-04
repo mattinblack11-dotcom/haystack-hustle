@@ -1,7 +1,7 @@
 HH.App = (function () {
   const G = HH.Game, UI = HH.UI, I = HH.Input;
   let hudT = 0, last = 0, winAt = 0, paused = false, shake = 0, affordT = 0, ready = false;
-  const zoneLatch = { shop: false, gems: false, bakery: false };
+  const zoneLatch = { shop: false, gems: false, bakery: false, anvil: false };
   const CODE_HASH = "33367ff41fe04e1a2629327f9086e510dd90c24fb4bbeb24a859135be283da7f";
   const fpsLog = [];
   let autoDowngraded = false, fpsT = 0, adBusy = false;
@@ -364,6 +364,23 @@ HH.App = (function () {
     };
   }
 
+  function anvilHandlers() {
+    return {
+      reforge: function (t) {
+        const pick = G.reforge(t);
+        if (pick) { UI.toast('Reforged: <b style="color:' + pick.color + '">' + pick.name + "</b> (" + pick.rarity + ") &middot; " + pick.desc, 3000); if (pick.w <= 12) UI.confetti(50); }
+        else UI.toast("Not enough gems.", 1400);
+        return !!pick;
+      },
+      enchant: function (v) {
+        const p = v.split(":"), ok = G.enchant(p[0], p[1]);
+        if (!ok) UI.toast("Not enough gems.", 1400);
+        return ok;
+      },
+      close: closePanel
+    };
+  }
+
   function bakeryHandlers() {
     return {
       pastry: function (id) {
@@ -390,6 +407,7 @@ HH.App = (function () {
     else if (name === "mp") UI.open("mp", mpHandlers());
     else if (name === "style") UI.open("style", styleHandlers());
     else if (name === "bakery") UI.open("bakery", bakeryHandlers());
+    else if (name === "anvil") UI.open("anvil", anvilHandlers());
     else if (name === "pause") { if (!HH.Net.active) { paused = true; HH.Platform.gameplayStop(); } UI.open("pause", pauseHandlers()); }
   }
 
@@ -407,6 +425,7 @@ HH.App = (function () {
     if (code === "KeyC") { openPanel("style"); return true; }
     if (code === "KeyV" && !UI.panel) { watchAd(adOffer()); return true; }
     if (code === "KeyJ" && !UI.panel) { HH.Quests.openGift(); return true; }
+    if (code === "KeyN") { openPanel("anvil"); return true; }
     if (code === "KeyR" && !UI.panel && G.run) { HH.Player.spawn(HH.World.spots.spawn.clone()); HH.Audio.play("boost"); UI.flash(); return true; }
     if (code === "KeyU") { if (G.run) { const n = G.buyMax(); if (UI.panel) UI.render(); UI.toast(n ? "<b>Bought " + n + " upgrade" + (n > 1 ? "s" : "") + "!</b>" : "Can't afford anything yet.", 1500); } return true; }
     if (code === "KeyB" && !UI.panel) { openPanel("boosts"); return true; }
@@ -517,7 +536,7 @@ HH.App = (function () {
         if (inB && !zoneLatch.bakery && !UI.panel) { zoneLatch.bakery = true; openPanel("bakery"); UI.say("Baker Bun", "Well hello! You found my secret bakery!", "#ffd0a8"); HH.Audio.play("levelup"); }
         if (!inB) zoneLatch.bakery = false;
       }
-      ["shop", "gems"].forEach(function (z) {
+      ["shop", "gems", "anvil"].forEach(function (z) {
         const inside = Math.hypot(pp.x - sp[z].x, pp.z - sp[z].z) < 2.0 && pp.y < 1;
         if (inside && !zoneLatch[z] && !UI.panel) { zoneLatch[z] = true; openPanel(z); if (z === "shop") UI.say(HH.NPC.shop.name, "Howdy! What can I getcha?", "#ffe14d"); }
         if (!inside) zoneLatch[z] = false;

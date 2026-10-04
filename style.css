@@ -448,3 +448,4 @@ html, body { overflow: hidden; overscroll-behavior: none; }
 #stats .chip { overflow-wrap: normal; white-space: nowrap; flex-shrink: 0; }
 #stats .chip.cash, #stats .chip.gems { position: relative; left: 0; top: 0; transform: none; }
 .sign.bakery { color: #ffd0a8; }
+.sign.anvil { color: #d6dde8; } .anvil-tools { flex-direction: row; flex-wrap: wrap; margin: 8px 0; }

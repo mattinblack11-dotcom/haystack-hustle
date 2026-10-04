@@ -654,6 +654,30 @@ HH.UI = (function () {
     return h;
   }
 
+  let anvilTool = "hand";
+  function anvilHtml() {
+    const G = HH.Game, R = G.run, S0 = HH.Save.data;
+    let h = '<div class="ptop"><div class="sign anvil">' + I("gear", 30) + " THE ANVIL</div>" + money() + "</div>";
+    if (!G.anvilOpen()) {
+      h += '<div class="note">' + I("lock", 18) + " The anvil is locked until <b>Rebirth 2</b>. Then you can enchant your tools and reforge them for random bonuses.</div>";
+      h += '<div class="grid">' + HH.ENCHANTS.map(function (e) { return card({ icon: I("lock", 30), title: e.name, desc: e.desc, price: "Rebirth 2", cls: "locked" }); }).join("") + "</div>";
+      return h + '<div class="row"><button class="btn go" data-a="close">Back</button></div>';
+    }
+    const tools = HH.TOOLS.filter(function (t) { return R.tools[t.id]; });
+    if (!R.tools[anvilTool]) anvilTool = "hand";
+    h += '<div class="note">' + I("gear", 18) + " Pick a tool. <b>Reforge</b> rolls a random bonus (Common to Legendary). <b>Enchant</b> it with permanent upgrades. Everything costs gems and stays after Rebirth.</div>";
+    h += '<div class="cats anvil-tools">' + tools.map(function (t) { return '<button class="cat' + (t.id === anvilTool ? " on" : "") + '" data-a="atool" data-v="' + t.id + '"><span>' + I(t.id, 22) + "</span>" + t.name + "</button>"; }).join("") + "</div>";
+    const fid = S0.forge && S0.forge[anvilTool], f = fid && HH.REFORGES.find(function (x) { return x.id === fid; });
+    const rc = G.reforgeCost(anvilTool);
+    h += '<div class="grid">';
+    h += card({ icon: I("gear", 30), title: "Reforge: " + (f ? '<span style="color:' + f.color + '">' + f.name + " (" + f.rarity + ")</span>" : "none yet"), desc: f ? f.desc : "Roll a random bonus for this tool. Legendary Mythic is a 6% chance!", action: "reforge", value: anvilTool, cost: rc, cur: "gems", price: I("gem", 16) + " " + rc });
+    HH.ENCHANTS.forEach(function (e) {
+      const l = G.ench(anvilTool)[e.id] || 0, max = l >= e.max, c = max ? 0 : G.enchantCost(e.id, l);
+      h += card({ icon: I("star", 30), title: e.name, lv: "Lv " + l + "/" + e.max, desc: e.desc, action: max ? null : "enchant", value: anvilTool + ":" + e.id, cost: max ? undefined : c, cur: "gems", price: max ? "MAXED" : I("gem", 16) + " " + c, cls: max ? "owned" : "", pips: pips(l, e.max) });
+    });
+    return h + '</div><div class="row"><button class="btn go" data-a="close">Back</button></div>';
+  }
+
   function bakeryHtml() {
     const S0 = HH.Save.data, st = HH.Game.stats();
     let h = '<div class="ptop"><div class="sign bakery">' + I("star", 30) + " BUN'S SECRET BAKERY</div>" + money() + "</div>";
@@ -722,7 +746,7 @@ HH.UI = (function () {
       '<div class="setting"><span>Secret code</span><span class="codebox"><input id="codein" type="text" maxlength="80" placeholder="Enter code..." autocomplete="off" spellcheck="false"><button class="tog" data-a="redeem">Redeem</button></span></div>' +
       (HH.Save.data.cheats ? '<div class="cheats"><b>CHEATS</b>' +
         [["cash", "+$10M cash"], ["gems", "+10K gems"], ["level", "+5 levels"], ["rebirth", "Ready to rebirth"], ["tokens", "+10 tokens"], ["needle", "Pop out needle"], ["maxall", "Max this run"], ["skiplevel", "Skip level"]].map(function (c) { return '<button class="tog on" data-a="cheat" data-v="' + c[0] + '">' + c[1] + "</button>"; }).join("") + "</div>" : "") +
-      "</div><div class=\"controls\">WASD move &middot; Space jump (hold against hay to climb) &middot; R back to start if stuck &middot; Shift sprint &middot; Mouse look &middot; Click use tool &middot; 1-6 tools &middot; Q put away / equip &middot; F remote sell &middot; Tab shop &middot; U buy max &middot; G gems &middot; C style &middot; V watch ad for a boost &middot; J open free gift &middot; B all boosts &middot; M next song &middot; Esc pause</div>" +
+      "</div><div class=\"controls\">WASD move &middot; Space jump (hold against hay to climb) &middot; R back to start if stuck &middot; Shift sprint &middot; Mouse look &middot; Click use tool &middot; 1-6 tools &middot; Q put away / equip &middot; F remote sell &middot; Tab shop &middot; U buy max &middot; G gems &middot; C style &middot; V watch ad for a boost &middot; J open free gift &middot; N anvil (Rebirth 2) &middot; B all boosts &middot; M next song &middot; Esc pause</div>" +
       '<div class="row"><button class="btn ghost" data-a="restart">Restart level</button><button class="btn ghost" data-a="wipe">Erase save</button></div>';
   }
 
@@ -763,6 +787,7 @@ HH.UI = (function () {
     else if (panel === "mp") h = mpHtml();
     else if (panel === "style") h = styleHtml();
     else if (panel === "bakery") h = bakeryHtml();
+    else if (panel === "anvil") h = anvilHtml();
     const grid = $("panel").querySelector(".grid");
     const sc = grid ? grid.scrollTop : 0;
     $("panel").innerHTML = h;
@@ -806,6 +831,7 @@ HH.UI = (function () {
       if (a === "tab") { HH.Audio.play("click"); shopTab = v; render(); return; }
       if (a === "gtab") { HH.Audio.play("click"); gemTab = v; render(); return; }
       if (a === "stab") { HH.Audio.play("click"); styleTab = v; render(); return; }
+      if (a === "atool") { HH.Audio.play("click"); anvilTool = v; render(); return; }
       if (handlers[a]) {
         const ok = handlers[a](v, el);
         if (panel) {

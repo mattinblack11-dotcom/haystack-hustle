@@ -119,7 +119,7 @@ HH.Monsters = (function () {
 
   function hit(ray, tool) {
     if (!list.length) return false;
-    const mul = 1 + (HH.Game.rbfx ? HH.Game.rbfx("dmg") : 0);
+    const mul = (1 + (HH.Game.rbfx ? HH.Game.rbfx("dmg") : 0)) * (1 + 0.5 * ((HH.Game.ench && HH.Game.ench(tool).slayer) || 0));
     let best = null, bestD = 9;
     const tmp = new THREE.Vector3();
     list.forEach(function (m) {

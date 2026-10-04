@@ -55,47 +55,81 @@ HH.Game = (function () {
     });
   }
 
+  function ench(t) { const e = S().ench; return (e && e[t]) || {}; }
+  function forgeFx(t) { const f = S().forge, id = f && f[t]; const r = id && HH.REFORGES.find(function (x) { return x.id === id; }); return (r && r.fx) || {}; }
+  function sizeMul(t) { return 1 + 0.08 * (ench(t).eff || 0) + (forgeFx(t).size || 0); }
+  function cdMul(t) { return (1 - 0.06 * (ench(t).haste || 0)) * (1 - (forgeFx(t).cd || 0)); }
+  function anvilOpen() { return (S().rebirths || 0) >= 2; }
+  function enchantCost(id, l) { const e = HH.ENCHANTS.find(function (x) { return x.id === id; }); return Math.round(e.base * Math.pow(l + 1, 1.6)); }
+  function reforgeCost(t) { return 25 + 15 * ((S().reforges && S().reforges[t]) || 0); }
+  function enchant(t, id) {
+    const s = S(), e = HH.ENCHANTS.find(function (x) { return x.id === id; });
+    if (!anvilOpen() || !e) { HH.Audio.play("deny"); return false; }
+    s.ench = s.ench || {}; s.ench[t] = s.ench[t] || {};
+    const l = s.ench[t][id] || 0;
+    if (l >= e.max) { HH.Audio.play("deny"); return false; }
+    const c = enchantCost(id, l);
+    if (s.gems < c) { HH.Audio.play("deny"); return false; }
+    s.gems -= c; s.ench[t][id] = l + 1;
+    HH.Save.save(); HH.Audio.play("levelup");
+    return true;
+  }
+  function reforge(t) {
+    const s = S();
+    if (!anvilOpen()) { HH.Audio.play("deny"); return null; }
+    const c = reforgeCost(t);
+    if (s.gems < c) { HH.Audio.play("deny"); return null; }
+    s.gems -= c;
+    const tot = HH.REFORGES.reduce(function (a, r) { return a + r.w; }, 0);
+    let roll = Math.random() * tot, pick = HH.REFORGES[0];
+    for (let q = 0; q < HH.REFORGES.length; q++) { roll -= HH.REFORGES[q].w; if (roll <= 0) { pick = HH.REFORGES[q]; break; } }
+    s.forge = s.forge || {}; s.forge[t] = pick.id;
+    s.reforges = s.reforges || {}; s.reforges[t] = (s.reforges[t] || 0) + 1;
+    HH.Save.save(); HH.Audio.play(pick.w <= 12 ? "levelup" : "buy");
+    return pick;
+  }
+
   function stats() {
     const P = S().perks, m = mapDef(R.map), rbs = S().rebirths || 0;
     const comboMul = 1 + Math.min(R.combo || 0, 100) * 0.01 * (1 + 0.2 * lvl("combo"));
     const zone = R.zoneMul || 1;
     return {
-      basePrice: (boostOn("p_roll") ? 1.5 : 1) * (1 + rbfx("cash")) * (HH.Quests && HH.Quests.boostOn ? 2 : 1) * (rb("midas") ? 2 : 1) * (1 + 0.1 * lvl("baler")) * (1 + 0.08 * lvl("vip")) * (1 + 0.1 * lvl("tycoon")) * m.hayValue * (1 + 0.1 * P.hayValue) * (has("haggler") ? 1.2 : 1) * (1 + 0.05 * lvl("tip")) * (lvl("goose") ? 1.15 : 1) * (1 + 0.25 * rbs) * (1 + 0.25 * lvl("harvest")) * (1 + 0.05 * Math.min(R.levelIndex || 0, 30)),
+      basePrice: (1 + 0.1 * (ench(R.tool).fortune || 0) + (forgeFx(R.tool).cash || 0)) * (boostOn("p_roll") ? 1.5 : 1) * (1 + rbfx("cash")) * (HH.Quests && HH.Quests.boostOn ? 2 : 1) * (rb("midas") ? 2 : 1) * (1 + 0.1 * lvl("baler")) * (1 + 0.08 * lvl("vip")) * (1 + 0.1 * lvl("tycoon")) * m.hayValue * (1 + 0.1 * P.hayValue) * (has("haggler") ? 1.2 : 1) * (1 + 0.05 * lvl("tip")) * (lvl("goose") ? 1.15 : 1) * (1 + 0.25 * rbs) * (1 + 0.25 * lvl("harvest")) * (1 + 0.05 * Math.min(R.levelIndex || 0, 30)),
       mul: comboMul * (R.storm > 0 ? 2 : 1),
       cap: Math.floor((boostOn("p_bread") ? 1.5 : 1) * (1 + rbfx("bag")) * (rb("superbag") ? 2 : 1) * (1 + 0.2 * lvl("megabag")) * (1 + 0.5 * lvl("pockets")) * (HH.BAG_TIERS[R.tier].cap + 40 * P.bagSize) * (has("baggoblin") ? 1.5 : 1) * (1 + 0.25 * lvl("compress")) * (boostOn("bagboost") ? 1.5 : 1)),
       grab: Math.round((1 + rbfx("grab")) * (3 + lvl("grasp") + P.grab) * (rb("goldgloves") ? 2 : 1) * (1 + 0.3 * lvl("qgrab"))),
-      drill: 0.04 * lvl("drill"),
+      drill: 0.04 * lvl("drill") + 0.02 * (ench(R.tool).lucky || 0),
       autosell: rb("autosell") ? 1 : lvl("autosell") ? 0.9 : 0,
       forkHaul: (1 + rbfx("fork")) * (rb("titanfork") ? 2 : 1) * (has("forklord") ? 1.25 : 1) * (1 + 0.4 * lvl("megafork")) * (1 + 0.25 * lvl("goldfork")),
       stormFreq: (lvl("stormcall") ? 2 : 1) * (rb("rainbowrain") ? 2 : 1),
       stormLen: (rb("rainbowrain") ? 45 : 30) * (1 + 0.3 * lvl("stormmag")),
       nuke: lvl("nuke") > 0,
       nmagnet: lvl("nmagnet") > 0,
-      holeR: (2.2 + 0.4 * lvl("hsize")) * (1 + 0.25 * lvl("cosmic")),
-      holeCd: 45 * Math.pow(0.85, lvl("hcool")) * Math.pow(0.95, lvl("warp")) * (rb("timelord") ? 0.5 : 1) * Math.max(0.4, 1 - rbfx("cd")) * (boostOn("p_donut") ? 0.7 : 1),
-      handCd: 0.38 * Math.pow(0.9, lvl("speed")) * Math.pow(0.95, lvl("warp")) * (rb("timelord") ? 0.5 : 1) * Math.max(0.4, 1 - rbfx("cd")) * (boostOn("p_donut") ? 0.7 : 1),
-      handR: 0.9 + 0.15 * lvl("glove"),
+      holeR: ((2.2 + 0.4 * lvl("hsize")) * (1 + 0.25 * lvl("cosmic"))) * sizeMul("hole"),
+      holeCd: (45 * Math.pow(0.85, lvl("hcool")) * Math.pow(0.95, lvl("warp")) * (rb("timelord") ? 0.5 : 1) * Math.max(0.4, 1 - rbfx("cd")) * (boostOn("p_donut") ? 0.7 : 1)) * cdMul("hole"),
+      handCd: (0.38 * Math.pow(0.9, lvl("speed")) * Math.pow(0.95, lvl("warp")) * (rb("timelord") ? 0.5 : 1) * Math.max(0.4, 1 - rbfx("cd")) * (boostOn("p_donut") ? 0.7 : 1)) * cdMul("hand"),
+      handR: (0.9 + 0.15 * lvl("glove")) * sizeMul("hand"),
       reach: 4.5 + 0.6 * lvl("reach"),
       golden: 0.05 * lvl("golden"),
-      forkR: (0.8 + 0.14 * lvl("fsweep")) * (has("forklord") ? 1.08 : 1),
-      forkCd: 1.0 * Math.pow(0.88, lvl("fcool")) * Math.pow(0.95, lvl("warp")) * (rb("timelord") ? 0.5 : 1) * Math.max(0.4, 1 - rbfx("cd")) * (boostOn("p_donut") ? 0.7 : 1),
+      forkR: ((0.8 + 0.14 * lvl("fsweep")) * (has("forklord") ? 1.08 : 1)) * sizeMul("fork"),
+      forkCd: (1.0 * Math.pow(0.88, lvl("fcool")) * Math.pow(0.95, lvl("warp")) * (rb("timelord") ? 0.5 : 1) * Math.max(0.4, 1 - rbfx("cd")) * (boostOn("p_donut") ? 0.7 : 1)) * cdMul("fork"),
       fgold: 0.08 * lvl("fgold"),
-      tntR: (1 + rbfx("tnt")) * (1.5 + 0.32 * lvl("tpower")) * (has("boomuncle") ? 1.2 : 1) * (1 + 0.15 * lvl("thermite")),
-      tntCd: 8 * Math.pow(0.85, lvl("tcool")) * Math.pow(0.95, lvl("warp")) * (rb("timelord") ? 0.5 : 1) * Math.max(0.4, 1 - rbfx("cd")) * (boostOn("p_donut") ? 0.7 : 1),
+      tntR: ((1 + rbfx("tnt")) * (1.5 + 0.32 * lvl("tpower")) * (has("boomuncle") ? 1.2 : 1) * (1 + 0.15 * lvl("thermite"))) * sizeMul("tnt"),
+      tntCd: (8 * Math.pow(0.85, lvl("tcool")) * Math.pow(0.95, lvl("warp")) * (rb("timelord") ? 0.5 : 1) * Math.max(0.4, 1 - rbfx("cd")) * (boostOn("p_donut") ? 0.7 : 1)) * cdMul("tnt"),
       tntFuse: 1.6,
       lucky: 0.04 * lvl("tlucky"),
       cluster: 0.1 * lvl("tcluster") + (has("boomuncle") ? 0.1 : 0),
       vacRate: (1 + rbfx("vac")) * 30 * (1 + 0.45 * lvl("vpower")) * (1 + 0.5 * lvl("turbovac")) * (1 + 0.2 * lvl("ovac")) * (boostOn("vacboost") ? 2 : 1),
       vacMax: 6 + 1.8 * lvl("vrun") + 0.25 * lvl("vrun") * lvl("vrun"),
-      vacR: 1.4 + 0.3 * lvl("vwide") + 0.03 * lvl("vwide") * lvl("vwide"),
+      vacR: (1.4 + 0.3 * lvl("vwide") + 0.03 * lvl("vwide") * lvl("vwide")) * sizeMul("vac"),
       vacReach: 4.5 + 0.6 * lvl("reach") + 5 + 1.5 * lvl("vrange"),
       vacTick: 0.07 * Math.pow(0.85, lvl("vtick")),
       vacCool: (1 + lvl("turbovac")) * (1 + 0.5 * lvl("vcool")),
       vacMove: 0.85 + 0.09 * lvl("vmove"),
       vacItem: lvl("vitem") ? 4 + 2.5 * lvl("vitem") : 0,
-      torR: 1.1 + 0.28 * lvl("tsize"),
+      torR: (1.1 + 0.28 * lvl("tsize")) * sizeMul("tornado"),
       torLife: 6 + 1.5 * lvl("tlast"),
-      torCd: 30 * Math.pow(0.88, lvl("tcd")) * Math.pow(0.95, lvl("warp")) * (rb("timelord") ? 0.5 : 1) * Math.max(0.4, 1 - rbfx("cd")) * (boostOn("p_donut") ? 0.7 : 1),
+      torCd: (30 * Math.pow(0.88, lvl("tcd")) * Math.pow(0.95, lvl("warp")) * (rb("timelord") ? 0.5 : 1) * Math.max(0.4, 1 - rbfx("cd")) * (boostOn("p_donut") ? 0.7 : 1)) * cdMul("tornado"),
       torN: 1 + lvl("ttwin"),
       drones: (lvl("drone") || has("dronewhisper") || rb("dronearmy")) ? 1 + lvl("dfleet") + (rb("dronearmy") ? 2 : 0) : 0,
       droneSpeed: (5 + 1.2 * lvl("dspeed")) * (has("dronewhisper") ? 1.3 : 1),
@@ -1397,7 +1431,7 @@ HH.Game = (function () {
     buyTool: buyTool, buyUpgrade: buyUpgrade, buyBag: buyBag, selectTool: selectTool, toggleEquip: toggleEquip, mapDef: mapDef, has: has, levelDef: levelDef,
     level: level, rb: rb, toolAvailable: toolAvailable, upgradeVisible: upgradeVisible, tutorialDone: tutorialDone,
     canRebirth: canRebirth, rebirthReward: rebirthReward, rebirth: rebirth, buyRebirthItem: buyRebirthItem, cheat: cheat,
-    buyPastry: buyPastry, pastryCost: pastryCost, rbfx: rbfx, buyMax: buyMax, grantBoost: grantBoost, boostOn: boostOn, boostLeft: boostLeft, mpInit: mpInit,
+    ench: ench, forgeFx: forgeFx, anvilOpen: anvilOpen, enchantCost: enchantCost, reforgeCost: reforgeCost, enchant: enchant, reforge: reforge, buyPastry: buyPastry, pastryCost: pastryCost, rbfx: rbfx, buyMax: buyMax, grantBoost: grantBoost, boostOn: boostOn, boostLeft: boostLeft, mpInit: mpInit,
     get run() { return R; },
     get needleGuess() { return needleCache.p; },
     get carrier() { return MP.carrier; },

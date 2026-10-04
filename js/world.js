@@ -2,7 +2,7 @@ HH.World = (function () {
   let shadowTick = 0, renderer, scene, camera, hemi, sun, vmScene, vmCamera;
   let envGroup = null, skyMat = null, clouds = [], windmill = null, starPts = null;
   const npc = { buyer: null, wizard: null, shop: null };
-  const spots = { sell: new THREE.Vector3(), wizard: new THREE.Vector3(), spawn: new THREE.Vector3(), shop: new THREE.Vector3(), gems: new THREE.Vector3() };
+  const spots = { sell: new THREE.Vector3(), wizard: new THREE.Vector3(), spawn: new THREE.Vector3(), shop: new THREE.Vector3(), gems: new THREE.Vector3(), anvil: new THREE.Vector3() };
   let parts = null;
   const pState = [];
   const PMAX = 600;
@@ -704,6 +704,8 @@ HH.World = (function () {
     spots.spawn.set(0, 0, ext + 6);
     spots.shop.set(-(ext + 7), 0, -3.5);
     spots.gems.set(-(ext + 7), 0, 4.5);
+    spots.anvil.set(-(ext + 7), 0, 12.5);
+    envGroup.add(anvilMesh(spots.anvil));
     [["shop", spots.shop], ["gems", spots.gems]].forEach(function (b) {
       const booth = shopBooth(b[0]);
       booth.position.set(b[1].x - 3.4, 0, b[1].z);
@@ -737,6 +739,24 @@ HH.World = (function () {
     if (npc.buyer) { npc.buyer.root.position.set(spots.sell.x, 0, spots.sell.z - 4.4); npc.buyer.root.rotation.y = 0; }
     if (npc.wizard) { npc.wizard.root.position.set(spots.wizard.x + 0.2, 0.5, spots.wizard.z); npc.wizard.root.rotation.y = -Math.PI / 2; }
     if (npc.shop) { npc.shop.root.position.set(spots.shop.x - 3.6, 0, spots.shop.z); npc.shop.root.rotation.y = Math.PI / 2; }
+  }
+
+  function anvilMesh(at) {
+    const g = new THREE.Group();
+    const iron = mat(0x4a4f58), dark = mat(0x2e3138);
+    const stump = cyl(0.55, 0.65, 0.8, 0x7a4a24, 12); stump.position.y = 0.4; g.add(stump);
+    const base = box(0.9, 0.25, 0.6, 0x3a3e46); base.material = dark; base.position.y = 0.92; g.add(base);
+    const waist = box(0.45, 0.35, 0.4, 0x4a4f58); waist.material = iron; waist.position.y = 1.2; g.add(waist);
+    const top = box(1.2, 0.28, 0.55, 0x5a606a); top.position.y = 1.5; g.add(top);
+    const horn = new THREE.Mesh(new THREE.ConeGeometry(0.22, 0.6, 10), mat(0x5a606a)); horn.rotation.z = Math.PI / 2; horn.position.set(0.88, 1.5, 0); g.add(horn);
+    const hammer = box(0.12, 0.12, 0.6, 0x7a4a24); hammer.position.set(-0.2, 1.72, 0.05); hammer.rotation.y = 0.6; g.add(hammer);
+    const head = box(0.22, 0.18, 0.18, 0x2e3138); head.position.set(-0.36, 1.72, 0.28); head.rotation.y = 0.6; g.add(head);
+    const ring = new THREE.Mesh(new THREE.RingGeometry(1.7, 2.0, 40), new THREE.MeshBasicMaterial({ color: 0xc9ced8, transparent: true, opacity: 0.55, side: THREE.DoubleSide }));
+    ring.rotation.x = -Math.PI / 2; ring.position.set(0, 0.04, 2.2); g.add(ring);
+    const sign = label("ANVIL", "#e8eef6", "rgba(40,44,52,0.92)", 0.9); sign.position.y = 2.6; g.add(sign);
+    g.position.set(at.x - 2.2, 0, at.z);
+    g.rotation.y = Math.PI / 2;
+    return g;
   }
 
   function shopBooth(kind) {

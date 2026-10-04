@@ -309,3 +309,19 @@ HH.PASTRIES = [
   { id: "p_cake", name: "Wizard Cake", desc: "Double gems from diamonds and skeletons for 5 minutes", dur: 300, gems: 40, icon: "gem" },
   { id: "p_pie", name: "Golden Pie", desc: "Your next returned needle pays DOUBLE gems", dur: 0, gems: 30, icon: "star" }
 ];
+
+HH.ENCHANTS = [
+  { id: "eff", name: "Efficiency", desc: "+8% dig size per level", max: 5, base: 40 },
+  { id: "fortune", name: "Fortune", desc: "+10% hay money per level while you hold this tool", max: 5, base: 60 },
+  { id: "haste", name: "Haste", desc: "-6% cooldown per level", max: 5, base: 50 },
+  { id: "lucky", name: "Lucky", desc: "+2% chance per level to dig up a bonus gem", max: 5, base: 80 },
+  { id: "slayer", name: "Slayer", desc: "+50% damage to skeletons per level", max: 3, base: 70 }
+];
+
+HH.REFORGES = [
+  { id: "sturdy", name: "Sturdy", rarity: "Common", color: "#c9ced8", w: 40, fx: { size: 0.05 }, desc: "+5% dig size" },
+  { id: "sharp", name: "Sharp", rarity: "Uncommon", color: "#7ff77f", w: 26, fx: { size: 0.1 }, desc: "+10% dig size" },
+  { id: "swift", name: "Swift", rarity: "Rare", color: "#5cc8ff", w: 16, fx: { cd: 0.12 }, desc: "-12% cooldown" },
+  { id: "golden", name: "Golden", rarity: "Epic", color: "#d38cff", w: 12, fx: { cash: 0.25 }, desc: "+25% hay money" },
+  { id: "mythic", name: "Mythic", rarity: "Legendary", color: "#ffd23f", w: 6, fx: { size: 0.2, cash: 0.2, cd: 0.15 }, desc: "+20% dig size, +20% hay money, -15% cooldown" }
+];
