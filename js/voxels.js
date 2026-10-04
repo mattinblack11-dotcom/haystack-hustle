@@ -407,7 +407,7 @@ HH.Voxels = (function () {
       const cand = [];
       let maxTop = 0;
       for (let q = 0; q < tops.length; q++) if (tops[q] > maxTop) maxTop = tops[q];
-      const minTop = Math.max(5, Math.floor(maxTop * 0.5));
+      const minTop = Math.max(4, Math.floor(maxTop * 0.28));
       for (let k = 0; k < NZ; k++) for (let i = 0; i < NX; i++) if (tops[k * NX + i] >= minTop) cand.push(k * NX + i);
       let placed = false;
       for (let tries = 0; tries < 60 && !placed && cand.length; tries++) {
@@ -619,7 +619,7 @@ HH.Voxels = (function () {
     }
     for (let tries = 0; tries < 400; tries++) {
       const i = Math.floor(Math.random() * NX), k = Math.floor(Math.random() * NZ), top = tops[k * NX + i];
-      if (top < Math.max(3, maxTop * (tries < 300 ? 0.5 : 0.1))) continue;
+      if (top < Math.max(3, maxTop * (tries < 300 ? 0.28 : 0.1))) continue;
       const j = Math.floor(Math.random() * Math.max(1, top * 0.6));
       const c = idx(i, j, k);
       if (grid[c] !== HAY) continue;

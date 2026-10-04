@@ -450,3 +450,11 @@ html, body { overflow: hidden; overscroll-behavior: none; }
 .sign.bakery { color: #ffd0a8; }
 .sign.anvil { color: #d6dde8; } .anvil-tools { flex-direction: row; flex-wrap: wrap; margin: 8px 0; }
 body.lang-hi { --font: "Lilita One", "Nirmala UI", "Noto Sans Devanagari", "Mangal", "Arial Black", sans-serif; }
+#arenahud { display: flex; align-items: center; gap: 8px; width: 260px; font-size: 13px; font-weight: 900; color: #fff; text-shadow: 0 2px 0 #000; }
+#arenahud .bar { flex: 1; height: 14px; border-radius: 7px; background: rgba(0,0,0,0.5); border: 2px solid #ff6b6b; overflow: hidden; }
+#arenafill { height: 100%; width: 100%; background: linear-gradient(90deg, #ff4b4b, #ff9a6b); transition: width 0.15s; }
+#arenainfo { min-width: 56px; text-align: right; color: #ffd23f; }
+#rbready { pointer-events: none; display: flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 12px; font-size: 13px; line-height: 1.2; background: linear-gradient(90deg, #7b3dff, #ff5cc8); border: 2px solid #ffe08a; max-width: 270px; box-shadow: 0 4px 0 rgba(0,0,0,0.3); animation: rbpulse 1.6s ease-in-out infinite; }
+#rbready svg { width: 22px; height: 22px; flex: none; }
+#rbready kbd { font-size: 0.85em; }
+@keyframes rbpulse { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.35); } }

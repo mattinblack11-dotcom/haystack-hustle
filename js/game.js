@@ -920,6 +920,7 @@ HH.Game = (function () {
     let usingVac = false;
     let click = I.takeClick();
     const tool = R.tool;
+    if (click && allowTools && HH.Arena && HH.Arena.hit(HH.Player.aimRay(I), tool)) { click = false; HH.Player.swing(tool === "fork" ? "fork" : "hand"); }
     if (click && allowTools && HH.Monsters && HH.Monsters.count && HH.Monsters.hit(HH.Player.aimRay(I), tool)) { click = false; HH.Player.swing(tool === "fork" ? "fork" : "hand"); }
     if (allowTools && aim && tool !== "none" && MP.synced) {
       const reach = tool === "vac" ? st.vacReach : tool === "tnt" || tool === "tornado" || tool === "hole" ? 30 : st.reach;

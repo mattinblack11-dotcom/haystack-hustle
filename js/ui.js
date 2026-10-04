@@ -146,6 +146,9 @@ HH.UI = (function () {
     set("bagfill", Math.min(100, (R.bag / st.cap) * 100).toFixed(1) + "%", "width");
     $("bagfill").classList.toggle("full", R.bag >= st.cap);
     set("objective", objective(R));
+    const rbOk = HH.Game.canRebirth();
+    if (rbOk) set("rbready", I("rebirth", 22) + "<span><b>REBIRTH READY!</b><br>Press <kbd>G</kbd> and open the Rebirth tab</span>");
+    if (cache.rbOn !== rbOk) { cache.rbOn = rbOk; $("rbready").classList.toggle("hidden", !rbOk); }
     set("timer", HH.fmtTime(R.time));
     set("cleared", Math.floor((1 - HH.Voxels.remaining / Math.max(1, R.total)) * 100) + "%");
     set("mapname", "Level " + (R.levelIndex + 1) + ": " + (R.level ? R.level.name : ""));
@@ -531,7 +534,7 @@ HH.UI = (function () {
     { id: "Perks", icon: "star", blurb: "Upgrades that last across every haystack (until you Rebirth)." },
     { id: "Rebirth", icon: "rebirth", blurb: "Start over stronger! Rebirthing resets your gems, perks and shop upgrades, but gives you a permanent cash boost, unlocks new tools and earns Rebirth Tokens for permanent items." },
     { id: "Classes", icon: "crown", blurb: "Pick one class to equip. Each one gives you a special bonus." },
-    { id: "Talismans", icon: "star", blurb: "Unique talismans dropped by defeated skeleton raiders. Every talisman you own gives its bonus forever, even after Rebirth." },
+    { id: "Talismans", icon: "star", blurb: "Unique talismans from skeleton raids and the PvP Arena. Every talisman you own gives its bonus forever, even after Rebirth." },
     { id: "Levels", icon: "map", blurb: "Your level progress. New levels load automatically when you return the needle. You can replay levels you've already beaten." },
     { id: "Stats", icon: "trophy", blurb: "Your lifetime records." }
   ];
@@ -573,10 +576,10 @@ HH.UI = (function () {
     } else if (cat.id === "Talismans") {
       const tal = S.talis || {};
       const ownN = HH.TALISMANS.filter(function (t) { return tal[t.id]; }).length;
-      h += '<div class="subhead">Collected ' + ownN + " / " + HH.TALISMANS.length + " &middot; Skeleton raids start on Level 3. Warriors (Level 7+) can drop the rare ones.</div>";
+      h += '<div class="subhead">Collected ' + ownN + " / " + HH.TALISMANS.length + " &middot; Skeleton raids start on Level 3. Warriors (Level 7+) can drop the rare ones. Arena prizes come from the PvP Arena.</div>";
       HH.TALISMANS.forEach(function (t) {
         const own = tal[t.id];
-        h += card({ icon: I(own ? "star" : "lock", 30), title: own ? t.name : "???", desc: own ? t.desc : (t.rare ? "Rare drop from Skeleton Warriors" : "Drop from Skeleton raiders"), price: own ? "OWNED" : "Not found yet", cls: own ? "owned" : "locked" });
+        h += card({ icon: I(own ? "star" : "lock", 30), title: own ? t.name : "???", desc: own ? t.desc : (t.arena ? "Win it in the PvP Arena" : t.rare ? "Rare drop from Skeleton Warriors" : "Drop from Skeleton raiders"), price: own ? "OWNED" : "Not found yet", cls: own ? "owned" : "locked" });
       });
     } else if (cat.id === "Classes") {
       HH.CLASSES.forEach(function (c) {

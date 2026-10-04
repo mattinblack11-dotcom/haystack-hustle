@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Haystack Hustle</title>
-<link rel="stylesheet" href="style.css?v=202610040353">
+<link rel="stylesheet" href="style.css?v=202610041122">
 </head>
 <body class="fp">
 <canvas id="game"></canvas>
@@ -22,6 +22,7 @@
       <div id="boosts"></div>
       <div id="beginner" class="hidden"></div>
       <div id="quest" class="hidden"></div>
+      <div id="rbready" class="hidden"></div>
     </div>
     <div id="center-top">
       <div id="objective"></div>
@@ -53,6 +54,7 @@
     <div id="lockhint">Click to start digging &middot; mouse to look around</div>
     <div id="say"></div>
     <div id="heat" class="hidden"><div class="bar"><div id="heatfill"></div></div></div>
+    <div id="arenahud" class="hidden"><span>HP</span><div class="bar"><div id="arenafill"></div></div><b id="arenainfo"></b></div>
     <div id="jetfuel" class="hidden"><span>JETPACK</span><div class="bar"><div id="jetfill"></div></div></div>
     <div id="moneyrow">
       <div id="bigbag"><div id="bigbag-ic"></div><div class="bb-main"><div class="bb-top"><span id="bigbag-label">BAG</span><span id="bigbag-num">0</span></div><div class="bb-bar"><div id="bigbag-fill"></div></div></div></div>
@@ -77,38 +79,40 @@
 </div>
 <script>(function () { var s = 0; function t() { if (window.__loadTaken) return; var f = document.getElementById("load-fill"), p = document.getElementById("load-pct"); s += (0.2 - s) * 0.015; window.__load = s; if (f) f.style.width = (s * 100).toFixed(1) + "%"; if (p) p.textContent = Math.floor(s * 100) + "%"; requestAnimationFrame(t); } requestAnimationFrame(t); })();</script>
 
-<script src="lib/three.min.js?v=202610040353"></script>
-<script src="lib/GLTFLoader.js?v=202610040353"></script>
-<script src="lib/fflate.min.js?v=202610040353"></script>
-<script src="lib/FBXLoader.js?v=202610040353"></script>
-<script src="js/data.js?v=202610040353"></script>
-<script src="js/i18n.js?v=202610040353"></script>
-<script src="js/i18n_data.js?v=202610040353"></script>
-<script src="js/i18n_data2.js?v=202610040353"></script>
-<script src="js/i18n_data3.js?v=202610040353"></script>
-<script src="js/i18n_data4.js?v=202610040353"></script>
-<script src="js/i18n_data5.js?v=202610040353"></script>
-<script src="js/icons.js?v=202610040353"></script>
-<script src="js/sdk.js?v=202610040353"></script>
-<script src="js/assetload.js?v=202610040353"></script>
-<script src="js/audio.js?v=202610040353"></script>
-<script src="js/music.js?v=202610040353"></script>
-<script src="js/input.js?v=202610040353"></script>
-<script src="js/voxels.js?v=202610040353"></script>
-<script src="js/buildings.js?v=202610040353"></script>
-<script src="js/world.js?v=202610040353"></script>
-<script src="js/looks.js?v=202610040353"></script>
-<script src="js/remote.js?v=202610040353"></script>
-<script src="js/armsdata.js?v=202610040353"></script>
-<script src="js/arms.js?v=202610040353"></script>
-<script src="js/player.js?v=202610040353"></script>
-<script src="js/net.js?v=202610040353"></script>
-<script src="js/game.js?v=202610040353"></script>
-<script src="js/quests.js?v=202610040353"></script>
-<script src="js/monsters.js?v=202610040353"></script>
-<script src="js/parkour.js?v=202610040353"></script>
-<script src="js/ui.js?v=202610040353"></script>
-<script src="js/cinema.js?v=202610040353"></script>
-<script src="js/main.js?v=202610040353"></script>
+<script src="lib/three.min.js?v=202610041122"></script>
+<script src="lib/GLTFLoader.js?v=202610041122"></script>
+<script src="lib/fflate.min.js?v=202610041122"></script>
+<script src="lib/FBXLoader.js?v=202610041122"></script>
+<script src="js/data.js?v=202610041122"></script>
+<script src="js/i18n.js?v=202610041122"></script>
+<script src="js/i18n_data.js?v=202610041122"></script>
+<script src="js/i18n_data2.js?v=202610041122"></script>
+<script src="js/i18n_data3.js?v=202610041122"></script>
+<script src="js/i18n_data4.js?v=202610041122"></script>
+<script src="js/i18n_data5.js?v=202610041122"></script>
+<script src="js/i18n_data6.js?v=202610041122"></script>
+<script src="js/icons.js?v=202610041122"></script>
+<script src="js/sdk.js?v=202610041122"></script>
+<script src="js/assetload.js?v=202610041122"></script>
+<script src="js/audio.js?v=202610041122"></script>
+<script src="js/music.js?v=202610041122"></script>
+<script src="js/input.js?v=202610041122"></script>
+<script src="js/voxels.js?v=202610041122"></script>
+<script src="js/buildings.js?v=202610041122"></script>
+<script src="js/world.js?v=202610041122"></script>
+<script src="js/looks.js?v=202610041122"></script>
+<script src="js/remote.js?v=202610041122"></script>
+<script src="js/armsdata.js?v=202610041122"></script>
+<script src="js/arms.js?v=202610041122"></script>
+<script src="js/player.js?v=202610041122"></script>
+<script src="js/net.js?v=202610041122"></script>
+<script src="js/game.js?v=202610041122"></script>
+<script src="js/quests.js?v=202610041122"></script>
+<script src="js/monsters.js?v=202610041122"></script>
+<script src="js/parkour.js?v=202610041122"></script>
+<script src="js/arena.js?v=202610041122"></script>
+<script src="js/ui.js?v=202610041122"></script>
+<script src="js/cinema.js?v=202610041122"></script>
+<script src="js/main.js?v=202610041122"></script>
 </body>
 </html>

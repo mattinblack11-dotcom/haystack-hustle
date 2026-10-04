@@ -564,17 +564,13 @@ HH.World = (function () {
       villageSpots.push([x, z, h * 0.75 + 3]);
       envGroup.add(b);
     }
-    const ba = 1.85, bd = fr + 9;
+    const ba = 2.4, bd = fr + 22;
     const bx = Math.cos(ba) * bd, bz = Math.sin(ba) * bd;
     const bakery = building("building_home_B_yellow", 8, bx, bz, true);
     if (bakery) {
       envGroup.add(bakery);
       villageSpots.push([bx, bz, 9]);
-      const sign = label("BAKERY", "#ffd0a8", "rgba(110,50,20,0.92)", 1.3);
-      sign.material.depthTest = true;
-      sign.position.set(bx * 0.93, 8.6, bz * 0.93);
-      envGroup.add(sign);
-      const cx = Math.cos(ba) * (fr + 4), cz = Math.sin(ba) * (fr + 4);
+      const cx = Math.cos(ba) * (bd - 5), cz = Math.sin(ba) * (bd - 5);
       spots.bakery = new THREE.Vector3(cx, 0, cz);
       const gen = ++bakerGen;
       if (bakerCh) { scene.remove(bakerCh.root); bakerCh = null; }
@@ -723,6 +719,7 @@ HH.World = (function () {
     for (let n = 0; n < 14; n++) {
       const a = r() * Math.PI * 2, d = ext + 5 + r() * (fenceR - ext - 7);
       if (Math.abs(Math.cos(a) * d) < 4 && Math.sin(a) * d < 0) continue;
+      if (Math.hypot(Math.cos(a) * d - Math.cos(-2.36) * (ext + 7.6), Math.sin(a) * d - Math.sin(-2.36) * (ext + 7.6)) < 7.5) continue;
       const b = cyl(0.9, 0.9, 1.3, 0xe8c25a, 16);
       b.rotation.z = Math.PI / 2; b.rotation.y = r() * 3;
       b.position.set(Math.cos(a) * d, 0.9, Math.sin(a) * d);
@@ -766,6 +763,7 @@ HH.World = (function () {
     scene.add(envGroup);
     spawnVillagers(fenceR);
     if (HH.Parkour) HH.Parkour.build(scene, ext);
+    if (HH.Arena) HH.Arena.build(scene, ext);
 
     pickups.forEach(function (p) { scene.remove(p.mesh); });
     pickups.length = 0;
