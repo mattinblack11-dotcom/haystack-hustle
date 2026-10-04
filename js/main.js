@@ -459,6 +459,9 @@ HH.App = (function () {
     const dt = Math.min(0.05, Math.max(0, (t - last) / 1000));
     last = t;
     if (HH.Cinema && HH.Cinema.active) { HH.Cinema.tick(dt); requestAnimationFrame(loop); return; }
+    const se = document.scrollingElement, hudEl = document.getElementById("hud");
+    if (se && (se.scrollTop || se.scrollLeft)) { se.scrollTop = 0; se.scrollLeft = 0; }
+    if (hudEl && (hudEl.scrollTop || hudEl.scrollLeft)) { hudEl.scrollTop = 0; hudEl.scrollLeft = 0; }
     HH.Net.tick(dt);
     adHud(dt);
     pitCheck(dt);
