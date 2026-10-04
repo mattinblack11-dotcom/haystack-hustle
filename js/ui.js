@@ -419,7 +419,18 @@ HH.UI = (function () {
     jfuel: function (l) { return (1.6 * (1 + 0.4 * l)).toFixed(1) + "s of fuel"; },
     jthrust: function (l) { return "+" + 15 * l + "% thrust"; },
     jrefuel: function (l) { return "+" + 30 * l + "% refuel speed"; },
-    hayboard: function (l) { return "+" + 20 * l + "% sprint"; }
+    hayboard: function (l) { return "+" + 20 * l + "% sprint"; },
+    bigbucket: function (l) { return "+" + 3 * l + " hay per grab"; },
+    belt: function (l) { return p1(3 * l) + " hay/sec sold"; },
+    rake: function (l) { return "+" + 12 * l + "% scoop size"; },
+    arm: function (l) { return l + (l === 1 ? " arm" : " arms"); },
+    armspd: function (l) { return "+" + 25 * l + "% arm speed"; },
+    armreach: function (l) { return "+" + 50 * l + "% per scoop"; },
+    generator: function (l) { return "+" + 20 * l + "% machine speed"; },
+    wrapper: function (l) { return "+" + 8 * l + "% hay value"; },
+    pellet: function (l) { return "+" + 10 * l + "% hay value"; },
+    brick: function (l) { return "+" + 12 * l + "% hay value"; },
+    paper: function (l) { return "+" + 15 * l + "% hay value"; }
   };
 
   function fxLine(u, l) {
@@ -434,6 +445,7 @@ HH.UI = (function () {
     { id: "tools", name: "Tools", icon: "fork", blurb: "New ways to dig. Buy a tool, then press its number key to hold it. Press Q to put tools away. Rebirthing unlocks even more tools!" },
     { id: "bag", name: "Backpack", icon: "bag", blurb: "A bigger bag means more hay per trip, so you walk to Bjorn less often." },
     { id: "hands", name: "Hands", icon: "hand", groups: ["Hands"], blurb: "Upgrades for grabbing with your bare hands (tool 1)." },
+    { id: "machines", name: "Machines", icon: "gear", groups: ["Hand Tools", "Machines", "Processing"], blurb: "Shovels, buckets and wheelbarrows for your hands, then conveyor belts, robot arms and processing machines that dig and sell for you." },
     { id: "gear", name: "Tool Upgrades", icon: "gear", groups: ["Pitchfork", "Dynamite", "Vacuum", "Tornado", "Black Hole"], blurb: "Make your tools stronger. You need to own a tool before you can upgrade it." },
     { id: "body", name: "Movement", icon: "speed", groups: ["Body"], blurb: "Run faster, jump higher and keep bigger combos going." },
     { id: "money", name: "Money & Helpers", icon: "cash", groups: ["Selling", "Helpers"], blurb: "Earn more for every sale, and get helpers that dig and sell for you." },
