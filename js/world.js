@@ -28,7 +28,8 @@ HH.World = (function () {
   }
 
   function label(text, color, bg, scale) {
-    const font = "900 54px \"Lilita One\", \"Arial Black\", Arial, sans-serif";
+    text = HH.I18N.tr(text);
+    const font = "900 54px \"Lilita One\", \"Nirmala UI\", \"Noto Sans Devanagari\", \"Arial Black\", Arial, sans-serif";
     const c = document.createElement("canvas");
     const m = c.getContext("2d");
     m.font = font;

@@ -297,6 +297,7 @@ HH.App = (function () {
       tut: function () { st.tutorial = st.tutorial === false; HH.Save.save(); UI.toast("Tutorial tips " + (st.tutorial ? "on" : "off") + ".", 1400); },
       inv: function () { st.invertY = !st.invertY; HH.Save.save(); },
       sens: function (v) { st.sens = v; HH.Save.save(); },
+      lang: function () { st.lang = HH.I18N.next(); HH.I18N.set(st.lang); HH.Save.save(); UI.render(); HH.I18N.walk(document.body); },
       trackprev: function () { changeTrack(-1); },
       tracknext: function () { changeTrack(1); },
       boosts: function () { UI.close(); paused = false; openPanel("boosts"); },
@@ -566,6 +567,7 @@ HH.App = (function () {
     await HH.Platform.init();
     HH.Platform.loadingStart();
     HH.Save.load();
+    HH.I18N.set(HH.I18N.detect());
     const S0 = S();
     if (!S0.migratedLevels) {
       S0.migratedLevels = true;
@@ -582,6 +584,7 @@ HH.App = (function () {
     I.onAnyInput(function () { HH.Audio.unlock(); });
     I.setKeyHook(keyHook);
     UI.init();
+    HH.I18N.walk(document.body);
     G.onEvent(onEvent);
     G.mpInit();
     UI.loading(0.2, "Waking up the characters...");

@@ -11,7 +11,7 @@ HH.UI = (function () {
     cache[key] = v;
     const el = $(id);
     if (!el) return;
-    if (prop) el.style[prop] = v; else el.innerHTML = v;
+    if (prop) el.style[prop] = v; else { el.innerHTML = v; HH.I18N.walk(el); }
   }
 
   function objective(R) {
@@ -36,6 +36,7 @@ HH.UI = (function () {
     let x = p.x, y = p.y;
     if (!p.vis) { x = innerWidth - x; y = innerHeight - 80; }
     const wt = el.querySelector(".wp-text");
+    text = HH.I18N.tr(text);
     if (wt.textContent !== text) wt.textContent = text;
     el.classList.remove("hidden");
     const hw = Math.max(50, el.offsetWidth / 2 + 10);
@@ -213,7 +214,7 @@ HH.UI = (function () {
     const el = document.createElement("div");
     el.className = "pop" + (big ? " big" : "");
     el.style.left = p.x + "px"; el.style.top = p.y + "px"; el.style.color = color || "#fff";
-    el.textContent = text;
+    el.textContent = HH.I18N.tr(text);
     $("popups").appendChild(el);
     setTimeout(function () { el.remove(); }, 1250);
   }
@@ -271,6 +272,7 @@ HH.UI = (function () {
   function toast(html, ms) {
     const el = $("toast");
     el.innerHTML = html;
+    HH.I18N.walk(el);
     el.classList.add("show");
     clearTimeout(toastT);
     toastT = setTimeout(function () { el.classList.remove("show"); }, ms || 2800);
@@ -279,6 +281,7 @@ HH.UI = (function () {
   function say(who, text, color) {
     const el = $("say");
     el.innerHTML = '<b style="color:' + (color || "#fff") + '">' + who + ":</b> " + text;
+    HH.I18N.walk(el);
     el.classList.add("show");
     clearTimeout(sayT);
     sayT = setTimeout(function () { el.classList.remove("show"); }, 3000);
@@ -742,6 +745,7 @@ HH.UI = (function () {
       '<div class="setting"><span>Song <small style="opacity:.7">(press M to skip)</small></span><span class="trackpick"><button class="tog" data-a="trackprev">&#9664;</button><span class="trackname">' + I("music", 16) + " " + HH.Music.current.name + "<small>" + HH.Music.current.by + '</small></span><button class="tog" data-a="tracknext">&#9654;</button></span></div>' +
       '<div class="setting"><span>Mouse sensitivity</span><input type="range" min="0.3" max="2.5" step="0.1" value="' + st.sens + '" data-a="sens"></div>' +
       '<div class="setting"><span>Invert look Y</span><button class="tog' + (st.invertY ? " on" : "") + '" data-a="inv">' + (st.invertY ? "On" : "Off") + "</button></div>" +
+      '<div class="setting"><span>Language</span><button class="tog on" data-a="lang">' + HH.I18N.NAMES[HH.I18N.lang] + "</button></div>" +
       '<div class="setting"><span>Graphics</span><button class="tog on" data-a="gfx">' + ({ auto: "Auto", high: "Pretty", fast: "Fast" })[st.gfx || "auto"] + "</button></div>" +
       '<div class="setting"><span>Secret code</span><span class="codebox"><input id="codein" type="text" maxlength="80" placeholder="Enter code..." autocomplete="off" spellcheck="false"><button class="tog" data-a="redeem">Redeem</button></span></div>' +
       (HH.Save.data.cheats ? '<div class="cheats"><b>CHEATS</b>' +
@@ -791,6 +795,7 @@ HH.UI = (function () {
     const grid = $("panel").querySelector(".grid");
     const sc = grid ? grid.scrollTop : 0;
     $("panel").innerHTML = h;
+    HH.I18N.walk($("panel"));
     const g2 = $("panel").querySelector(".grid");
     if (g2) g2.scrollTop = sc;
     if (panel === "style") mountPreview(); else dropPreview();
@@ -877,7 +882,7 @@ HH.UI = (function () {
     const pct = $("load-pct");
     if (pct) pct.textContent = Math.floor(load.shown * 100) + "%";
     load.tipT -= dt;
-    if (load.tipT <= 0 && $("load-tip")) { load.tipT = 2.6; $("load-tip").textContent = LOAD_TIPS[load.tip++ % LOAD_TIPS.length]; }
+    if (load.tipT <= 0 && $("load-tip")) { load.tipT = 2.6; $("load-tip").textContent = HH.I18N.tr(LOAD_TIPS[load.tip++ % LOAD_TIPS.length]); }
     load.raf = requestAnimationFrame(loadTick);
   }
   function loading(p, text) {
@@ -887,7 +892,7 @@ HH.UI = (function () {
     if (!window.__loadTaken) { window.__loadTaken = true; load.shown = Math.max(load.shown, window.__load || 0); }
     load.target = Math.max(load.target, p);
     if (!load.raf) load.raf = requestAnimationFrame(loadTick);
-    if (text) $("load-text").textContent = text;
+    if (text) $("load-text").textContent = HH.I18N.tr(text);
   }
 
   return {
